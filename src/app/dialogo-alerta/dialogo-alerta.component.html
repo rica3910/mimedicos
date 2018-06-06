@@ -1,0 +1,23 @@
+<!------------------------------------------------------------------
+|NOMBRE: dialogo-alerta      .                                     |  
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente HTML que contiene la forma para mostrar   |
+|              un modal con un cuadro de diálogo de confirmación.  |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 30/05/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+<div class="modal-header">
+  <h4 class="modal-title">{{titulo}}</h4>
+</div>
+<div class="modal-body">
+  <p>{{mensaje}}</p>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-info" (click)="activeModal.close(etiquetaBotonAceptar)">{{etiquetaBotonAceptar}}</button>
+</div>
