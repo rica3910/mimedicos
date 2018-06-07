@@ -63,10 +63,12 @@ export class LogoutComponent implements OnInit {
     if (this.autorizacion.estaConectado()) {
 
       //Abre el modal de tamaño chico.
-      const modalRef = this.modalService.open(DialogoConfirmacionComponent, { size: 'sm' });
+      const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
 
       //Define el título del modal.
-      modalRef.componentInstance.titulo = "¿Desea salir?";
+      modalRef.componentInstance.titulo = "Confirmación";
+      //Define el mensaje del modal.
+      modalRef.componentInstance.mensaje = "¿Está seguro de querer salir del sistema?";
       //Define la etiqueta del botón de Aceptar.
       modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
       //Define la etiqueta del botón de Cancelar.

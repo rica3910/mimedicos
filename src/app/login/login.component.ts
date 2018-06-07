@@ -245,14 +245,14 @@ export class LoginComponent implements OnInit {
   private alerta(mensaje: String) {
 
     //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent);    
+    const modalRef = this.modalService.open(DialogoAlertaComponent, {centered: true});    
     
     //Define el título del modal.
     modalRef.componentInstance.titulo = "Autenticación";
     //Define el mensaje del modal.
     modalRef.componentInstance.mensaje = mensaje;
     //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";    
     //Se retorna el botón pulsado.
     modalRef.result.then((result)=>{      
     },(reason)=>{});

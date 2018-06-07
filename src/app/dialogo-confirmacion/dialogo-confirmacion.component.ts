@@ -26,6 +26,8 @@ export class DialogoConfirmacionComponent implements OnInit {
 
   //Propiedad para mostrar el título que llevará el cuadro de diálogo.
   @Input() titulo: String;
+  //Propiedad para mostrar el mensaje que llevará el cuadro de diálogo.
+  @Input() mensaje: String;
   //Etiqueta que tendrá el botón de aceptar o confirmación.
   @Input() etiquetaBotonAceptar: String;
   //Etiqueta que tendrá el botón de cancelar.

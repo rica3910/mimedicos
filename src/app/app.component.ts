@@ -68,7 +68,7 @@ export class AppComponent implements OnInit {
         this.conectado = false;
 
         //Abre el modal de tamaño chico.
-        const modalRef = this.modal.open(DialogoAlertaComponent);
+        const modalRef = this.modal.open(DialogoAlertaComponent, {centered: true});
         //Define el título del modal.
         modalRef.componentInstance.titulo = this.autorizacion.tituloExpiracion;
         //Define el mensaje del modal.
