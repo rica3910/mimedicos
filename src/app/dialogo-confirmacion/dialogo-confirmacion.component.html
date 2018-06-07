@@ -13,12 +13,12 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
 <div class="modal-header">
-  <h4 class="modal-title text-center">{{titulo}}</h4>
+  <h4 class="modal-title text-center titulo-azul">{{titulo}}</h4>
 </div>
 <div class="modal-body">
   <p>{{mensaje}}</p>
 </div>
 <div class="modal-footer">  
-  <button type="button" class="btn btn-info" (click)="activeModal.close(etiquetaBotonAceptar)">{{etiquetaBotonAceptar}}</button>
-  <button type="button" class="btn btn-info" (click)="activeModal.close(etiquetaBotonCancelar)">{{etiquetaBotonCancelar}}</button>
+  <button type="button" class="btn btn-azul" (click)="activeModal.close(etiquetaBotonAceptar)">{{etiquetaBotonAceptar}}</button>
+  <button type="button" class="btn btn-azul" (click)="activeModal.close(etiquetaBotonCancelar)">{{etiquetaBotonCancelar}}</button>
 </div>

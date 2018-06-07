@@ -40,6 +40,8 @@ export class LoginComponent implements OnInit {
   public pulsarIngresar: boolean = false;
   //Propiedad que indica si se desplegará el formulario de olvidar password en vez del de ingresar.
   public olvidarPassword: boolean = false;
+  //Propiedad que almacena la ruta de la imágen del logo.
+  public imagenLogo: String = "../../assets/img/logo_completo.png";
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |

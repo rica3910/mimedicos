@@ -34,30 +34,30 @@ a{
 
 /*Color de las opciones del menú cuando la opción ya fue visitada.*/
 .menu-opcion:visited {
-    color:  rgb(65, 159, 247) !important;
+    color: rgb(0, 162, 232) !important;
 }
 
 
 /*Color de las opciones del menú cuando el mouse esté por encima y cuando se está pulsando el mouse.*/
 .menu-opcion:hover, .menu-opcion:active  {    
-    color: rgb(49, 116, 179) !important;
+    color: rgb(0, 162, 232) !important;
 }
 
 
 /*Tamaño y color de la letra de la marca.*/
 .menu-marca{
     font-size: 30px;
-    color:  rgb(65, 159, 247) !important;
+    color: rgb(0, 162, 232) !important;
 }
 
 /*Color de la marca del menú cuando está sin visitar.*/
 .menu-marca:link  {
-    color:  rgb(65, 159, 247) !important;
+    color: rgb(0, 162, 232) !important;
 }
 
 /*Color de la marca del menú cuando  ya fue visitada.*/
 .menu-marca:visited {
-    color:  rgb(65, 159, 247) !important;
+    color: rgb(0, 162, 232) !important;
 }
 
 
@@ -65,28 +65,4 @@ a{
 .menu-marca:hover, .menu-marca:active  {    
     color: rgb(110, 110, 110) !important;
 }
-
-
-/* visited link */
-/*.menu-marca:visited {
-    color: #58ACFA;
-}
-
-/* selected link */
-/*.menu-marca:active {
-    color: #58ACFA;
-}
-
-
-/* mouse over link */
-/*.navbar-brand:hover,.menu-opcion:hover  {
-    color: rgb(65, 159, 247) !important;
-}
-
-
-
-/* selected link */
-/*.menu-opcion:active, .menu-opcion:visited {
-    color:gray !important;
-}*/
 

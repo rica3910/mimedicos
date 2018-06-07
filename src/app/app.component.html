@@ -19,7 +19,9 @@
 <ng-template #thenTemplate>
   <div class="container">
     <header class="navbar navbar-light navbar-fixed-top navbar-expand-lg bg-light">
-      <a class="navbar-brand menu-marca " [routerLink]="['/inicio']" (click)="navbarCollapsed = true">iMedicos</a>
+      <a class="navbar-brand" [routerLink]="['/inicio']" (click)="navbarCollapsed = true">
+        <img src="../assets/img/logo_resumen.png" width="60" height="30">
+      </a>
       <button class="navbar-toggler navbar-toggler-right" type="button" (click)="navbarCollapsed = !navbarCollapsed" [attr.aria-expanded]="!navbarCollapsed"
         aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -35,13 +37,13 @@
         </ul>
       </div>
     </header>
-    <hr>  
+    <hr>
     <router-outlet></router-outlet>
-  </div>  
+  </div>
 </ng-template>
 <!--Fin del template #thenTemplate.-->
 <!--Template de cuando el usuario NO está conectado. Se muestra la página de ingreso.-->
 <ng-template #elseTemplate>
-  <app-login></app-login>  
+  <app-login></app-login>
 </ng-template>
 <!--Fin del template #elseTemplate.-->

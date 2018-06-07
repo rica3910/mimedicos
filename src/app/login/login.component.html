@@ -18,15 +18,15 @@
 <ng-template #thenTemplate>
     <div class="text-center" id="div-contenedor">
         <form [formGroup]="formOlvidarPassword" class="form-signin" (ngSubmit)="olvidarPaswordSubmit(emailHTML)">
-          <img class="img-fluid" src="../../assets/img/logo_imedicos.png" alt="" >
+          <img class="img-fluid" src={{imagenLogo}} alt="" >
           <input type="email" class="form-control" placeholder="Email" [formControl]="email" #emailHTML [ngClass]="{'input-borde-rojo':(email.touched && !email.valid) || (pulsarIngresar && !email.valid)}">          
           <ngb-alert *ngIf="(email.touched && email.hasError('required')) || (pulsarIngresar && email.hasError('required'))" type="danger" [dismissible]="false">El Email es Requerido.</ngb-alert>          
           <ngb-alert *ngIf="(email.touched && email.hasError('email') && !email.hasError('required')) || (pulsarIngresar && email.hasError('email')&& !email.hasError('required'))" type="danger" [dismissible]="false">Ingrese un email válido.</ngb-alert>          
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Enviar email</button>
+          <button class="btn btn-lg btn-azul  btn-block" type="submit">Enviar email</button>
           <hr>       
-          <p class="text-black-50">Si tu email está ligado a tu cuenta de iMedicos, recibirás un enlace para restablecer tu contraseña.</p>  
-          <a type="btn-link" href="#" (click)="mostrarFormIngresar()">Cancelar.</a> 
-          <p class="mt-5 mb-3 text-muted">iMedicos &copy; 2018-2019</p>
+          <p class="text-black-50">Si tu email está ligado a tu cuenta de MiMédicos, recibirás un enlace para restablecer tu contraseña.</p>  
+          <a class="link-azul" href="#" (click)="mostrarFormIngresar()">Cancelar.</a> 
+          <p class="mt-5 mb-3 text-muted">MiMédicos &copy; 2018-2019</p>
         </form>
       </div>
 </ng-template>
@@ -34,15 +34,15 @@
 <ng-template #elseTemplate>
   <div class="text-center" id="div-contenedor">
     <form [formGroup]="formSignIn" class="form-signin" (ngSubmit)="ingresarSubmit(usuarioHTML, passwordHTML)">
-      <img class="img-fluid" src="../../assets/img/logo_imedicos.png" alt="" >
+      <img class="img-fluid" src={{imagenLogo}} alt="" >
       <input type="text" class="form-control" placeholder="Usuario" [formControl]="usuario" #usuarioHTML [ngClass]="{'input-borde-rojo':(usuario.touched && !usuario.valid) || (pulsarIngresar && !usuario.valid)}">
       <ngb-alert *ngIf="(usuario.touched && !usuario.valid) || (pulsarIngresar && !usuario.valid)" type="danger" [dismissible]="false">El Usuario es Requerido.</ngb-alert>
       <input type="password" class="form-control" placeholder="Password" [formControl]="password" #passwordHTML [ngClass]="{'input-borde-rojo':(password.touched && !password.valid) || (pulsarIngresar && !password.valid)}">
       <ngb-alert *ngIf="(password.touched && !password.valid) || (pulsarIngresar && !password.valid)" type="danger" [dismissible]="false">El Password es Requerido.</ngb-alert>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Ingresar</button>
+      <button class="btn btn-lg btn-azul btn-block" type="submit">Ingresar</button>
       <hr>
-      <a type="btn-link" href="#" (click)="mostrarFormOlvidarPassword()">Olvidé mi password.</a>
-      <p class="mt-5 mb-3 text-muted">iMedicos &copy; 2018-2019</p>
+      <a class="link-azul" href="#" (click)="mostrarFormOlvidarPassword()">Olvidé mi password.</a>
+      <p class="mt-5 mb-3 text-muted">MiMédicos &copy; 2018-2019</p>
     </form>
   </div>
 </ng-template>

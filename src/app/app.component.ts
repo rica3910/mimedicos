@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
-              private modal: NgbModal) { }
+    private modal: NgbModal) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -63,12 +63,13 @@ export class AppComponent implements OnInit {
     Observable.timer(0, 30000).subscribe(t => {
       //Si el usuario no está conectado por alguna razón.
       if (!this.autorizacion.estaConectado() && this.conectado) {
+
         //Se desloguea del sistema.
-        this.autorizacion.logout();
         this.conectado = false;
+        this.autorizacion.logout();
 
         //Abre el modal de tamaño chico.
-        const modalRef = this.modal.open(DialogoAlertaComponent, {centered: true});
+        const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
         //Define el título del modal.
         modalRef.componentInstance.titulo = this.autorizacion.tituloExpiracion;
         //Define el mensaje del modal.
@@ -77,9 +78,10 @@ export class AppComponent implements OnInit {
         modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
         //Se retorna el botón pulsado.
         modalRef.result.then((result) => {
+
         }, (reason) => { });
 
-      } else if(this.autorizacion.estaConectado()){
+      } else if (this.autorizacion.estaConectado()) {
         this.conectado = true;
       }
     });
@@ -101,8 +103,8 @@ export class AppComponent implements OnInit {
   public salir(resultado: String) {
     //Si el resultado es Sí, entonces se sale del sistema. Mandando la página de ingresar.
     if (resultado == 'Sí') {
-      this.autorizacion.logout();  
-      this.conectado = false;                 
+      this.autorizacion.logout();
+      this.conectado = false;
     }
   }
 
