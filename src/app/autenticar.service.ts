@@ -21,6 +21,8 @@ export class AutenticarService {
   public mensajeExpiracion: string = "La sesión ha expirado.";
   //Propiedad que indica el título del mensaje de expiración.
   public tituloExpiracion: string = "Token expirado";
+  //Propiedad que almacena el nombre del usuario
+  public nombreUsuario: string = "Ricardo Salvador";
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |

@@ -66,3 +66,23 @@ a{
     color: rgb(110, 110, 110) !important;
 }
 
+/*Clase para el color de los botones desplegbales, color de fuente y tamaño de fuente.*/
+.btn-desplegable{
+    background-color: rgb(0, 162, 232);
+    color: white;
+    font-size: 20px; 
+  }
+
+  /*Color y tamaño de letra en estado normal de los elementos del  menú desplegable.*/
+  .dropdown-item{
+    color: rgb(110, 110, 110);
+    font-size: 20px; 
+  }
+
+/*Color de letra de los elementos del  menú desplegable.*/
+.dropdown-item:active{
+    background-color: rgb(0, 162, 232);
+    color: white;
+}
+    
+
