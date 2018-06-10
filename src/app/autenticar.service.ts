@@ -13,6 +13,9 @@
 */
 
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operator/map';
 
 @Injectable()
 export class AutenticarService {
@@ -29,11 +32,13 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método constructor del componente.                      |          
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: http  = para hacer peticiones http al backend.|
+  |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(){}
+  constructor(private http: HttpClient) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: login.                                                       |
@@ -43,27 +48,39 @@ export class AutenticarService {
   |  PARÁMETROS DE ENTRADA: usuario   = Usuario del sistema,              |
   |                         password  = Contraseña del usuario.           |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE SALIDA:  resultado = Retorna verdadero o falso         |
-  |                         en caso de que ingreso o no respectivamente.  |
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public login(usuario: string, password: string): boolean {
+  public login(usuario: string, password: string): Observable<any> {
 
-    //Si el usuario y la contraseña son correctas.
-    if (usuario === 'user' && password === 'password') {
-      //Se almacena localmente el token retornado.
-      localStorage.setItem('token', '12345');      
-      //Retorna verdadero.
-      return true;
-    }
-
-    //Autenticación inválida.
-    return false;
+    let json = JSON.stringify({
+      usuario: usuario,
+      password: password
+    });
+    let params = "json=" + json;
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    return this.http
+      .post('http://telmexcatedral.ddns.net/mimedicos-backend/index.php/ingresar',
+        params,
+        { headers: headers });
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: guardarToken.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para almacenar el token.                         | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  public guardarToken(token: string): any {
+    return localStorage.setItem('token', token);
+  }
   /*----------------------------------------------------------------------|
   |  NOMBRE: logout.                                                      |
   |-----------------------------------------------------------------------|
@@ -73,7 +90,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public logout(): void {    
+  public logout(): void {
     //Elimina el token y se sale del sistema.
     localStorage.removeItem('token');
   }
@@ -103,7 +120,7 @@ export class AutenticarService {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/  
+  |----------------------------------------------------------------------*/
   public estaConectado(): boolean {
 
     return this.obtenerToken() !== null;

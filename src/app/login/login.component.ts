@@ -14,7 +14,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AutenticarService } from '../autenticar.service';
-import { Router} from '@angular/router';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from '../dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from '../esperar.service';
@@ -62,13 +62,13 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/  
-  constructor(private fb: FormBuilder, 
-              private autorizacion: AutenticarService, 
-              private router: Router,
-              private modalService: NgbModal,
-              private esperar: EsperarService) {
-        
+  |----------------------------------------------------------------------*/
+  constructor(private fb: FormBuilder,
+    private autorizacion: AutenticarService,
+    private router: Router,
+    private modalService: NgbModal,
+    private esperar: EsperarService) {
+
     //Se agregan las validaciones al formulario de ingresar.
     this.formSignIn = fb.group({
       'usuario': ['', Validators.required],
@@ -96,11 +96,11 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/    
+  |----------------------------------------------------------------------*/
   ngOnInit() {
-      
+
     //Si el usuario ya está logueado, lo manda directamente a la página de inicio.
-    if (this.autorizacion.estaConectado()) {            
+    if (this.autorizacion.estaConectado()) {
       this.router.navigate(['inicio']);
     }
   }
@@ -119,12 +119,12 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   public ingresarSubmit(usuarioHTML: HTMLInputElement, passwordHTML: HTMLInputElement): void {
-    
+
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
-    
+
     //Si los elementos del formulario no están llenos, se hace un focus para que se ingrese texto.
     if (this.usuario.hasError("required")) {
       usuarioHTML.focus();
@@ -133,26 +133,32 @@ export class LoginComponent implements OnInit {
       passwordHTML.focus();
       return;
     }
-
-    //Si el usuario y passwords son incorrectos.
-    if (!this.autorizacion.login(this.usuario.value, this.password.value)) {
-      this.alerta('El usuario y/o password es incorrecto.');
-      return
-    }
-
-    //Se abre el modal de esperar.
+    //Se hace focus a algún elemento del formulario para evitar el warning del modal.
+    usuarioHTML.focus();
+    //Se abre el modal de esperar, indicando que se hará una petición al servidor.
     this.esperar.esperar();
-
-    setTimeout(() => {
-      //Se cierra el modal de esperar.
-      this.esperar.noEsperar()
-    }, 5000);
-
-    //Si todo está correcto, ingresa al sistema.
-    console.log("INGRESA");
-    this.router.navigate(['inicio']);
-    return;
-
+    //Se realiza el intento de ingreso.
+    this.autorizacion.login(this.usuario.value, this.password.value)
+      .subscribe(
+        respuesta => {
+          //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
+          this.esperar.noEsperar();
+          //Si hubo un error en el ingreso.
+          if (respuesta["estado"] === "ERROR") {
+            //Se despliega un modal con una alerta del porqué del error.
+            this.alerta(respuesta["mensaje"]);
+            //Se retorna para que no siga con la ejecución.
+            return;
+          }
+          //Si se realiza con éxito el ingreso. 
+          else {
+            //Se almacena el token en el navegador del cliente.
+            this.autorizacion.guardarToken(respuesta["token"]);
+            //Se navega a la página de inicio.
+            this.router.navigate(['inicio']);
+          }
+        }
+      );
   }
 
   /*----------------------------------------------------------------------|
@@ -166,17 +172,17 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   public olvidarPaswordSubmit(emailHtml: HTMLInputElement): void {
-    
+
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
-    
+
     //Si los elementos del formulario no están llenos, se hace un focus para que se ingrese texto.
     if (!this.email.valid) {
       emailHtml.focus();
       return;
-    } 
+    }
 
     //Se abre el modal de esperar.
     this.esperar.esperar();
@@ -192,7 +198,7 @@ export class LoginComponent implements OnInit {
     return;
 
   }
-  
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: mostrarFormOlvidarPassword                                   |
@@ -202,16 +208,16 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 05/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   public mostrarFormOlvidarPassword(): void {
-    
+
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
     //Se indica que se olvidó el password para posteriormente mostrar dicho formulario.
     this.olvidarPassword = true;
     return;
 
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: mostrarFormIngresar.                                         |
@@ -221,16 +227,16 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 05/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   public mostrarFormIngresar(): void {
-    
+
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
     //Se indica que se NO se olvidó el password para posteriormente mostrar dicho formulario.
     this.olvidarPassword = false;
     return;
 
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: alerta.                                                      |
@@ -243,22 +249,22 @@ export class LoginComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   private alerta(mensaje: String) {
 
     //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, {centered: true});    
-    
+    const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });
+
     //Define el título del modal.
     modalRef.componentInstance.titulo = "Autenticación";
     //Define el mensaje del modal.
     modalRef.componentInstance.mensaje = mensaje;
     //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";    
+    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
     //Se retorna el botón pulsado.
-    modalRef.result.then((result)=>{      
-    },(reason)=>{});
-    
-  }    
+    modalRef.result.then((result) => {
+    }, (reason) => { });
+
+  }
 
 }

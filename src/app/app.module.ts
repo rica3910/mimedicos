@@ -1,3 +1,4 @@
+
 /******************************************************************|
 |NOMBRE: appModule.                                                | 
 |------------------------------------------------------------------|
@@ -28,6 +29,8 @@ import { DialogoConfirmacionComponent } from './dialogo-confirmacion/dialogo-con
 import { LogoutComponent } from './logout/logout.component';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { DialogoEsperaComponent } from './dialogo-espera/dialogo-espera.component';
+import { HttpClientModule } from '@angular/common/http';
+
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -57,6 +60,7 @@ const rutas: Routes = [
     ReactiveFormsModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(rutas),
+    HttpClientModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
