@@ -102,8 +102,9 @@ export class AppComponent implements OnInit {
   public salir(resultado: String) {
     //Si el resultado es Sí, entonces se sale del sistema. Mandando la página de ingresar.
     if (resultado == 'Sí') {
-      this.autorizacion.logout();
-      this.conectado = false;
+      this.autorizacion.logout().subscribe(respuesta => {        
+        this.conectado = false;
+      });      
     }
   }
 

@@ -13,7 +13,7 @@
 */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operator/map';
 
@@ -81,6 +81,7 @@ export class AutenticarService {
   public guardarToken(token: string): any {
     return localStorage.setItem('token', token);
   }
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: logout.                                                      |
   |-----------------------------------------------------------------------|
@@ -90,9 +91,28 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public logout(): void {
-    //Elimina el token y se sale del sistema.
-    localStorage.removeItem('token');
+  public logout(): Observable<any> {        
+    
+    const headers: HttpHeaders = new HttpHeaders({
+      'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8',      
+      'X-API-KEY': this.obtenerToken()
+    });    
+
+    
+    let solicitud = new HttpRequest(
+      'GET',
+      'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/salir',
+      {
+        headers
+      }
+    );
+
+    //Elimina el token.
+    localStorage.removeItem('token');    
+  
+    //Inactiva el token en la base de datos para que ya no pueda ser utilizado.
+    return this.http.request(solicitud);
+
   }
 
   /*----------------------------------------------------------------------|
