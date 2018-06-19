@@ -98,10 +98,9 @@ export class LoginComponent implements OnInit {
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
-
-    //Si el usuario ya está logueado, lo manda directamente a la página de inicio.
-    if (this.autorizacion.estaConectado()) {
-      this.router.navigate(['inicio']);
+    //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
+    if(this.autorizacion.obtenerToken() !== null){     
+        this.router.navigate(['inicio']); 
     }
   }
 

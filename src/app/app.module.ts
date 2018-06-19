@@ -65,7 +65,9 @@ const rutas: Routes = [
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
     WAIT_MODAL_PROVIDERS,      
-    UsuarioIngresadoGuard],
+    UsuarioIngresadoGuard,
+    {provide: 'URL_API_BACKEND', useValue: 'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/'}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

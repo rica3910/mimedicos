@@ -53,7 +53,7 @@ export class UsuarioIngresadoGuard implements CanActivate {
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-      return this.autorizacion.estaConectado();
+      return this.autorizacion.obtenerToken() !== null;
   }
 }
 

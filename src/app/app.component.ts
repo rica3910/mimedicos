@@ -1,3 +1,4 @@
+
 /******************************************************************|
 |NOMBRE: AppComponent.                                             | 
 |------------------------------------------------------------------|
@@ -17,6 +18,7 @@ import { AutenticarService } from './autenticar.service';
 import { Observable } from 'rxjs/Rx';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
+import { EsperarService } from './esperar.service';
 
 @Component({
   selector: 'app-root',
@@ -37,14 +39,17 @@ export class AppComponent implements OnInit {
   |  PARÁMETROS DE ENTRADA: autorizacion = contiene los métodos para saber|
   |                                        si un usuario está conectado,  | 
   |                         modal        = contiene los métodos para      |
-  |                                        manipular los modals.          |
+  |                                        manipular los modals,          |
+  |                         esperar      = contiene los métodos para      |  
+  |                                        abrir modals de espera.        |  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
-    private modal: NgbModal) { }
+    private modal: NgbModal,
+    private esperar: EsperarService) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -60,30 +65,42 @@ export class AppComponent implements OnInit {
   ngOnInit() {
 
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
-    Observable.timer(0, 30000).subscribe(t => {
-      //Si el usuario no está conectado por alguna razón.
-      if (!this.autorizacion.estaConectado() && this.conectado) {
+    Observable.timer(0, 3000).subscribe(t => {
+      this.autorizacion.estaConectado()
+        .subscribe(respuesta => {      
 
-        //Se desloguea del sistema.
-        this.conectado = false;
-        this.autorizacion.logout();
+          //Si el token no existe y se encuentra en alguna parte del menú.
+          if (respuesta === false && this.conectado) {
+            //Se retorna al formulario de ingreso 
+            this.conectado = false;
+          }
+          //Si el token está inactivo o caduco y el usuario se encuentra en alguna parte del menú.
+          else if (respuesta["estado"] === "ERROR" && this.conectado) {
+          
+            //se retorna al formulario de ingreso.
+            this.conectado = false;
+            //Abre el modal de tamaño chico.
+            const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
+            //Define el título del modal.
+            modalRef.componentInstance.titulo = "Token inválido";
+            //Define el mensaje del modal.
+            modalRef.componentInstance.mensaje = respuesta["mensaje"];
+            //Define la etiqueta del botón de Aceptar.
+            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+             //Indica que no está conectado al sistema.
+            this.autorizacion.eliminarToken();
+            //Se retorna el botón pulsado.
+            modalRef.result.then((result) => {
 
-        //Abre el modal de tamaño chico.
-        const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
-        //Define el título del modal.
-        modalRef.componentInstance.titulo = this.autorizacion.tituloExpiracion;
-        //Define el mensaje del modal.
-        modalRef.componentInstance.mensaje = this.autorizacion.mensajeExpiracion;
-        //Define la etiqueta del botón de Aceptar.
-        modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-        //Se retorna el botón pulsado.
-        modalRef.result.then((result) => {
+            }, (reason) => { });
+          }
+          else if (respuesta["estado"] === "OK") {
+            //Se abandera la variable conectado a verdadero para indicar que se encuentra
+            //dentro del sistema y no en el formulario de ingreso.
+            this.conectado = true;      
+          }
+        });
 
-        }, (reason) => { });
-
-      } else if (this.autorizacion.estaConectado()) {
-        this.conectado = true;
-      }
     });
 
   }
@@ -102,9 +119,13 @@ export class AppComponent implements OnInit {
   public salir(resultado: String) {
     //Si el resultado es Sí, entonces se sale del sistema. Mandando la página de ingresar.
     if (resultado == 'Sí') {
-      this.autorizacion.logout().subscribe(respuesta => {        
+
+      //Se abre el modal de esperar, indicando que se hará una petición al servidor.
+      this.esperar.esperar();
+      this.autorizacion.logout().subscribe(respuesta => {
+        this.esperar.noEsperar();
         this.conectado = false;
-      });      
+      });
     }
   }
 

@@ -13,7 +13,7 @@
 -------------------------------------------------------------------->
 
 <!--Si el usuario está conectado-->
-<ng-container *ngIf="autorizacion.estaConectado(); then thenTemplate; else elseTemplate">
+<ng-container *ngIf="autorizacion.obtenerToken()!== null; then thenTemplate; else elseTemplate">
 </ng-container>
 <!--Template de cuando el usuario está conectado. Se muestra el menú principal-->
 <ng-template #thenTemplate>
