@@ -15,7 +15,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operator/map';
 
 @Injectable()
 export class AutenticarService {
@@ -73,7 +72,16 @@ export class AutenticarService {
     return this.http
       .post(this.urlApi + 'ingresar',
         params,
-        { headers: headers });
+        { headers: headers })
+        .map(respuesta => {
+          //Si el ingreso se hace satisfactoriamente.
+          if (respuesta["estado"] !== "ERROR") {
+            //Se almacena el token en el navegador del cliente..
+            this._guardarToken(respuesta["token"]); 
+          }    
+          //Se retorna la respuesta.
+          return respuesta;
+        });
   }
 
   /*----------------------------------------------------------------------|
@@ -85,7 +93,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 10/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public guardarToken(token: string): any {
+  private _guardarToken(token: string): any {
     return localStorage.setItem('token', token);
   }
 
@@ -98,7 +106,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 18/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public eliminarToken(): any {
+  private _eliminarToken(): any {
     return localStorage.removeItem('token');
   }
 
@@ -130,7 +138,7 @@ export class AutenticarService {
       );
 
       //Elimina el token.
-      this.eliminarToken();
+      this._eliminarToken();
 
       //Envía la petición al servidor backend.
       //Inactiva el token en la base de datos para que ya no pueda ser utilizado.
@@ -177,7 +185,18 @@ export class AutenticarService {
       });
 
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + 'validar-token/0', {headers: headers});
+      return this.http.get(this.urlApi + 'validar-token/0', {headers: headers})
+      .map(respuesta => {
+
+          //Si el token está inactivo o caduco y el usuario está logueado.
+          if (respuesta["estado"] === "ERROR") {
+              //Se elimina el token que se otorga cuando el usuario ingresa.
+              this._eliminarToken();
+          }
+
+          return respuesta;
+
+      });
     }
     //No está conectado.
     return Observable.of(false);

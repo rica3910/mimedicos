@@ -27,10 +27,6 @@ import { EsperarService } from './esperar.service';
 })
 export class AppComponent implements OnInit {
 
-  /*Propiedad que indica que se está conectado al sistema. Se utiliza para que no se despliegue
-  el cuadro de diálogo de sesión expirada en la pantalla de login.*/
-  private conectado: boolean = false;
-
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -68,36 +64,21 @@ export class AppComponent implements OnInit {
     Observable.timer(0, 3000).subscribe(t => {
       this.autorizacion.estaConectado()
         .subscribe(respuesta => {      
-
-          //Si el token no existe y se encuentra en alguna parte del menú.
-          if (respuesta === false && this.conectado) {
-            //Se retorna al formulario de ingreso 
-            this.conectado = false;
-          }
-          //Si el token está inactivo o caduco y el usuario se encuentra en alguna parte del menú.
-          else if (respuesta["estado"] === "ERROR" && this.conectado) {
+          //Si el token está inactivo o caduco y el usuario se encuentra logueado.
+         if (respuesta["estado"] === "ERROR") {
           
-            //se retorna al formulario de ingreso.
-            this.conectado = false;
             //Abre el modal de tamaño chico.
             const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
             //Define el título del modal.
-            modalRef.componentInstance.titulo = "Token inválido";
+            modalRef.componentInstance.titulo = "Sesión finalizada";
             //Define el mensaje del modal.
             modalRef.componentInstance.mensaje = respuesta["mensaje"];
             //Define la etiqueta del botón de Aceptar.
-            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-             //Indica que no está conectado al sistema.
-            this.autorizacion.eliminarToken();
+            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";        
             //Se retorna el botón pulsado.
             modalRef.result.then((result) => {
 
             }, (reason) => { });
-          }
-          else if (respuesta["estado"] === "OK") {
-            //Se abandera la variable conectado a verdadero para indicar que se encuentra
-            //dentro del sistema y no en el formulario de ingreso.
-            this.conectado = true;      
           }
         });
 
@@ -123,8 +104,7 @@ export class AppComponent implements OnInit {
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
       this.autorizacion.logout().subscribe(respuesta => {
-        this.esperar.noEsperar();
-        this.conectado = false;
+        this.esperar.noEsperar();   
       });
     }
   }

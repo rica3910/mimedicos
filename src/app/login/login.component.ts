@@ -151,8 +151,6 @@ export class LoginComponent implements OnInit {
           }
           //Si se realiza con éxito el ingreso. 
           else {
-            //Se almacena el token en el navegador del cliente.
-            this.autorizacion.guardarToken(respuesta["token"]);
             //Se navega a la página de inicio.
             this.router.navigate(['inicio']);
           }
@@ -182,22 +180,14 @@ export class LoginComponent implements OnInit {
       emailHtml.focus();
       return;
     }
+    //Se despliega el resultado del envío del correo electrónico.
+    this.alerta("Se ha enviado un enlace de ingreso a su email.");
 
-    //Se abre el modal de esperar.
-    this.esperar.esperar();
-
-    setTimeout(() => {
-      //Se cierra el modal de esperar.
-      this.esperar.noEsperar()
-    }, 5000);
-
-    //Si todo está correcto, ingresa al sistema.
-    console.log("INGRESA");
-    this.router.navigate(['inicio']);
+    //Se muestra el formulario de ingresar al sistema.
+    this.mostrarFormIngresar();
     return;
 
   }
-
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: mostrarFormOlvidarPassword                                   |

@@ -59,49 +59,25 @@ export class LogoutComponent implements OnInit {
   |----------------------------------------------------------------------*/
   salir() {
 
-    this.autorizacion.estaConectado()
-      .subscribe(resultado => {
-        //Si está conectado
-        if (resultado !== false && resultado["estado"] === "OK") {
-      
-          //Abre el modal de tamaño chico.
-          const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+    //Si está conectado.
+    if (this.autorizacion.obtenerToken() !== null) {
 
-          //Define el título del modal.
-          modalRef.componentInstance.titulo = "Confirmación";
-          //Define el mensaje del modal.
-          modalRef.componentInstance.mensaje = "¿Está seguro de querer salir del sistema?";
-          //Define la etiqueta del botón de Aceptar.
-          modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
-          //Define la etiqueta del botón de Cancelar.
-          modalRef.componentInstance.etiquetaBotonCancelar = "No";
-          //Se retorna el botón pulsado.
-          modalRef.result.then((result) => {
-            this.emitirSalir.emit(result);
-          }, (reason) => { });
+      //Abre el modal de tamaño chico.
+      const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+      //Define el título del modal.
+      modalRef.componentInstance.titulo = "Confirmación";
+      //Define el mensaje del modal.
+      modalRef.componentInstance.mensaje = "¿Está seguro de salir del sistema?";
+      //Define la etiqueta del botón de Aceptar.
+      modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
+      //Define la etiqueta del botón de Cancelar.
+      modalRef.componentInstance.etiquetaBotonCancelar = "No";
+      //Se retorna el botón pulsado.
+      modalRef.result.then((result) => {
+        this.emitirSalir.emit(result);
+      }, (reason) => { });
 
-        }
-      });
-
-    //Si aún no está deslogueado
-    /* if (this.autorizacion.estaConectado()) {
- 
-       //Abre el modal de tamaño chico.
-       const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
- 
-       //Define el título del modal.
-       modalRef.componentInstance.titulo = "Confirmación";
-       //Define el mensaje del modal.
-       modalRef.componentInstance.mensaje = "¿Está seguro de querer salir del sistema?";
-       //Define la etiqueta del botón de Aceptar.
-       modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
-       //Define la etiqueta del botón de Cancelar.
-       modalRef.componentInstance.etiquetaBotonCancelar = "No";
-       //Se retorna el botón pulsado.
-       modalRef.result.then((result) => {
-         this.emitirSalir.emit(result);
-       }, (reason) => { });
-     }*/
+    }
 
   }
 
