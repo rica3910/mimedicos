@@ -201,6 +201,39 @@ export class AutenticarService {
     //No está conectado.
     return Observable.of(false);
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: olvidarPassword.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que se ejecuta cuando se olvida la contraseña.   | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: email   = Email del usuario.                  |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  public olvidarPassword(email: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      email: email      
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    let params = "json=" + json;
+    //Le agrega el header codificado.
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'olvidar-password',
+        params,
+        { headers: headers });
+  }
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

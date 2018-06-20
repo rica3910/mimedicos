@@ -21,7 +21,7 @@ import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AUTH_PROVIDERS } from './autenticar.service';
 import { WAIT_MODAL_PROVIDERS } from './esperar.service';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, ActivatedRoute } from '@angular/router';
 import { InicioComponent } from './inicio/inicio.component';
 import { UsuarioIngresadoGuard } from './usuario-ingresado.guard';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
@@ -35,7 +35,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [  
-  { path: 'ingresar', component: LoginComponent},      
+  { path: 'ingresar', component: LoginComponent},    
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];

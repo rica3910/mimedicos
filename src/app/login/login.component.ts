@@ -180,12 +180,29 @@ export class LoginComponent implements OnInit {
       emailHtml.focus();
       return;
     }
-    //Se despliega el resultado del envío del correo electrónico.
-    this.alerta("Se ha enviado un enlace de ingreso a su email.");
 
-    //Se muestra el formulario de ingresar al sistema.
-    this.mostrarFormIngresar();
-    return;
+    //Se abre el modal de esperar, indicando que se hará una petición al servidor.
+    this.esperar.esperar();
+    this.autorizacion.olvidarPassword(this.email.value).subscribe(respuesta => {
+
+      //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
+      this.esperar.noEsperar();
+      //Si hubo un error en el proceso de olvidar el password.
+      if (respuesta["estado"] === "ERROR") {
+        //Se despliega un modal con una alerta del porqué del error.
+        this.alerta(respuesta["mensaje"]);
+        //Se retorna para que no siga con la ejecución.
+        return;
+      }
+      //Si se realiza con éxito la petición de recuperación de contraseña. 
+      else {
+         //Se despliega el resultado del envío del correo electrónico.
+        this.alerta("Se ha enviado un enlace de ingreso a su email.");
+      }
+      
+      return;
+
+    });
 
   }
 
