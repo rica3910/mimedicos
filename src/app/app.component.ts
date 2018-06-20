@@ -63,9 +63,9 @@ export class AppComponent implements OnInit {
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     Observable.timer(0, 3000).subscribe(t => {
       this.autorizacion.estaConectado()
-        .subscribe(respuesta => {      
+        .subscribe(respuesta => {    
           //Si el token está inactivo o caduco y el usuario se encuentra logueado.
-         if (respuesta["estado"] === "ERROR") {
+         if (respuesta !== false && respuesta["estado"] === "ERROR") {          
           
             //Abre el modal de tamaño chico.
             const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
