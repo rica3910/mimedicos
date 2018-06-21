@@ -30,12 +30,13 @@ import { LogoutComponent } from './logout/logout.component';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { DialogoEsperaComponent } from './dialogo-espera/dialogo-espera.component';
 import { HttpClientModule } from '@angular/common/http';
-
+import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/cambiar-password-olvidado.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [  
   { path: 'ingresar', component: LoginComponent},    
+  { path: 'cambiar-password-olvidado', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
@@ -48,7 +49,8 @@ const rutas: Routes = [
     DialogoConfirmacionComponent,
     LogoutComponent,
     DialogoAlertaComponent,
-    DialogoEsperaComponent    
+    DialogoEsperaComponent,
+    CambiarPasswordOlvidadoComponent    
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 

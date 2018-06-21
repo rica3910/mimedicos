@@ -1,4 +1,3 @@
-
 /******************************************************************|
 |NOMBRE: AppComponent.                                             | 
 |------------------------------------------------------------------|
@@ -19,6 +18,7 @@ import { Observable } from 'rxjs/Rx';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from './esperar.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -45,7 +45,8 @@ export class AppComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
     private modal: NgbModal,
-    private esperar: EsperarService) { }
+    private esperar: EsperarService,
+    private rutaActual: Router ) {}
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -59,9 +60,10 @@ export class AppComponent implements OnInit {
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
-
+    
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     Observable.timer(0, 3000).subscribe(t => {
+
       this.autorizacion.estaConectado()
         .subscribe(respuesta => {    
           //Si el token está inactivo o caduco y el usuario se encuentra logueado.

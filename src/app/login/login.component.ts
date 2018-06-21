@@ -98,6 +98,7 @@ export class LoginComponent implements OnInit {
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
+
     //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
     if(this.autorizacion.obtenerToken() !== null){     
         this.router.navigate(['inicio']); 
@@ -119,7 +120,7 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public ingresarSubmit(usuarioHTML: HTMLInputElement, passwordHTML: HTMLInputElement): void {
+  ingresarSubmit(usuarioHTML: HTMLInputElement, passwordHTML: HTMLInputElement): void {
 
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
@@ -145,7 +146,7 @@ export class LoginComponent implements OnInit {
           //Si hubo un error en el ingreso.
           if (respuesta["estado"] === "ERROR") {
             //Se despliega un modal con una alerta del porqué del error.
-            this.alerta(respuesta["mensaje"]);
+            this._alerta(respuesta["mensaje"]);
             //Se retorna para que no siga con la ejecución.
             return;
           }
@@ -170,7 +171,7 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public olvidarPaswordSubmit(emailHtml: HTMLInputElement): void {
+  olvidarPaswordSubmit(emailHtml: HTMLInputElement): void {
 
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
@@ -190,14 +191,14 @@ export class LoginComponent implements OnInit {
       //Si hubo un error en el proceso de olvidar el password.
       if (respuesta["estado"] === "ERROR") {
         //Se despliega un modal con una alerta del porqué del error.
-        this.alerta(respuesta["mensaje"]);
+        this._alerta(respuesta["mensaje"]);
         //Se retorna para que no siga con la ejecución.
         return;
       }
       //Si se realiza con éxito la petición de recuperación de contraseña. 
       else {
          //Se despliega el resultado del envío del correo electrónico.
-        this.alerta("Se ha enviado un enlace de ingreso a su email.");
+        this._alerta("Se ha enviado un enlace de ingreso a su email.");
       }
       
       return;
@@ -215,7 +216,7 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 05/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public mostrarFormOlvidarPassword(): void {
+  mostrarFormOlvidarPassword(): void {
 
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
@@ -234,7 +235,7 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 05/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public mostrarFormIngresar(): void {
+  mostrarFormIngresar(): void {
 
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
@@ -245,7 +246,7 @@ export class LoginComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: alerta.                                                      |
+  |  NOMBRE: _alerta.                                                     |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
   |               de la base de datos en forma de alerta.                 | 
@@ -256,7 +257,7 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  private alerta(mensaje: String) {
+  private _alerta(mensaje: String) {
 
     //Abre el modal de tamaño chico.
     const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });

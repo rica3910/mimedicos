@@ -46,8 +46,12 @@
   </div>
 </ng-template>
 <!--Fin del template #thenTemplate.-->
-<!--Template de cuando el usuario NO está conectado. Se muestra la página de ingreso.-->
+<!--Template de cuando el usuario NO está conectado.-->
 <ng-template #elseTemplate>
-  <app-login></app-login>
+  <!--Template de login.-->
+  <app-login *ngIf="rutaActual.url != '/cambiar-password-olvidado'"></app-login>
+  <!--Template de cambiar password.-->
+  <app-cambiar-password-olvidado *ngIf="rutaActual.url == '/cambiar-password-olvidado'">
+  </app-cambiar-password-olvidado>
 </ng-template>
 <!--Fin del template #elseTemplate.-->
