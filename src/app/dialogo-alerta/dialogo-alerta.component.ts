@@ -13,8 +13,8 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, Input } from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-dialogo-alerta',
@@ -24,11 +24,13 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 export class DialogoAlertaComponent implements OnInit {
 
   //Propiedad para mostrar el título que llevará el cuadro de diálogo.
-  @Input() titulo: String;
+  public titulo: String;
   //Propiedad para mostrar el mensaje que llevará el cuadro de diálogo.
-  @Input() mensaje: String;
+  public mensaje: String;
   //Etiqueta que tendrá el botón de aceptar o confirmación.
-  @Input() etiquetaBotonAceptar: String;  
+  public etiquetaBotonAceptar: String;
+  //Botón HTML aceptar de la alerta.
+  @ViewChild("botonAceptar") botonAceptar: ElementRef;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -41,8 +43,11 @@ export class DialogoAlertaComponent implements OnInit {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/    
-  constructor(public activeModal: NgbActiveModal) { }
+  |----------------------------------------------------------------------*/
+  constructor(private activeModal: NgbActiveModal) {}           
 
-  ngOnInit() {}
+  ngOnInit() {
+    //Cada vez que se inicie la alerta, se establece el focus en el botón de aceptar.
+    this.botonAceptar.nativeElement.focus();
+  }
 }

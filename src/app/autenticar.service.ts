@@ -234,6 +234,45 @@ export class AutenticarService {
         { headers: headers });
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cambiarPassword.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cambiar el password del usuario.            | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: token           = Token que viene de la url,  |
+  |                         olvidarPassword = 0 si es cambio normal,      |
+  |                                           1 si se olvidó el password, |
+  |                         passwordActual  = password actual del usuario,|
+  |                         passwordNuevo   = password nuevo del usuario. |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  cambiarPassword(token: string, olvidarPassword: number, passwordActual: string, passwordNuevo: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      token: token,
+      olvidarPassword: olvidarPassword,
+      passwordActual: passwordActual,
+      passwordNuevo: passwordNuevo      
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    let params = "json=" + json;
+    //Le agrega el header codificado.
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'cambiar-password',
+        params,
+        { headers: headers });
+  }
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

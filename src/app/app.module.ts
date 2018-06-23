@@ -34,9 +34,9 @@ import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/ca
 
 
 //Constante que contiene las rutas que tendrá el sistema.
-const rutas: Routes = [  
-  { path: 'ingresar', component: LoginComponent},    
-  { path: 'cambiar-password-olvidado', component: CambiarPasswordOlvidadoComponent},  
+const rutas: Routes = [    
+  { path: 'ingresar', component: LoginComponent},      
+  { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
