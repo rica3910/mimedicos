@@ -17,11 +17,11 @@
 <!--Si se indica que se olvidó el password.-->
 <ng-template #thenTemplate>
     <div class="text-center" id="div-contenedor">
-        <form [formGroup]="formOlvidarPassword" class="form-signin" (ngSubmit)="olvidarPaswordSubmit(emailHTML)">
+        <form [formGroup]="formOlvidarPassword" class="form-signin" (ngSubmit)="olvidarPaswordSubmit()">
           <img class="img-fluid" src={{imagenLogo}} alt="" >
-          <input type="email" class="form-control" placeholder="Email" [formControl]="email" #emailHTML [ngClass]="{'input-borde-rojo':(email.touched && !email.valid) || (pulsarIngresar && !email.valid)}">          
-          <ngb-alert *ngIf="(email.touched && email.hasError('required')) || (pulsarIngresar && email.hasError('required'))" type="danger" [dismissible]="false">El Email es Requerido.</ngb-alert>          
-          <ngb-alert *ngIf="(email.touched && email.hasError('email') && !email.hasError('required')) || (pulsarIngresar && email.hasError('email')&& !email.hasError('required'))" type="danger" [dismissible]="false">Ingrese un email válido.</ngb-alert>          
+          <input type="email" class="form-control" placeholder="Email" [formControl]="email" #emailHTML [ngClass]="{'input-borde-rojo':pulsarIngresar && !email.valid}">          
+          <ngb-alert *ngIf="pulsarIngresar && email.hasError('required')" type="danger" [dismissible]="false">El Email es Requerido.</ngb-alert>          
+          <ngb-alert *ngIf="pulsarIngresar && email.hasError('email')&& !email.hasError('required')" type="danger" [dismissible]="false">Ingrese un email válido.</ngb-alert>          
           <button class="btn btn-lg btn-azul  btn-block" type="submit">Enviar email</button>
           <hr>       
           <p class="text-black-50">Si tu email está ligado a tu cuenta de MiMédicos, recibirás un enlace para restablecer tu contraseña.</p>  
@@ -33,12 +33,12 @@
 <!--Formulario de ingreso normal.-->
 <ng-template #elseTemplate>
   <div class="text-center" id="div-contenedor">
-    <form [formGroup]="formSignIn" class="form-signin" (ngSubmit)="ingresarSubmit(usuarioHTML, passwordHTML)">
+    <form [formGroup]="formSignIn" class="form-signin" (ngSubmit)="ingresarSubmit()">
       <img class="img-fluid" src={{imagenLogo}} alt="" >
-      <input type="text" class="form-control" placeholder="Usuario" [formControl]="usuario" #usuarioHTML [ngClass]="{'input-borde-rojo':(usuario.touched && !usuario.valid) || (pulsarIngresar && !usuario.valid)}">
-      <ngb-alert *ngIf="(usuario.touched && !usuario.valid) || (pulsarIngresar && !usuario.valid)" type="danger" [dismissible]="false">El Usuario es Requerido.</ngb-alert>
-      <input type="password" class="form-control" placeholder="Password" [formControl]="password" #passwordHTML [ngClass]="{'input-borde-rojo':(password.touched && !password.valid) || (pulsarIngresar && !password.valid)}">
-      <ngb-alert *ngIf="(password.touched && !password.valid) || (pulsarIngresar && !password.valid)" type="danger" [dismissible]="false">El Password es Requerido.</ngb-alert>
+      <input type="text" class="form-control" placeholder="Usuario" [formControl]="usuario" #usuarioHTML [ngClass]="{'input-borde-rojo':pulsarIngresar && !usuario.valid}">
+      <ngb-alert *ngIf="pulsarIngresar && !usuario.valid" type="danger" [dismissible]="false">El Usuario es Requerido.</ngb-alert>
+      <input type="password" class="form-control" placeholder="Password" [formControl]="password" #passwordHTML [ngClass]="{'input-borde-rojo':pulsarIngresar && !password.valid}">
+      <ngb-alert *ngIf="pulsarIngresar && !password.valid" type="danger" [dismissible]="false">El Password es Requerido.</ngb-alert>
       <button class="btn btn-lg btn-azul btn-block" type="submit">Ingresar</button>
       <hr>
       <a class="link-azul" href="#" (click)="mostrarFormOlvidarPassword()">Olvidé mi password.</a>

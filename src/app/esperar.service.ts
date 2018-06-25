@@ -21,7 +21,7 @@ import { DialogoEsperaComponent } from './dialogo-espera/dialogo-espera.componen
 export class EsperarService {
 
   //Propiedad que almacena el modal activo.
-  private modalRef: NgbModalRef;
+  modalRef: NgbModalRef;
 
   
   /*----------------------------------------------------------------------|
@@ -61,10 +61,6 @@ export class EsperarService {
     modalOption.centered = true;
     //Abre el modal.    
     this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);
-    
-    this.modalRef.result.then((result)=>{      
-    },(reason)=>{});
-        
   }     
 
   /*----------------------------------------------------------------------|

@@ -12,9 +12,12 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-
 /*Tamaño y color de la letra.*/
 .color-azul{    
     color: rgb(0, 162, 232);  
 }
 
+/*Configuraciones del titulo de los paneles*/
+.panel-titulo{
+    font-size: 20px;  
+}

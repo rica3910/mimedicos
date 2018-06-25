@@ -11,7 +11,7 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AutenticarService } from '../autenticar.service';
 import { Router } from '@angular/router';
@@ -27,21 +27,30 @@ import { EsperarService } from '../esperar.service';
 export class LoginComponent implements OnInit {
 
   //Objeto que contendrá el formulario de ingreso.
-  public formSignIn: FormGroup;
+  formSignIn: FormGroup;
   //Objeto que contendrá el formulario de olvidar contraseña.
-  public formOlvidarPassword: FormGroup;
+  formOlvidarPassword: FormGroup;
   //Objeto del formulario que contendrá al usuario.
-  public usuario: AbstractControl;
+  usuario: AbstractControl;
   //Objeto del formulario que contendrá al password.
-  public password: AbstractControl;
+  password: AbstractControl;
   //Objeto del formulario que contendrá al email.
-  public email: AbstractControl;
+  email: AbstractControl;
   //Propiedad que indica si se pulsó el botón de ingresar.
-  public pulsarIngresar: boolean = false;
+  pulsarIngresar: boolean = false;
   //Propiedad que indica si se desplegará el formulario de olvidar password en vez del de ingresar.
-  public olvidarPassword: boolean = false;
+  olvidarPassword: boolean = false;
   //Propiedad que almacena la ruta de la imágen del logo.
-  public imagenLogo: String = "../../assets/img/logo_completo.png";
+  imagenLogo: String = "../../assets/img/logo_completo.png";
+  //Propiedad que indica cuando se cambia de vista.
+  cambiarVista: boolean = false;
+  //Cuadro de texto del usuario.
+  @ViewChild("usuarioHTML") usuarioHTML: ElementRef;
+  //Cuadro de tipo password del password.
+  @ViewChild("passwordHTML") passwordHTML: ElementRef;
+  //Cuadro de texto del email.
+  @ViewChild("emailHTML") emailHTML: ElementRef;
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -57,7 +66,9 @@ export class LoginComponent implements OnInit {
   |                         modalService = contiene los métodos para      |  
   |                                        manipular modals,              |
   |                         esperar      = contiene los métodos para      |  
-  |                                        abrir modals de espera.        |                
+  |                                        abrir modals de espera,        |
+  |                         cdRef        = se utiliza para detectar       |
+  |                                        cambios en la vista.           |                
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -67,12 +78,13 @@ export class LoginComponent implements OnInit {
     private autorizacion: AutenticarService,
     private router: Router,
     private modalService: NgbModal,
-    private esperar: EsperarService) {
+    private esperar: EsperarService,
+    private cdRef: ChangeDetectorRef) {
 
     //Se agregan las validaciones al formulario de ingresar.
     this.formSignIn = fb.group({
-      'usuario': ['', Validators.required],
-      'password': ['', Validators.required]
+      'usuario': ['1416295', Validators.required],
+      'password': ['Telmex123$', Validators.required]
     });
 
     //Se agregan las validaciones al formulario de olvidar contraseña.
@@ -100,8 +112,41 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
 
     //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
-    if(this.autorizacion.obtenerToken() !== null){     
-        this.router.navigate(['inicio']); 
+    if (this.autorizacion.obtenerToken() !== null) {
+      this.router.navigate(['inicio']);      
+    }
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: ngAfterViewChecked.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que se ejecuta cuando cambia la vista.           | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  ngAfterViewChecked() {
+
+    //Si se muestra el formulario de ingreso o el formulario de email.
+    if (this.cambiarVista) {
+
+      //Se cambia el valor de cambiarvista para que no se ejecute cada momento.
+      this.cambiarVista = false;
+
+      //Si olvidar password es verdadero.
+      if (this.olvidarPassword) {
+        //Se le da un focus al email y se limpia.
+        this.emailHTML.nativeElement.focus();
+        this.formOlvidarPassword.reset();
+        this.cdRef.detectChanges();
+      }
+      else {
+        //Se le da un focus al usuario y se limpia junto con el password.
+        this.usuarioHTML.nativeElement.focus();
+        this.formSignIn.reset();
+        this.cdRef.detectChanges();
+      }
     }
   }
 
@@ -120,21 +165,19 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  ingresarSubmit(usuarioHTML: HTMLInputElement, passwordHTML: HTMLInputElement): void {
+  ingresarSubmit(): void {
 
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
 
     //Si los elementos del formulario no están llenos, se hace un focus para que se ingrese texto.
     if (this.usuario.hasError("required")) {
-      usuarioHTML.focus();
+      this.usuarioHTML.nativeElement.focus();
       return;
     } else if (this.password.hasError("required")) {
-      passwordHTML.focus();
+      this.passwordHTML.nativeElement.focus();
       return;
     }
-    //Se hace focus a algún elemento del formulario para evitar el warning del modal.
-    usuarioHTML.focus();
     //Se abre el modal de esperar, indicando que se hará una petición al servidor.
     this.esperar.esperar();
     //Se realiza el intento de ingreso.
@@ -147,8 +190,6 @@ export class LoginComponent implements OnInit {
           if (respuesta["estado"] === "ERROR") {
             //Se despliega un modal con una alerta del porqué del error.
             this._alerta(respuesta["mensaje"]);
-            //Se retorna para que no siga con la ejecución.
-            return;
           }
           //Si se realiza con éxito el ingreso. 
           else {
@@ -171,14 +212,14 @@ export class LoginComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  olvidarPaswordSubmit(emailHtml: HTMLInputElement): void {
+  olvidarPaswordSubmit(): void {
 
     //Se pulsa el botón ingresar.
     this.pulsarIngresar = true;
 
     //Si los elementos del formulario no están llenos, se hace un focus para que se ingrese texto.
     if (!this.email.valid) {
-      emailHtml.focus();
+      this.emailHTML.nativeElement.focus();
       return;
     }
 
@@ -192,19 +233,13 @@ export class LoginComponent implements OnInit {
       if (respuesta["estado"] === "ERROR") {
         //Se despliega un modal con una alerta del porqué del error.
         this._alerta(respuesta["mensaje"]);
-        //Se retorna para que no siga con la ejecución.
-        return;
       }
       //Si se realiza con éxito la petición de recuperación de contraseña. 
       else {
-         //Se despliega el resultado del envío del correo electrónico.
+        //Se despliega el resultado del envío del correo electrónico.
         this._alerta("Se ha enviado un enlace de ingreso a su email.");
       }
-      
-      return;
-
     });
-
   }
 
   /*----------------------------------------------------------------------|
@@ -217,12 +252,13 @@ export class LoginComponent implements OnInit {
   |  FECHA: 05/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   mostrarFormOlvidarPassword(): void {
-
+  
+    //Se cambia de vista.
+    this.cambiarVista = true;
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
     //Se indica que se olvidó el password para posteriormente mostrar dicho formulario.
     this.olvidarPassword = true;
-    return;
 
   }
 
@@ -236,13 +272,12 @@ export class LoginComponent implements OnInit {
   |  FECHA: 05/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   mostrarFormIngresar(): void {
-
+    //Se cambia de vista.
+    this.cambiarVista = true;
     //Se resetea el valor ya que es independiente.
     this.pulsarIngresar = false;
     //Se indica que se NO se olvidó el password para posteriormente mostrar dicho formulario.
     this.olvidarPassword = false;
-    return;
-
   }
 
   /*----------------------------------------------------------------------|
@@ -268,9 +303,6 @@ export class LoginComponent implements OnInit {
     modalRef.componentInstance.mensaje = mensaje;
     //Define la etiqueta del botón de Aceptar.
     modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-    //Se retorna el botón pulsado.
-    modalRef.result.then((result) => {
-    }, (reason) => { });
 
   }
 

@@ -25,13 +25,13 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 export class DialogoConfirmacionComponent implements OnInit {
 
   //Propiedad para mostrar el título que llevará el cuadro de diálogo.
-  @Input() titulo: String;
+  titulo: String;
   //Propiedad para mostrar el mensaje que llevará el cuadro de diálogo.
-  @Input() mensaje: String;
+  mensaje: String;
   //Etiqueta que tendrá el botón de aceptar o confirmación.
-  @Input() etiquetaBotonAceptar: String;
+  etiquetaBotonAceptar: String;
   //Etiqueta que tendrá el botón de cancelar.
-  @Input() etiquetaBotonCancelar: String;  
+  etiquetaBotonCancelar: String;  
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |

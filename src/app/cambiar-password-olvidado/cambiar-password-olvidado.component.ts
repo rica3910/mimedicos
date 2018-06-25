@@ -13,11 +13,11 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { AutenticarService } from '../autenticar.service';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from '../dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from '../esperar.service';
 import { Observable, Subject } from 'rxjs';
@@ -67,16 +67,16 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |  FECHA: 20/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private fb: FormBuilder,
-    private autorizacion: AutenticarService,
-    private router: Router,
-    private modalService: NgbModal,
-    private esperar: EsperarService
+              private autorizacion: AutenticarService,
+              private router: Router,
+              private modalService: NgbModal,
+              private esperar: EsperarService
   ) {
 
     //Se agregan las validaciones al formulario de cambiar password.
     this.formCambioPassword = fb.group({
-      'nuevoPassword': ['Telmex123$', Validators.compose([Validators.required, this._passwordValidator])],
-      'confirmarPassword': ['Telmex123$', [Validators.required]]
+      'nuevoPassword': ['', Validators.compose([Validators.required, this._passwordValidator])],
+      'confirmarPassword': ['', [Validators.required]]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -85,23 +85,56 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
 
   }
 
-
   ngOnInit() {
 
-    //Hace un focus al cuadro de texto de password nuevo.
-    this.nuevoPasswordHTML.nativeElement.focus();
-
+    //Obtiene el token de la url.
     this.tokenUrl = this.router.url.split("/")[2];
 
     //Si el token es menor a 40 carácteres, es incorrecto.
     if (this.tokenUrl.length < 40) {
-      this._alerta("Token inválido", "El token obtenido es inválido.").subscribe(
-        resultado => {
+      this._alerta("El token obtenido es inválido.").subscribe(() => {
+        //Se retorna al formulario de ingresar.
         this.router.navigate(['ingresar']);
-      }
-      );
+      });
     }
+    //Si el token es válido en su longitud.
+    else {
+      //Se abre el modal de esperar, indicando que se hará una petición al servidor.
+      this.esperar.esperar();
+      //Se hace la petición al servidor para validar el token.
+      this.autorizacion.validarToken(this.tokenUrl).subscribe(respuesta => {
+        //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
+        this.esperar.noEsperar();
+        //Si existe algún error con el token.
+        if (respuesta["estado"] === "ERROR") {
+          this._alerta(respuesta["mensaje"]).subscribe(() => {
+            //Se retorna al formulario de ingresar.
+            this.router.navigate(['ingresar']);
+          });
+        }
+        //Si el token es válido.
+        else {
+          //Hace un focus al cuadro de texto de password nuevo al iniciar la página.
+          this.nuevoPasswordHTML.nativeElement.focus();
+        }
+      });
+    }
+  }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: ngAfterViewChecked.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que se ejecuta cuando cambia la vista.           | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  ngAfterViewChecked() {
+     //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
+     if (this.autorizacion.obtenerToken() !== null) {
+      this.router.navigate(['inicio']);
+    }
   }
 
   /*----------------------------------------------------------------------|
@@ -130,7 +163,27 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
 
     //Se abre el modal de esperar, indicando que se hará una petición al servidor.
     this.esperar.esperar();
-
+    //Se envía la petición al servidor para el cambio de contraseña.
+    this.autorizacion.cambiarPassword(this.tokenUrl, 1, '', this.nuevoPassword.value)
+      .subscribe(respuesta => {
+        //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
+        this.esperar.noEsperar();
+        //Si hubo un error en el proceso de cambio de password.
+        if (respuesta["estado"] === "ERROR") {
+          //Se despliega un modal con una alerta del porqué del error.
+          this._alerta(respuesta["mensaje"]).subscribe();
+        }
+        //Si se realiza con éxito el cambio de password. 
+        else {
+          //Despliega alerta de satisfactorio.
+          this._alerta(`Se ha efectuado el cambio de password satisfactoriamente.
+                      Favor de ingresar con su nuevo password.`)
+            .subscribe(() => {
+              //Se retorna al formulario de ingresar.
+              this.router.navigate(['ingresar']);
+            });
+        }
+      });
   }
 
   /*----------------------------------------------------------------------|
@@ -154,7 +207,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: _alerta.                                                     |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que valida la seguridad de la contraseña.        |
+  |  DESCRIPCIÓN: Método que envía una alerta o mensaje de diálogo.       |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: título  = Título que tendrá la alerta,        |
   |                         mensaje = Mensaje que tendrá la alerta        |                                      |
@@ -163,26 +216,36 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 22/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  private _alerta(titulo: string, mensaje: string): Observable<any> {
+  private _alerta(mensaje: string): Observable<any> {
 
     //Se utiliza para esperar a que se pulse el botón aceptar.
     let subject: Subject<any> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+
+    //No se cierra cuando se pulsa esc.
+    modalOption.keyboard = false;
+    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
+    modalOption.backdrop = 'static';
+    //Modal centrado.
+    modalOption.centered = true;
     //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });
+    const modalRef = this.modalService.open(DialogoAlertaComponent, modalOption);
     //Define el título del modal.
-    modalRef.componentInstance.titulo = titulo;
+    modalRef.componentInstance.titulo = "Cambio de password";
     //Define el mensaje del modal.
     modalRef.componentInstance.mensaje = mensaje;
     //Define la etiqueta del botón de Aceptar.
     modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
     //Se retorna el botón pulsado.
-    modalRef.result.then((result) => {
+    modalRef.result.then(() => {
       //Se retorna un nulo, ya que no se espera un resultado.         
       subject.next(null);
     });
 
+    //Se retorna el observable.
     return subject.asObservable();
-
   }
 
 }

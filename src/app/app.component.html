@@ -33,9 +33,9 @@
           </li>
         </ul>        
         <div ngbDropdown class="d-inline-block">
-          <button class="btn btn-desplegable" id="dropdownBasic1" ngbDropdownToggle>{{autorizacion.nombreUsuario}}</button>
+          <button class="btn btn-desplegable" id="dropdownBasic1" ngbDropdownToggle>{{autorizacion.obtenerNombreUsuario()}}</button>
           <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-            <button class="dropdown-item">Editar</button>            
+            <button class="dropdown-item">Cambiar password</button>            
             <app-logout (emitirSalir)="salir($event)"></app-logout>        
           </div>
         </div>

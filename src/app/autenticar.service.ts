@@ -19,13 +19,6 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class AutenticarService {
 
-  //Propiedad que indica el mensaje del porqué expiró la sesión.
-  public mensajeExpiracion: string = "La sesión ha expirado.";
-  //Propiedad que indica el título del mensaje de expiración.
-  public tituloExpiracion: string = "Token expirado";
-  //Propiedad que almacena el nombre del usuario
-  public nombreUsuario: string = "Ricardo Salvador";
-
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -55,7 +48,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public login(usuario: string, password: string): Observable<any> {
+  login(usuario: string, password: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
@@ -73,21 +66,24 @@ export class AutenticarService {
       .post(this.urlApi + 'ingresar',
         params,
         { headers: headers })
-        .map(respuesta => {
-          //Si el ingreso se hace satisfactoriamente.
-          if (respuesta["estado"] !== "ERROR") {
-            //Se almacena el token en el navegador del cliente..
-            this._guardarToken(respuesta["token"]); 
-          }    
-          //Se retorna la respuesta.
-          return respuesta;
-        });
+      .map(respuesta => {
+        //Si el ingreso se hace satisfactoriamente.
+        if (respuesta["estado"] !== "ERROR") {
+          //Se almacena el token en el navegador del cliente..
+          this._guardarToken(respuesta["token"]);
+          this._guardarNombreUsuario(respuesta["usuario"]);
+        }
+        //Se retorna la respuesta.
+        return respuesta;
+      });
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: guardarToken.                                                |
+  |  NOMBRE: _guardarToken.                                               |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para almacenar el token.                         | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: token   = token de la sesión actual.          |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -98,6 +94,47 @@ export class AutenticarService {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: _guardarNombreUsuario.                                       |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para almacenar el nombre del usuario.            | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: nombre = Nombre del usuario.                  |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _guardarNombreUsuario(nombre: string): any {
+    return localStorage.setItem('usuario', nombre);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: _eliminarNombreUsuario.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar el nombre del usuario.             | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _eliminarNombreUsuario(): void {
+    localStorage.removeItem('usuario');
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerNombreUsuario.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener el nombre del usuario.              | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  obtenerNombreUsuario(): any {    
+    return localStorage.getItem('usuario');
+  }  
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarToken.                                               |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para eliminar el token.                          | 
@@ -106,8 +143,8 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 18/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  private _eliminarToken(): any {
-    return localStorage.removeItem('token');
+  private _eliminarToken(): void {
+    localStorage.removeItem('token');
   }
 
   /*----------------------------------------------------------------------|
@@ -119,7 +156,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public logout(): Observable<any> {
+  logout(): Observable<any> {
 
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
@@ -139,6 +176,8 @@ export class AutenticarService {
 
       //Elimina el token.
       this._eliminarToken();
+      //Elimina el nombre del usuario.
+      this._eliminarNombreUsuario();
 
       //Envía la petición al servidor backend.
       //Inactiva el token en la base de datos para que ya no pueda ser utilizado.
@@ -158,7 +197,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public obtenerToken(): any {
+  obtenerToken(): any {
     return localStorage.getItem('token');
   }
 
@@ -175,7 +214,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/05/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public estaConectado(): Observable<any> {
+  estaConectado(): Observable<any> {
 
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
@@ -185,23 +224,46 @@ export class AutenticarService {
       });
 
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + 'validar-token/0', {headers: headers})
-      .map(respuesta => {
+      return this.http.get(this.urlApi + 'validar-token/0', { headers: headers })
+        .map(respuesta => {
 
           //Si el token está inactivo o caduco y el usuario está logueado.
           if (respuesta["estado"] === "ERROR") {
-              //Se elimina el token que se otorga cuando el usuario ingresa.
-              this._eliminarToken();
+            //Se elimina el token que se otorga cuando el usuario ingresa.
+            this._eliminarToken();
           }
 
           return respuesta;
 
-      });
+        });
     }
     //No está conectado.
     return Observable.of(false);
   }
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: validarToken.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para validar un token.                           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: token = token a validar.                      |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |                         en caso de que el token esté conrrecto o no   |
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  validarToken(token: string, actualizarToken: number = 0): Observable<any> {
 
+    //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': token
+    });
+    //Envía la petición al servidor backend.
+    return this.http.get(this.urlApi + 'validar-token/' + actualizarToken, { headers: headers });
+  }
   /*----------------------------------------------------------------------|
   |  NOMBRE: olvidarPassword.                                             |
   |-----------------------------------------------------------------------|
@@ -215,11 +277,11 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 20/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  public olvidarPassword(email: string): Observable<any> {
+  olvidarPassword(email: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
-      email: email      
+      email: email
     });
 
     //Le concatena la palabra "json=" al json armado.
@@ -258,7 +320,7 @@ export class AutenticarService {
       token: token,
       olvidarPassword: olvidarPassword,
       passwordActual: passwordActual,
-      passwordNuevo: passwordNuevo      
+      passwordNuevo: passwordNuevo
     });
 
     //Le concatena la palabra "json=" al json armado.

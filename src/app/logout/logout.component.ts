@@ -75,7 +75,7 @@ export class LogoutComponent implements OnInit {
       //Se retorna el botón pulsado.
       modalRef.result.then((result) => {
         this.emitirSalir.emit(result);
-      }, (reason) => { });
+      });
 
     }
 

@@ -37,7 +37,8 @@ export class AppComponent implements OnInit {
   |                         modal        = contiene los métodos para      |
   |                                        manipular los modals,          |
   |                         esperar      = contiene los métodos para      |  
-  |                                        abrir modals de espera.        |  
+  |                                        abrir modals de espera,        |
+  |                         rutaActual   = para manipular las url's       |  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -62,7 +63,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
-    Observable.timer(0, 3000).subscribe(t => {
+    Observable.timer(0, 30000).subscribe(t => {
 
       this.autorizacion.estaConectado()
         .subscribe(respuesta => {    
@@ -76,11 +77,7 @@ export class AppComponent implements OnInit {
             //Define el mensaje del modal.
             modalRef.componentInstance.mensaje = respuesta["mensaje"];
             //Define la etiqueta del botón de Aceptar.
-            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";        
-            //Se retorna el botón pulsado.
-            modalRef.result.then((result) => {
-
-            }, (reason) => { });
+            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";                      
           }
         });
 
@@ -102,10 +99,9 @@ export class AppComponent implements OnInit {
   public salir(resultado: String) {
     //Si el resultado es Sí, entonces se sale del sistema. Mandando la página de ingresar.
     if (resultado == 'Sí') {
-
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
-      this.autorizacion.logout().subscribe(respuesta => {
+      this.autorizacion.logout().subscribe(() => {
         this.esperar.noEsperar();   
       });
     }
