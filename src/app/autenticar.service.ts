@@ -16,6 +16,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+
 @Injectable()
 export class AutenticarService {
 
@@ -119,7 +120,7 @@ export class AutenticarService {
   |----------------------------------------------------------------------*/
   private _eliminarNombreUsuario(): void {
     localStorage.removeItem('usuario');
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: obtenerNombreUsuario.                                        |
@@ -130,9 +131,9 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  obtenerNombreUsuario(): any {    
+  obtenerNombreUsuario(): any {
     return localStorage.getItem('usuario');
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarToken.                                               |
@@ -231,6 +232,9 @@ export class AutenticarService {
           if (respuesta["estado"] === "ERROR") {
             //Se elimina el token que se otorga cuando el usuario ingresa.
             this._eliminarToken();
+            //Elimina el nombre del usuario.
+            this._eliminarNombreUsuario();
+
           }
 
           return respuesta;
@@ -245,24 +249,59 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para validar un token.                           |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: token = token a validar.                      |
+  |  PARÁMETROS DE ENTRADA: token = token a validar,                      |
+  |                         actualizarToken = Parámetro para saber si el  |
+  |                         tiempo de la sesión se extiende.              |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
-  |                         en caso de que el token esté conrrecto o no   |
+  |                         en caso de que el token esté correcto o no   |
   |                         respectivamente.                              |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 23/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  validarToken(token: string, actualizarToken: number = 0): Observable<any> {
+  validarToken(token: string = "", actualizarToken: number = 0): Observable<any> {
 
+    //Si el parámetro token viene vacío, quiere decir que el usuario está conectado.
+    if (token === null || token === "") {
+
+      //Se obtiene el token almacenado.
+      token = this.obtenerToken();
+      //Si No está conectado, entonces el token No existe.
+      if (token === null) {
+        //No está conectado.
+        return Observable.of(false);
+      }
+      //Si está conectado, se valida el token.
+      else {
+
+        //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+        const headers: HttpHeaders = new HttpHeaders({
+          'X-API-KEY': token
+        });
+        
+        //Envía la petición al servidor backend.
+        return this.http.get(this.urlApi + 'validar-token/' + actualizarToken, { headers: headers })
+          .map(respuesta => {            
+            //Si existe algún error con el token.
+            if (respuesta["estado"] === "ERROR") {
+              //Se desloguea del sistema.
+              this.logout();
+            }
+          });
+      }
+
+    }
+    
     //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
     const headers: HttpHeaders = new HttpHeaders({
       'X-API-KEY': token
     });
-    //Envía la petición al servidor backend.
+
+    //Si no está conectado y se olvidó el password.
     return this.http.get(this.urlApi + 'validar-token/' + actualizarToken, { headers: headers });
+
   }
   /*----------------------------------------------------------------------|
   |  NOMBRE: olvidarPassword.                                             |

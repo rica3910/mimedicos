@@ -28,9 +28,12 @@
       </button>
       <div class="navbar-collapse" [ngbCollapse]="navbarCollapsed" id="navbarContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item" [routerLinkActive]="['active']">
-            <a class="nav-link menu-opcion" [routerLink]="['/inicio']">Inicio</a>
+          <li class="nav-item">
+            <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/inicio']">Inicio</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/pacientes']">Pacientes</a>
+          </li>          
         </ul>        
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-desplegable" id="dropdownBasic1" ngbDropdownToggle>{{autorizacion.obtenerNombreUsuario()}}</button>

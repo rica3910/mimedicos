@@ -17,53 +17,19 @@
 /*Elementos HTML de ligas*/
 a{
     /*No llevarán caja o margen alrededor.*/
-    outline:none;
-    
+    outline:none;    
 }
 
 /*Tamaño de letra de las opciones del menú.*/
 .menu-opcion{
     font-size: 20px; 
-    color: rgb(110, 110, 110) !important;   
-}
-
-/*Color de las opciones del menú cuando está sin visitar.*/
-.menu-opcion:link  {
     color: rgb(110, 110, 110) !important;
 }
 
-/*Color de las opciones del menú cuando la opción ya fue visitada.*/
-.menu-opcion:visited {
+/*Color de las opciones del menú cuando el mouse esté por encima, cuando se está pulsando el mouse.
+y cuando está seleccionado.*/
+.menu-opcion:hover, .active-link {    
     color: rgb(0, 162, 232) !important;
-}
-
-
-/*Color de las opciones del menú cuando el mouse esté por encima y cuando se está pulsando el mouse.*/
-.menu-opcion:hover, .menu-opcion:active  {    
-    color: rgb(0, 162, 232) !important;
-}
-
-
-/*Tamaño y color de la letra de la marca.*/
-.menu-marca{
-    font-size: 30px;
-    color: rgb(0, 162, 232) !important;
-}
-
-/*Color de la marca del menú cuando está sin visitar.*/
-.menu-marca:link  {
-    color: rgb(0, 162, 232) !important;
-}
-
-/*Color de la marca del menú cuando  ya fue visitada.*/
-.menu-marca:visited {
-    color: rgb(0, 162, 232) !important;
-}
-
-
-/*Color de la marca del menú cuando el mouse esté por encima y cuando se está pulsando el mouse.*/
-.menu-marca:hover, .menu-marca:active  {    
-    color: rgb(110, 110, 110) !important;
 }
 
 /*Clase para el color de los botones desplegbales, color de fuente y tamaño de fuente.*/
