@@ -60,17 +60,17 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |                         modalService = contiene los métodos para      |  
   |                                        manipular modals,              |
   |                         esperar      = contiene los métodos para      |  
-  |                                        abrir modals de espera,        |  |                
+  |                                        abrir modals de espera,        |                  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 20/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private fb: FormBuilder,
-              private autorizacion: AutenticarService,
-              private router: Router,
-              private modalService: NgbModal,
-              private esperar: EsperarService
+    private autorizacion: AutenticarService,
+    private router: Router,
+    private modalService: NgbModal,
+    private esperar: EsperarService
   ) {
 
     //Se agregan las validaciones al formulario de cambiar password.
@@ -87,52 +87,45 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
 
   ngOnInit() {
 
-    //Obtiene el token de la url.
-    this.tokenUrl = this.router.url.split("/")[2];
+    //Si el usuario no está conectado.
+    if (this.autorizacion.obtenerToken() === null) {
 
-    //Si el token es menor a 40 carácteres, es incorrecto.
-    if (this.tokenUrl.length < 40) {
-      this._alerta("El token obtenido es inválido.").subscribe(() => {
-        //Se retorna al formulario de ingresar.
-        this.router.navigate(['ingresar']);
-      });
-    }
-    //Si el token es válido en su longitud.
-    else {
-      //Se abre el modal de esperar, indicando que se hará una petición al servidor.
-      this.esperar.esperar();
-      //Se hace la petición al servidor para validar el token.
-      this.autorizacion.validarToken(this.tokenUrl).subscribe(respuesta => {
-        //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
-        this.esperar.noEsperar();
-        //Si existe algún error con el token.
-        if (respuesta["estado"] === "ERROR") {
-          this._alerta(respuesta["mensaje"]).subscribe(() => {
-            //Se retorna al formulario de ingresar.
-            this.router.navigate(['ingresar']);
-          });
-        }
-        //Si el token es válido.
-        else {
-          //Hace un focus al cuadro de texto de password nuevo al iniciar la página.
-          this.nuevoPasswordHTML.nativeElement.focus();
-        }
-      });
-    }
-  }
+      //Obtiene el token de la url.
+      this.tokenUrl = this.router.url.split("/")[2];
 
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: ngAfterViewChecked.                                          |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que se ejecuta cuando cambia la vista.           | 
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 23/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  ngAfterViewChecked() {
-     //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
-     if (this.autorizacion.obtenerToken() !== null) {
+      //Si el token es menor a 40 carácteres, es incorrecto.
+      if (this.tokenUrl.length < 40) {
+        this._alerta("El token obtenido es inválido.").subscribe(() => {
+          //Se retorna al formulario de ingresar.
+          this.router.navigate(['ingresar']);
+        });
+      }
+      //Si el token es válido en su longitud.
+      else {
+        //Se abre el modal de esperar, indicando que se hará una petición al servidor.
+        this.esperar.esperar();
+        //Se hace la petición al servidor para validar el token.
+        this.autorizacion.validarToken(this.tokenUrl).subscribe(respuesta => {
+          //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
+          this.esperar.noEsperar();
+          //Si existe algún error con el token.
+          if (respuesta["estado"] === "ERROR") {
+            this._alerta(respuesta["mensaje"]).subscribe(() => {
+              //Se retorna al formulario de ingresar.
+              this.router.navigate(['ingresar']);
+            });
+          }
+          //Si el token es válido.
+          else {
+            //Hace un focus al cuadro de texto de password nuevo al iniciar la página.
+            this.nuevoPasswordHTML.nativeElement.focus();
+          }
+        });
+      }
+
+    }
+    //Si el usuario está conectado. Se manda a la página de inicio.
+    else{
       this.router.navigate(['inicio']);
     }
   }

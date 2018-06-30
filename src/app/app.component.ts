@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
   constructor(private autorizacion: AutenticarService,
     private modal: NgbModal,
     private esperar: EsperarService,
-    private rutaActual: Router ) {}
+    private rutaActual: Router) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -61,15 +61,14 @@ export class AppComponent implements OnInit {
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
-    
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     Observable.timer(0, 30000).subscribe(t => {
 
       this.autorizacion.estaConectado()
-        .subscribe(respuesta => {    
+        .subscribe(respuesta => {
           //Si el token está inactivo o caduco y el usuario se encuentra logueado.
-         if (respuesta !== false && respuesta["estado"] === "ERROR") {          
-          
+          if (respuesta !== false && respuesta["estado"] === "ERROR") {
+
             //Abre el modal de tamaño chico.
             const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
             //Define el título del modal.
@@ -77,7 +76,8 @@ export class AppComponent implements OnInit {
             //Define el mensaje del modal.
             modalRef.componentInstance.mensaje = respuesta["mensaje"];
             //Define la etiqueta del botón de Aceptar.
-            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";                      
+            modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+
           }
         });
 
@@ -102,7 +102,7 @@ export class AppComponent implements OnInit {
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
       this.autorizacion.logout().subscribe(() => {
-        this.esperar.noEsperar();   
+        this.esperar.noEsperar();
       });
     }
   }

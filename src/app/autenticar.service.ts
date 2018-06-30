@@ -230,11 +230,8 @@ export class AutenticarService {
 
           //Si el token está inactivo o caduco y el usuario está logueado.
           if (respuesta["estado"] === "ERROR") {
-            //Se elimina el token que se otorga cuando el usuario ingresa.
-            this._eliminarToken();
-            //Elimina el nombre del usuario.
-            this._eliminarNombreUsuario();
-
+            //Se desloguea del sistema.
+            this.logout().subscribe();
           }
 
           return respuesta;
@@ -249,60 +246,73 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para validar un token.                           |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: token = token a validar,                      |
-  |                         actualizarToken = Parámetro para saber si el  |
-  |                         tiempo de la sesión se extiende.              |
+  |  PARÁMETROS DE ENTRADA: token = token a validar.                      |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
-  |                         en caso de que el token esté correcto o no   |
+  |                         en caso de que el token esté correcto o no    |
   |                         respectivamente.                              |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 23/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  validarToken(token: string = "", actualizarToken: number = 0): Observable<any> {
+  validarToken(token: string): Observable<any> {
 
-    //Si el parámetro token viene vacío, quiere decir que el usuario está conectado.
-    if (token === null || token === "") {
-
-      //Se obtiene el token almacenado.
-      token = this.obtenerToken();
-      //Si No está conectado, entonces el token No existe.
-      if (token === null) {
-        //No está conectado.
-        return Observable.of(false);
-      }
-      //Si está conectado, se valida el token.
-      else {
-
-        //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
-        const headers: HttpHeaders = new HttpHeaders({
-          'X-API-KEY': token
-        });
-        
-        //Envía la petición al servidor backend.
-        return this.http.get(this.urlApi + 'validar-token/' + actualizarToken, { headers: headers })
-          .map(respuesta => {            
-            //Si existe algún error con el token.
-            if (respuesta["estado"] === "ERROR") {
-              //Se desloguea del sistema.
-              this.logout();
-            }
-          });
-      }
-
+    //Si la longitud del token es menor de 40, entonces el token es inválido.
+    if(token.length < 40){
+      return Observable.of(false); 
     }
-    
+
     //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
     const headers: HttpHeaders = new HttpHeaders({
       'X-API-KEY': token
     });
 
     //Si no está conectado y se olvidó el password.
-    return this.http.get(this.urlApi + 'validar-token/' + actualizarToken, { headers: headers });
+    return this.http.get(this.urlApi + 'validar-token/' + 0, { headers: headers });
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: validarActualizarToken.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para validar y actualizar un token.              |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |                         en caso de que el token esté correcto o no    | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 30/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  validarActualizarToken(): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para validar y acualizar el token.
+      return this.http.get(this.urlApi + 'validar-token/' + 1, { headers: headers })
+        .map(respuesta => {
+          //Si existe algún error con el token.
+          if (respuesta["estado"] === "ERROR") {
+            //Se desloguea del sistema.
+            this.logout().subscribe();
+          }
+        });
+    }
+
+    //No está conectado.
+    return Observable.of(false);
+
+  }
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: olvidarPassword.                                             |
   |-----------------------------------------------------------------------|

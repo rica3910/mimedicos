@@ -32,6 +32,7 @@ import { DialogoEsperaComponent } from './dialogo-espera/dialogo-espera.componen
 import { HttpClientModule } from '@angular/common/http';
 import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/cambiar-password-olvidado.component';
 import { PacientesComponent } from './pacientes/pacientes.component';
+import { PaginaInvalidaComponent } from './pagina-invalida/pagina-invalida.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -39,7 +40,7 @@ const rutas: Routes = [
   { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard] },  
-  { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
+  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
 @NgModule({
@@ -52,7 +53,8 @@ const rutas: Routes = [
     DialogoAlertaComponent,
     DialogoEsperaComponent,
     CambiarPasswordOlvidadoComponent,
-    PacientesComponent    
+    PacientesComponent,
+    PaginaInvalidaComponent
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 

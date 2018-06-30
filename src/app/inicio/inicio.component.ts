@@ -30,17 +30,10 @@ export class InicioComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
     private esperar: EsperarService,
-    private modal: NgbModal, ) { }
+    private modal: NgbModal) {}
 
   ngOnInit() {
-    //Se despliega el modal de esperar porque se está haciendo una petición al servidor.
-    this.esperar.esperar();
-    //Se valida el token al iniciar la página.
-    this.autorizacion.validarToken(null, 1)
-      .subscribe(() => {
-        //Se finaliza la espera.
-        this.esperar.noEsperar();
-      });
   }
+
 
 }
