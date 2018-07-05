@@ -61,6 +61,7 @@ export class AppComponent implements OnInit {
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
+    
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     Observable.timer(0, 30000).subscribe(t => {
 
@@ -101,7 +102,7 @@ export class AppComponent implements OnInit {
     if (resultado == 'Sí') {
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
-      this.autorizacion.logout().subscribe(() => {
+      this.autorizacion.logout().subscribe(() => {        
         this.esperar.noEsperar();
       });
     }

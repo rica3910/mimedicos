@@ -93,8 +93,8 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
       //Obtiene el token de la url.
       this.tokenUrl = this.router.url.split("/")[2];
 
-      //Si el token es menor a 40 carácteres, es incorrecto.
-      if (this.tokenUrl.length < 40) {
+      //Si el token es menor o mayor a 40 carácteres, es incorrecto.
+      if (this.tokenUrl.length < 40 || this.tokenUrl.length > 40) {
         this._alerta("El token obtenido es inválido.").subscribe(() => {
           //Se retorna al formulario de ingresar.
           this.router.navigate(['ingresar']);
@@ -104,8 +104,10 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
       else {
         //Se abre el modal de esperar, indicando que se hará una petición al servidor.
         this.esperar.esperar();
+
         //Se hace la petición al servidor para validar el token.
         this.autorizacion.validarToken(this.tokenUrl).subscribe(respuesta => {
+          
           //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
           this.esperar.noEsperar();
           //Si existe algún error con el token.

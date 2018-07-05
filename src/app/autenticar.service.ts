@@ -20,6 +20,8 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class AutenticarService {
 
+  menuInicio: boolean = false;
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -72,7 +74,7 @@ export class AutenticarService {
         if (respuesta["estado"] !== "ERROR") {
           //Se almacena el token en el navegador del cliente..
           this._guardarToken(respuesta["token"]);
-          this._guardarNombreUsuario(respuesta["usuario"]);
+          this._guardarNombreUsuario(respuesta["usuario"]);        
         }
         //Se retorna la respuesta.
         return respuesta;
@@ -162,27 +164,17 @@ export class AutenticarService {
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
       //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
-      const headers: HttpHeaders = new HttpHeaders({
-        'X-API-KEY': this.obtenerToken()
+      const headers: HttpHeaders = new HttpHeaders({        
+        'X-API-KEY': this.obtenerToken()        
       });
-
-      //Se arma la solicitud de tipo GET junto con los HEADERS.
-      let solicitud = new HttpRequest(
-        'GET',
-        this.urlApi + 'salir',
-        {
-          headers
-        }
-      );
-
+          
       //Elimina el token.
       this._eliminarToken();
       //Elimina el nombre del usuario.
       this._eliminarNombreUsuario();
 
-      //Envía la petición al servidor backend.
-      //Inactiva el token en la base de datos para que ya no pueda ser utilizado.
-      return this.http.request(solicitud);
+      return this.http.post(this.urlApi + 'salir', "", { headers: headers });      
+      
     }
 
     return Observable.of(false);
@@ -383,6 +375,50 @@ export class AutenticarService {
         params,
         { headers: headers });
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneMenu.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene un menú dado.     | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |                         en caso de que el usuario tenga o no el menú  |
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneMenu(url: string): Observable<any> {
+    
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+      
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
+        .map(respuesta => {
+
+          //Si el usuario no tiene el menú.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            this.menuInicio = false;
+            return Observable.of(false);
+          }
+
+          //Retorna un verdadero, signo de que si tiene asignado el menú.
+          this.menuInicio = true;
+          return Observable.of(true);
+
+        });
+    }
+    //No está conectado.
+    this.menuInicio = false;
+    return Observable.of(false);
+  }  
 
 }
 

@@ -33,14 +33,16 @@ import { HttpClientModule } from '@angular/common/http';
 import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/cambiar-password-olvidado.component';
 import { PacientesComponent } from './pacientes/pacientes.component';
 import { PaginaInvalidaComponent } from './pagina-invalida/pagina-invalida.component';
+import { PACIENTES_PROVIDERS } from './pacientes.service';
+import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
   { path: 'ingresar', component: LoginComponent},      
   { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
-  { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard] },  
-  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
+  { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard] },  
+  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard] }    
 ];
 
 @NgModule({
@@ -72,7 +74,9 @@ const rutas: Routes = [
     AUTH_PROVIDERS,
     WAIT_MODAL_PROVIDERS,      
     UsuarioIngresadoGuard,
-    {provide: 'URL_API_BACKEND', useValue: 'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/'}
+    UsuarioTieneMenuGuard,
+    {provide: 'URL_API_BACKEND', useValue: 'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/'},
+    PACIENTES_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })
