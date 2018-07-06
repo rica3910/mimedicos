@@ -20,8 +20,6 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class AutenticarService {
 
-  menuInicio: boolean = false;
-
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -405,18 +403,15 @@ export class AutenticarService {
           //Si el usuario no tiene el menú.
           if (respuesta["estado"] === "ERROR") {
             //Retorna un falso.
-            this.menuInicio = false;
             return Observable.of(false);
           }
 
           //Retorna un verdadero, signo de que si tiene asignado el menú.
-          this.menuInicio = true;
           return Observable.of(true);
 
         });
     }
     //No está conectado.
-    this.menuInicio = false;
     return Observable.of(false);
   }  
 

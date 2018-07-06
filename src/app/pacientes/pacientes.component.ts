@@ -50,6 +50,8 @@ export class PacientesComponent implements OnInit {
 
         this._alerta(respuesta["mensaje"]);
 
+      }else{
+        console.log(respuesta["datos"]);
       }
     });
 

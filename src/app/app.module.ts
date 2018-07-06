@@ -38,11 +38,12 @@ import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
+  { path: '', redirectTo: 'ingresar', pathMatch: 'full'}, 
   { path: 'ingresar', component: LoginComponent},      
   { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard] },  
-  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard] }    
+  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
 @NgModule({
