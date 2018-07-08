@@ -26,7 +26,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  
+
   //Propiedad para almacenar los menús que puede utilizar el usuario logueado.
   urlsMenusUsuario: string[];
 
@@ -64,25 +64,29 @@ export class AppComponent implements OnInit {
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   ngOnInit() {
-  
+
     //Arreglo que contiene todos los menús del sistema.
     const urlsMenus: string[] = ["pacientes"];
     //Se inicializa el arreglo.
     this.urlsMenusUsuario = new Array();
-
-    //Abre el modal de espera.
-    this.esperar.esperar();
-    //Establecer los menús que pueda utilizar el usuario ingresado.
-    urlsMenus.forEach(url => {      
-      this.autorizacion.usuarioTieneMenu(url).subscribe((resultado) => {         
-        //Se detiene el modal de espera.
-        this.esperar.noEsperar() ;
-        //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
-        if(resultado["value"]){
-          this.urlsMenusUsuario.push(url);
-        }                               
+ 
+    //Se utiliza un time out para que aparezca correctamente el modal de espera.
+    setTimeout(() => {
+      //Abre el modal de espera.
+      this.esperar.esperar();
+      //Establecer los menús que pueda utilizar el usuario ingresado.
+      urlsMenus.forEach(url => {
+        this.autorizacion.usuarioTieneMenu(url).subscribe((resultado) => {
+          //Se detiene el modal de espera.
+          this.esperar.noEsperar();
+          //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
+          if (resultado["value"]) {
+            this.urlsMenusUsuario.push(url);
+          }
+        });
       });
     });
+
 
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     Observable.timer(0, 30000).subscribe(t => {
@@ -124,7 +128,7 @@ export class AppComponent implements OnInit {
     if (resultado == 'Sí') {
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
-      this.autorizacion.logout().subscribe(() => {        
+      this.autorizacion.logout().subscribe(() => {
         this.esperar.noEsperar();
       });
     }
