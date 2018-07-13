@@ -1,3 +1,18 @@
+/******************************************************************|
+|NOMBRE: PaginaInvalidaComponent.                                  | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para redireccionar al inicio cuando la  url   |
+|escrita en el navegador no está permitida.                        |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 13/07/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 

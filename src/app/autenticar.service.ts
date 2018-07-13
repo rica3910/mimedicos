@@ -13,9 +13,9 @@
 */
 
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, of} from 'rxjs';
+import { map } from "rxjs/operators";
 
 @Injectable()
 export class AutenticarService {
@@ -60,23 +60,152 @@ export class AutenticarService {
     //Le concatena la palabra "json=" al json armado.
     let params = "json=" + json;
     //Le agrega el header codificado.
-    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');    
 
     //Realiza la petición al servidor.
     return this.http
       .post(this.urlApi + 'ingresar',
         params,
-        { headers: headers })
-      .map(respuesta => {
+        { headers: headers })                      
+      .pipe(map((respuesta) => {
+
         //Si el ingreso se hace satisfactoriamente.
         if (respuesta["estado"] !== "ERROR") {
           //Se almacena el token en el navegador del cliente..
           this._guardarToken(respuesta["token"]);
-          this._guardarNombreUsuario(respuesta["usuario"]);        
+          this._guardarNombreUsuario(respuesta["usuario"]);
+
+          //Arreglo que contiene todos los menús del sistema.
+          const urlsMenus: string[] = ["pacientes"];
+          //Se borran los  menús en caso de que haya.
+          this._eliminarMenus();
+          //Establecer los menús que pueda utilizar el usuario ingresado.          
+          urlsMenus.forEach((url: string, indice: number) => {
+
+            this.usuarioTieneMenu(url)
+              //Se subscribe al servicio.
+              .subscribe((menu) => {
+
+                //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
+                if (menu["value"]) {
+                  //Si no es el último url o menú.                  
+                  if (indice == urlsMenus.length - 1) {
+                    this._guardarMenus(url, true);
+                  } else {
+                    this._guardarMenus(url);
+                  }                  
+                }
+
+              });
+          });
+
         }
-        //Se retorna la respuesta.
         return respuesta;
-      });
+
+      }));
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: _eliminarMenus.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar los menús.                         | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _eliminarMenus(): any {
+
+    localStorage.removeItem('menus');
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerMenus.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los menús del usuario logueado.     | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  _obtenerMenus(): any {
+
+    return localStorage.getItem('menus');
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerMenusArreglo                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los menús del usuario logueado      | 
+  |  en forma de arreglo.                                                 | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  obtenerMenusArreglo(): Array<string> {
+
+    //Variable que se retornará.
+    let menus: string[] = new Array();
+
+    //Si hay menús.
+    if(this._obtenerMenus() !== null){
+
+      //Se almacenan los menús en una constante de tipo cadena para obtener los métodos.
+      const menusString = this._obtenerMenus();      
+
+      //Se transforman los menús en un arreglo.
+      menus =  menusString.split(",");
+
+    }
+
+    //Se retornan los menús.
+    return menus;
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: _guardarMenus.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para almacenar el token.                         | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: menu   = menú o url que se agregará,          |
+  |                         final = si es el último menú.                 |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _guardarMenus(menu: string, final: boolean = false): any {
+
+    //SÍ hay menús guardados.
+    if (this._obtenerMenus() !== null) {
+      
+      //Si es el último menú.
+      if (final) {
+        localStorage.setItem("menus", this._obtenerMenus() + menu);
+      }
+      //Si no es el último menú.
+      else {
+        localStorage.setItem("menus", this._obtenerMenus() + menu + ",");
+      }
+
+    }
+    //Si NO hay menús.
+    else {
+      
+      //Se empieza a armar la cadena con comas.      
+      //Si es el último menú.
+      if (final) {
+        localStorage.setItem("menus", menu);
+      }
+      //Si no es el último menú.
+      else {
+        localStorage.setItem("menus", menu + ",");
+      }
+
+    }
+
   }
 
   /*----------------------------------------------------------------------|
@@ -91,7 +220,7 @@ export class AutenticarService {
   |  FECHA: 10/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   private _guardarToken(token: string): any {
-    return localStorage.setItem('token', token);
+    localStorage.setItem('token', token);
   }
 
   /*----------------------------------------------------------------------|
@@ -106,7 +235,7 @@ export class AutenticarService {
   |  FECHA: 24/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   private _guardarNombreUsuario(nombre: string): any {
-    return localStorage.setItem('usuario', nombre);
+    localStorage.setItem('usuario', nombre);
   }
 
   /*----------------------------------------------------------------------|
@@ -162,20 +291,22 @@ export class AutenticarService {
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
       //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
-      const headers: HttpHeaders = new HttpHeaders({        
-        'X-API-KEY': this.obtenerToken()        
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
       });
-          
+
       //Elimina el token.
       this._eliminarToken();
       //Elimina el nombre del usuario.
       this._eliminarNombreUsuario();
+      //Elimina los menús.
+      this._eliminarMenus();
 
-      return this.http.post(this.urlApi + 'salir', "", { headers: headers });      
-      
+      return this.http.post(this.urlApi + 'salir', "", { headers: headers });
+
     }
 
-    return Observable.of(false);
+    return of(false);
 
   }
 
@@ -216,7 +347,7 @@ export class AutenticarService {
 
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'validar-token/0', { headers: headers })
-        .map(respuesta => {
+        .pipe(map(respuesta => {
 
           //Si el token está inactivo o caduco y el usuario está logueado.
           if (respuesta["estado"] === "ERROR") {
@@ -226,10 +357,10 @@ export class AutenticarService {
 
           return respuesta;
 
-        });
+        }));
     }
     //No está conectado.
-    return Observable.of(false);
+    return of(false);
   }
   /*----------------------------------------------------------------------|
   |  NOMBRE: validarToken.                                                |
@@ -249,8 +380,8 @@ export class AutenticarService {
   validarToken(token: string): Observable<any> {
 
     //Si la longitud del token es menor de 40, entonces el token es inválido.
-    if(token.length < 40){
-      return Observable.of(false); 
+    if (token.length < 40) {
+      return of(false);
     }
 
     //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
@@ -289,17 +420,17 @@ export class AutenticarService {
 
       //Envía la petición al servidor backend para validar y acualizar el token.
       return this.http.get(this.urlApi + 'validar-token/' + 1, { headers: headers })
-        .map(respuesta => {
+        .pipe(map(respuesta => {
           //Si existe algún error con el token.
           if (respuesta["estado"] === "ERROR") {
             //Se desloguea del sistema.
             this.logout().subscribe();
           }
-        });
+        }));
     }
 
     //No está conectado.
-    return Observable.of(false);
+    return of(false);
 
   }
 
@@ -388,32 +519,32 @@ export class AutenticarService {
   |  FECHA: 04/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   usuarioTieneMenu(url: string): Observable<any> {
-    
+
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
       //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-      
+
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
-        .map(respuesta => {
+        .pipe(map(respuesta => {
 
           //Si el usuario no tiene el menú.
           if (respuesta["estado"] === "ERROR") {
             //Retorna un falso.
-            return Observable.of(false);
+            return of(false);
           }
 
           //Retorna un verdadero, signo de que si tiene asignado el menú.
-          return Observable.of(true);
+          return of(true);
 
-        });
+        }));
     }
     //No está conectado.
-    return Observable.of(false);
-  }  
+    return of(false);
+  }
 
 }
 

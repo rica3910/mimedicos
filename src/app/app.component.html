@@ -11,7 +11,6 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
-
 <!--Si el usuario está conectado-->
 <ng-container *ngIf="autorizacion.obtenerToken()!== null; then thenTemplate; else elseTemplate">
 </ng-container>
@@ -31,7 +30,7 @@
           <li class="nav-item">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/inicio']">Inicio</a>
           </li>
-          <li class="nav-item"  *ngIf="this.urlsMenusUsuario.includes('pacientes')">
+          <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('pacientes')">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/pacientes']">Pacientes</a>
           </li>          
         </ul>        
@@ -52,7 +51,8 @@
 <!--Template de cuando el usuario NO está conectado.-->
 <ng-template #elseTemplate>
   <!--Template de login.-->
-  <app-login *ngIf="!rutaActual.url.includes('/cambiar-password-olvidado')"></app-login>
+  <app-login *ngIf="!rutaActual.url.includes('/cambiar-password-olvidado')">
+  </app-login>
   <!--Template de cambiar password.-->
   <app-cambiar-password-olvidado *ngIf="rutaActual.url.includes('/cambiar-password-olvidado')">
   </app-cambiar-password-olvidado>

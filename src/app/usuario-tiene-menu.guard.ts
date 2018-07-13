@@ -15,8 +15,9 @@
 
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable} from 'rxjs';
 import { AutenticarService } from './autenticar.service';
+import { map } from "rxjs/operators";
 
 
 @Injectable()
@@ -55,11 +56,12 @@ export class UsuarioTieneMenuGuard implements CanActivate {
 |----------------------------------------------------------------------*/
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {                      
-      const url: string = state.url.replace("/","");         
-      return this.autorizacion.usuarioTieneMenu(url).map((resultado) => {              
+    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean { 
+      //Solo obtiene la primera ruta de la url.                           
+      const url: string =  state.url.split("/")[1];         
+      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {         
         return resultado["value"];             
-      });
+      }));
       
   }
 }

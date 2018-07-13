@@ -184,6 +184,7 @@ export class LoginComponent implements OnInit {
     this.autorizacion.login(this.usuario.value, this.password.value)
       .subscribe(
         respuesta => {
+
           //Se detiene la espera, indicando que ya se obtuvo la respuesta del servidor.
           this.esperar.noEsperar();
           //Si hubo un error en el ingreso.

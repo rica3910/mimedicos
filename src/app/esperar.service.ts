@@ -59,8 +59,12 @@ export class EsperarService {
     modalOption.backdrop = 'static';
     //Modal centrado.
     modalOption.centered = true;
-    //Abre el modal.    
-    this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);
+    //Abre el modal.   
+    //Se utiliza un timeout para evitar el error del modal de alerta. 
+    setTimeout(() => {
+      this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);  
+    });
+    
   }     
 
   /*----------------------------------------------------------------------|
@@ -73,7 +77,9 @@ export class EsperarService {
   |  FECHA: 04/06/2018.                                                   |    
   |----------------------------------------------------------------------*/ 
   noEsperar(){
-    this.modalRef.close();
+    
+    this.modalRef.dismiss();
+    this.modalRef.close();    
   }
 
 }

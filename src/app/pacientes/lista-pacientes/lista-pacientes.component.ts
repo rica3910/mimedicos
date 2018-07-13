@@ -1,0 +1,181 @@
+/******************************************************************|
+|NOMBRE: ListaPacientesComponent.                                  | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente que contiene la lista de los pacientes    |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 12/07/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { PacientesService } from '../pacientes.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
+import { EsperarService } from '../../esperar.service';
+import { fromEvent } from 'rxjs';
+import { UtilidadesService } from '../../utilidades.service';
+import { Router } from '@angular/router';
+import { map, switchAll } from "rxjs/operators"; 
+
+
+@Component({
+  selector: 'app-lista-pacientes',
+  templateUrl: './lista-pacientes.component.html',
+  styleUrls: ['./lista-pacientes.component.css']
+})
+export class ListaPacientesComponent implements OnInit {
+  
+  //Propiedad para indicar que la información ya está disponible para mostrar.
+  infoLista: boolean = true;
+  //Registros de pacientes que se verán en la vista en la tabla.
+  pacientes: Array<JSON>;
+  //Registros que vienen de la consulta del servidor sin filtrar.
+  private pacientesServidor: Array<JSON>;
+
+  //Cuadro de texto del usuario.
+  @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: constructor.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método constructor del componente.                      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: pacientesService = contiene los métodos para  |
+  |                                        manipular a los pacientes.     |
+  |                         modalService = contiene los métodos para      |  
+  |                                        manipular modals,              |
+  |                         esperarService = contiene los métodos para    |
+  |                                          mostrar o no la espera,      |
+  |  buscarInfoHTML = elemento de texto HTML que servirá como buscador,   |
+  |  utilidadesService= Contiene métodos genéricos y útiles,              |
+  |  rutaActual   = para manipular las url's.                             |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 30/05/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  constructor(private pacientesService: PacientesService,
+    private modalService: NgbModal,
+    private esperarService: EsperarService,    
+    private utilidadesService: UtilidadesService,
+    private rutaActual: Router) { }
+
+  ngOnInit() {
+    
+    //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
+    this.esperarService.esperar()
+    //Intenta obtener los pacientes del usuario ingresado.
+    this.pacientesService.obtenerPacientes()
+      .subscribe((respuesta) => {
+
+        
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this._alerta(respuesta["mensaje"]);
+          //No se intenta mostrar nada en la vista por el error.
+          this.infoLista = false;
+        }
+        //Si todo salió bien.
+        else {
+          //Se termina la espera.
+          this.esperarService.noEsperar();
+          //Se indica en la vista que ya puede mostrar la info.
+          this.infoLista = true;
+          //Se llena los arreglos de pacientes para que pueda ser mostrado.
+          this.pacientes = respuesta["datos"];
+          this.pacientesServidor = respuesta["datos"];
+
+          //Se obtiene el método de tecleado del elemento HTML de búsqueda.
+          fromEvent(this.buscarInfoHTML.nativeElement, 'keyup')
+            //Extrae el valor de la búsqueda.
+            .pipe(map((e: any) => e.target.value))
+            //Se realiza la búsqueda.
+            .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.pacientesServidor)))
+            //Se utiliza para obtener solo la búsqueda más reciente.
+            .pipe(switchAll())
+            //Se actualiza la información del arreglo de pacientes.
+            .subscribe((resultados: JSON[]) => {
+              //Se actualiza la información en pantalla.        
+              this.pacientes = resultados;
+            });
+        }
+      });
+  }
+
+  ngAfterViewInit() {
+    //Se le da un focus a la búsqueda.
+    this.buscarInfoHTML.nativeElement.focus();
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: _alerta.                                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
+  |               de la base de datos en forma de alerta.                 | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 30/05/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _alerta(mensaje: String) {
+
+    //Abre el modal de tamaño chico.
+    const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });
+
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = "Notificación";
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = mensaje;
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoBusqueda.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo de búsqueda y restablece la info. orig. | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campo  = Campo HTML que se limpiará.          |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoBusqueda(campo: HTMLInputElement) {
+
+    //Si el campo tiene algo escrito se limpiará.
+    if (campo.value.length > 0) {
+      //limpia el cuadro de texto.
+      campo.value = "";
+      //Actualiza la información con la original.
+      this.pacientes = this.pacientesServidor;
+    }
+    //Le da un focus al elemento de búsqueda.
+    campo.focus();
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaPaciente.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de crear paciente.       |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaPaciente() {
+
+    this.rutaActual.navigate(['pacientes', 'alta-paciente']);
+  }
+
+}

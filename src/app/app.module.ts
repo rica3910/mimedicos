@@ -21,7 +21,7 @@ import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AUTH_PROVIDERS } from './autenticar.service';
 import { WAIT_MODAL_PROVIDERS } from './esperar.service';
-import { RouterModule, Routes, ActivatedRoute } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { InicioComponent } from './inicio/inicio.component';
 import { UsuarioIngresadoGuard } from './usuario-ingresado.guard';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
@@ -33,8 +33,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/cambiar-password-olvidado.component';
 import { PacientesComponent } from './pacientes/pacientes.component';
 import { PaginaInvalidaComponent } from './pagina-invalida/pagina-invalida.component';
-import { PACIENTES_PROVIDERS } from './pacientes.service';
+import { PACIENTES_PROVIDERS } from './pacientes/pacientes.service';
 import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
+import { UTILIDADES_PROVIDERS } from './utilidades.service';
+import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
+
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -42,7 +45,7 @@ const rutas: Routes = [
   { path: 'ingresar', component: LoginComponent},      
   { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
-  { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard] },  
+  { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },   
   { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
@@ -55,8 +58,7 @@ const rutas: Routes = [
     LogoutComponent,
     DialogoAlertaComponent,
     DialogoEsperaComponent,
-    CambiarPasswordOlvidadoComponent,
-    PacientesComponent,
+    CambiarPasswordOlvidadoComponent,    
     PaginaInvalidaComponent
   ],  
   entryComponents: [
@@ -69,7 +71,8 @@ const rutas: Routes = [
     ReactiveFormsModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(rutas),
-    HttpClientModule
+    HttpClientModule,
+    PacientesModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
@@ -77,7 +80,8 @@ const rutas: Routes = [
     UsuarioIngresadoGuard,
     UsuarioTieneMenuGuard,
     {provide: 'URL_API_BACKEND', useValue: 'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/'},
-    PACIENTES_PROVIDERS
+    PACIENTES_PROVIDERS,
+    UTILIDADES_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

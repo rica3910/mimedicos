@@ -14,11 +14,12 @@
 
 import { Component, OnInit } from '@angular/core';
 import { AutenticarService } from './autenticar.service';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from './esperar.service';
 import { Router } from '@angular/router';
+import { timer } from 'rxjs/observable/timer';
 
 @Component({
   selector: 'app-root',
@@ -26,9 +27,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-
-  //Propiedad para almacenar los menús que puede utilizar el usuario logueado.
-  urlsMenusUsuario: string[];
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -65,31 +63,8 @@ export class AppComponent implements OnInit {
   |----------------------------------------------------------------------*/
   ngOnInit() {
 
-    //Arreglo que contiene todos los menús del sistema.
-    const urlsMenus: string[] = ["pacientes"];
-    //Se inicializa el arreglo.
-    this.urlsMenusUsuario = new Array();
- 
-    //Se utiliza un time out para que aparezca correctamente el modal de espera.
-    setTimeout(() => {
-      //Abre el modal de espera.
-      this.esperar.esperar();
-      //Establecer los menús que pueda utilizar el usuario ingresado.
-      urlsMenus.forEach(url => {
-        this.autorizacion.usuarioTieneMenu(url).subscribe((resultado) => {
-          //Se detiene el modal de espera.
-          this.esperar.noEsperar();
-          //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
-          if (resultado["value"]) {
-            this.urlsMenusUsuario.push(url);
-          }
-        });
-      });
-    });
-
-
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
-    Observable.timer(0, 30000).subscribe(t => {
+    timer(0, 30000).subscribe(t => {
 
       this.autorizacion.estaConectado()
         .subscribe(respuesta => {
@@ -129,7 +104,10 @@ export class AppComponent implements OnInit {
       //Se abre el modal de esperar, indicando que se hará una petición al servidor.
       this.esperar.esperar();
       this.autorizacion.logout().subscribe(() => {
+        //Se detiene la espera.
         this.esperar.noEsperar();
+        //Navega a la url ingresar.
+        this.rutaActual.navigate(['ingresar']);
       });
     }
   }

@@ -14,14 +14,16 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AutenticarService } from './autenticar.service';
+import { Observable, of } from 'rxjs';
+import { AutenticarService } from '../autenticar.service';
+import { map } from "rxjs/operators";
 
 @Injectable()
 export class PacientesService {
 
   //Arreglo que almacena los pacientes.
   pacientes: JSON[];
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -31,7 +33,7 @@ export class PacientesService {
   |  PARÁMETROS DE ENTRADA: http  = para hacer peticiones http al backend,|
   |                         urlApi= url de la aplicación backend,         |
   |                         autorizacion = contiene los métodos para saber|
-  |                                        si un usuario está conectado.  |
+  |                                        si un usuario está conectado   |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -68,7 +70,7 @@ export class PacientesService {
 
       //Envía la petición al servidor backend para obtener los pacientes.
       return this.http.get(this.urlApi + 'obtener-pacientes', { headers: headers })
-        .map(respuesta => {
+        .pipe(map(respuesta => {
           //Si todo salió bien.
           if (respuesta["estado"] === "OK") {
             //Se almacenan los pacientes en el arreglo.
@@ -76,40 +78,11 @@ export class PacientesService {
           }
 
           return respuesta;
-        });
+        }));
     }
     //No está conectado.
-    return Observable.of(false);
+    return of(false);
 
-  }
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: filtrarPacientes.                                            |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para filtrar el arreglod de pacientes.           |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:  busqueda = cadena que se buscará.            |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE SALIDA:  Arreglo filtrado.                             |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 07/07/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-
-  filtrarPacientes(busqueda: string): Observable<JSON[]>{
-
-    //Se iguala el arreglo original al de la búsqueda para después ser filtrado.
-    let resultadosPacientes: Array<JSON> = this.pacientes;
-
-    return Observable.of(resultadosPacientes.filter((paciente: JSON) => {
-      
-      if(paciente["nombres"] === busqueda){
-        console.log("HOLA");
-        return;
-      }
-
-    }));
   }
 
 }
