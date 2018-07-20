@@ -12,8 +12,11 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Injectable } from '@angular/core';
+import { Injectable,ElementRef } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { fromEvent } from 'rxjs';
+import { map, switchAll, debounceTime} from "rxjs/operators";
 
 @Injectable()
 export class UtilidadesService {
@@ -128,6 +131,77 @@ export class UtilidadesService {
     let pattern = /[^\w]/g;
     return cadena.replace(pattern, x => charmap[x] || x);
   }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: passwordValidator.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que valida la seguridad de la contraseña.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
+  |                         validará.                                     |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/06/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  passwordValidator(control: FormControl): { [s: string]: boolean } {
+    if (!control.value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\|\$%\^&\*])(?=.{6,40})/)) {
+      return { invalidPassword: true };
+    }
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: numberValidator.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que valida que una cadena sea numérica.          |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
+  |                         validará.                                     |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  numberValidator(control: FormControl): { [s: string]: boolean } {
+    if (!control.value.match(/[^0-9]/)) {
+      return { invalidNumber: true };
+    }
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: inputNumerico.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que solo acepta números en un input text.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: input = Elemento del formulario.              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  inputNumerico(input: ElementRef) {
+    //Evento de tecleado.
+    fromEvent(input.nativeElement, 'keyup')
+      //Extrae el texto del cuadro de texto.
+      .pipe(map((e: any) => e.target.value))
+      //Se subscribe al evento.
+      .subscribe((cadena: string) => {
+        //Si se escriben letras, se remueven.
+        input.nativeElement.value = cadena.replace(/[^0-9]/g, "");          
+      });
+
+    //Evento de cuando se pega con el mouse algun texto en la caja de texto.
+    fromEvent(input.nativeElement, 'paste')
+      //Extrae el texto del cuadro de texto.
+      .pipe(map((e: any) => e.target.value))      
+      .pipe(debounceTime(50))
+      //Se subscribe al evento.
+      .subscribe((cadena: string) => {        
+        //Genera un evento de teclazo para que validar que sea número la cadena pegada.
+        input.nativeElement.dispatchEvent(new Event('keyup'));
+      });     
+  }    
 
 }
 

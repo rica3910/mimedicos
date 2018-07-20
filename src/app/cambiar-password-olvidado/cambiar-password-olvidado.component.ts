@@ -21,6 +21,7 @@ import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from '../dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from '../esperar.service';
 import { Observable, Subject } from 'rxjs';
+import { UtilidadesService } from '../utilidades.service';
 
 @Component({
   selector: 'app-cambiar-password-olvidado',
@@ -60,7 +61,8 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |                         modalService = contiene los métodos para      |  
   |                                        manipular modals,              |
   |                         esperar      = contiene los métodos para      |  
-  |                                        abrir modals de espera,        |                  
+  |                                        abrir modals de espera,        |
+  |                 utilidadServices = contiene métodos genéricos.        |                  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -70,12 +72,13 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
     private autorizacion: AutenticarService,
     private router: Router,
     private modalService: NgbModal,
-    private esperar: EsperarService
+    private esperar: EsperarService,
+    private utilidadesService: UtilidadesService
   ) {
 
     //Se agregan las validaciones al formulario de cambiar password.
     this.formCambioPassword = fb.group({
-      'nuevoPassword': ['', Validators.compose([Validators.required, this._passwordValidator])],
+      'nuevoPassword': ['', Validators.compose([Validators.required, this.utilidadesService.passwordValidator])],
       'confirmarPassword': ['', [Validators.required]]
     });
 
@@ -179,24 +182,6 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
             });
         }
       });
-  }
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: _passwordValidator.                                          |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que valida la seguridad de la contraseña.        |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
-  |                         validará.                                     |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 20/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  private _passwordValidator(control: FormControl): { [s: string]: boolean } {
-    if (!control.value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\|\$%\^&\*])(?=.{6,40})/)) {
-      return { invalidPassword: true };
-    }
   }
 
   /*----------------------------------------------------------------------|

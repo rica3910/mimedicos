@@ -526,7 +526,7 @@ export class AutenticarService {
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-
+      
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
         .pipe(map(respuesta => {

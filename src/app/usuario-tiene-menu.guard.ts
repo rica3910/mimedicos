@@ -56,10 +56,25 @@ export class UsuarioTieneMenuGuard implements CanActivate {
 |----------------------------------------------------------------------*/
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean { 
-      //Solo obtiene la primera ruta de la url.                           
-      const url: string =  state.url.split("/")[1];         
-      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {         
+    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {     
+      //Obtiene  los menús de la url.  
+      const menus: string[] =  state.url.split("/"); 
+      //Almacenará el menú o la url para ver si el usuario puede accesar a él.
+      let url: string;                            
+
+      //Si solo hay menú.
+      if(menus.length == 2){
+        //Solo obtiene la primera ruta de la url.
+        url = menus[1];
+      }    
+      //Si son dos menús.
+      else if(menus.length == 3){
+        //Solo obtiene la segunda ruta de la url.
+        url = menus[2];
+      }
+      
+      //Retorna verdadero o falso en caso de que el usuario tenga o no el menú.
+      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {           
         return resultado["value"];             
       }));
       

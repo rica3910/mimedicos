@@ -20,12 +20,14 @@ import { PacientesComponent } from "./pacientes.component";
 import { AltaPacienteComponent } from './alta-paciente/alta-paciente.component';
 import { ListaPacientesComponent } from './lista-pacientes/lista-pacientes.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UsuarioTieneMenuGuard } from "../usuario-tiene-menu.guard";
+import { ReactiveFormsModule } from "@angular/forms";
 
 //Constante que contiene las rutas que tendrá el sistema.
 export const rutas: Routes = [    
     { path: '', component: ListaPacientesComponent},        
-    { path: 'lista-pacientes', component: ListaPacientesComponent},        
-    { path: 'alta-paciente', component: AltaPacienteComponent},        
+    { path: 'lista-pacientes', component: ListaPacientesComponent, canActivate: [UsuarioTieneMenuGuard]},        
+    { path: 'alta-paciente', component: AltaPacienteComponent,canActivate: [UsuarioTieneMenuGuard]},        
     { path: '**', redirectTo: 'pacientes'}    
   ];
 
@@ -41,7 +43,11 @@ export const rutas: Routes = [
     imports: [
       CommonModule,
       RouterModule,
-      NgbModule.forRoot()
+      NgbModule.forRoot(),
+      ReactiveFormsModule
+    ],
+    providers: [          
+      UsuarioTieneMenuGuard      
     ]
   })
   export class PacientesModule{}

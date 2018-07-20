@@ -21,7 +21,8 @@ import { EsperarService } from '../../esperar.service';
 import { fromEvent } from 'rxjs';
 import { UtilidadesService } from '../../utilidades.service';
 import { Router } from '@angular/router';
-import { map, switchAll } from "rxjs/operators"; 
+import { map, switchAll, debounceTime } from "rxjs/operators";
+import { AutenticarService } from '../../autenticar.service';
 
 
 @Component({
@@ -30,13 +31,15 @@ import { map, switchAll } from "rxjs/operators";
   styleUrls: ['./lista-pacientes.component.css']
 })
 export class ListaPacientesComponent implements OnInit {
-  
+
   //Propiedad para indicar que la información ya está disponible para mostrar.
   infoLista: boolean = true;
   //Registros de pacientes que se verán en la vista en la tabla.
   pacientes: Array<JSON>;
   //Registros que vienen de la consulta del servidor sin filtrar.
   private pacientesServidor: Array<JSON>;
+  //Propiedad que indica si el usuario puede dar de alta pacientes.
+  private altaPacientes: boolean = false;
 
   //Cuadro de texto del usuario.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
@@ -54,7 +57,8 @@ export class ListaPacientesComponent implements OnInit {
   |                                          mostrar o no la espera,      |
   |  buscarInfoHTML = elemento de texto HTML que servirá como buscador,   |
   |  utilidadesService= Contiene métodos genéricos y útiles,              |
-  |  rutaActual   = para manipular las url's.                             |
+  |  rutaActual   = para manipular las url's,                             |
+  |  autenticarService = contiene los métodos de autenticación.           |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -62,19 +66,22 @@ export class ListaPacientesComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private pacientesService: PacientesService,
     private modalService: NgbModal,
-    private esperarService: EsperarService,    
+    private esperarService: EsperarService,
     private utilidadesService: UtilidadesService,
-    private rutaActual: Router) { }
+    private rutaActual: Router,
+    private autenticarService: AutenticarService) { }
 
   ngOnInit() {
-    
+
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
     //Intenta obtener los pacientes del usuario ingresado.
     this.pacientesService.obtenerPacientes()
       .subscribe((respuesta) => {
 
-        
+        //Se termina la espera.
+        this.esperarService.noEsperar();
+
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
@@ -83,9 +90,7 @@ export class ListaPacientesComponent implements OnInit {
           this.infoLista = false;
         }
         //Si todo salió bien.
-        else {
-          //Se termina la espera.
-          this.esperarService.noEsperar();
+        else {          
           //Se indica en la vista que ya puede mostrar la info.
           this.infoLista = true;
           //Se llena los arreglos de pacientes para que pueda ser mostrado.
@@ -105,6 +110,17 @@ export class ListaPacientesComponent implements OnInit {
               //Se actualiza la información en pantalla.        
               this.pacientes = resultados;
             });
+
+          //Evento de cuando se pega con el mouse algun texto en la caja de texto.
+          fromEvent(this.buscarInfoHTML.nativeElement, 'paste')
+            //Extrae el texto del cuadro de texto.
+            .pipe(map((e: any) => e.target.value))
+            .pipe(debounceTime(50))
+            //Se subscribe al evento.
+            .subscribe((cadena: string) => {
+              //Genera un evento de teclazo para que validar que sea número la cadena pegada.
+              this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
+            });
         }
       });
   }
@@ -112,6 +128,11 @@ export class ListaPacientesComponent implements OnInit {
   ngAfterViewInit() {
     //Se le da un focus a la búsqueda.
     this.buscarInfoHTML.nativeElement.focus();
+
+    //El botón de dar de alta pacientes se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneMenu('alta-paciente').subscribe((respuesta: boolean) => {
+      this.altaPacientes = respuesta["value"];
+    })
   }
 
   /*----------------------------------------------------------------------|
@@ -177,5 +198,45 @@ export class ListaPacientesComponent implements OnInit {
 
     this.rutaActual.navigate(['pacientes', 'alta-paciente']);
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: buscar.                                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para buscar pacientes.                           |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  buscar() {
+
+    //Se limpia el cuadro de búsqueda.
+    this.buscarInfoHTML.nativeElement.value = "";
+    //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
+    this.esperarService.esperar()
+    //Intenta obtener los pacientes del usuario ingresado.
+    this.pacientesService.obtenerPacientes()
+      .subscribe((respuesta) => {
+
+        //Se termina la espera.
+        this.esperarService.noEsperar();
+        
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this._alerta(respuesta["mensaje"]);
+          //No se intenta mostrar nada en la vista por el error.
+          this.infoLista = false;
+        }
+        //Si todo salió bien.
+        else {          
+          //Se indica en la vista que ya puede mostrar la info.
+          this.infoLista = true;
+          //Se llena los arreglos de pacientes para que pueda ser mostrado.
+          this.pacientes = respuesta["datos"];
+          this.pacientesServidor = respuesta["datos"];
+        }
+      });
+  }  
 
 }
