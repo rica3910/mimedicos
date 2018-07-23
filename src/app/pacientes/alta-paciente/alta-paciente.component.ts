@@ -18,6 +18,8 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl } from
 import { UtilidadesService } from '../../utilidades.service';
 import { fromEvent } from 'rxjs';
 import { map } from "rxjs/operators";
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DialogoAlertaComponent } from './../../dialogo-alerta/dialogo-alerta.component';
 
 @Component({
   selector: 'app-alta-paciente',
@@ -53,8 +55,14 @@ export class AltaPacienteComponent implements OnInit {
   @ViewChild("telefonoHTML") telefonoHTML: ElementRef;
   //Cuadro de texto del celular.
   @ViewChild("celularHTML") celularHTML: ElementRef;
+  //Cuadro de texto del celular.
+  @ViewChild("imagenHTML") imagenHTML: ElementRef;
   //Propiedad para cuando se oprime el botón de crear paciente.
   pulsarCrear: boolean = false;
+  //Constante que almacena la url del icono del paciente.
+  private imagenPacienteDefault: string = "../../../assets/img/pacientes/paciente_default.png";
+  //Propiedad para almacenar la imagen del paciente.
+  imagenPaciente: string = this.imagenPacienteDefault;
 
 
   /*----------------------------------------------------------------------|
@@ -73,7 +81,8 @@ export class AltaPacienteComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private rutaActual: Router,
     private fb: FormBuilder,
-    private utilidadesService: UtilidadesService) {
+    private utilidadesService: UtilidadesService,
+    private modal: NgbModal) {
 
     //Se agregan las validaciones al formulario de ingresar.
     this.formAltaPaciente = fb.group({
@@ -139,19 +148,92 @@ export class AltaPacienteComponent implements OnInit {
     } else if (this.apellidoPaterno.invalid) {
       this.apellidoPaternoHTML.nativeElement.focus();
       return;
-    }else if (this.email.invalid) {
+    } else if (this.email.invalid) {
       this.emailHTML.nativeElement.focus();
       return;
-    }else if (this.telefono.hasError("minlength") || this.telefono.hasError("maxlength")) {
+    } else if (this.telefono.hasError("minlength") || this.telefono.hasError("maxlength")) {
       this.telefonoHTML.nativeElement.focus();
       return;
-    }else if (this.celular.hasError("minlength") || this.celular.hasError("maxlength")) {
+    } else if (this.celular.hasError("minlength") || this.celular.hasError("maxlength")) {
       this.celularHTML.nativeElement.focus();
       return;
     }
 
-    console.log("HOLA");
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: seleccionarImagen.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que selecciona la imagen del paciente.           |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  seleccionarImagen(event) {
+
+    //Si ha sido seleccionada una imagen.
+    if (event.target.files && event.target.files[0]) {
+
+      //Variable que almacena la ruta del archivo.
+      let archivo: File = event.target.files[0];
+      //Variable que almacena la extensión o tipo del archivo.
+      let tipoArchivo: string = archivo["type"];
+
+      //Si el archivo no es una imagen.
+      if (!tipoArchivo.toUpperCase().includes("IMAGE")) {
+
+        //Abre el modal de tamaño chico.
+        const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
+        //Define el título del modal.
+        modalRef.componentInstance.titulo = "Imagen inválida.";
+        //Define el mensaje del modal.
+        modalRef.componentInstance.mensaje = "El archivo que seleccionó No es una imagen.";
+        //Define la etiqueta del botón de Aceptar.
+        modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+
+        //Se resetea la imagen y el seleccionador de archivos.
+        this.limpiarImagen();
+
+      }
+      //Si sí es una imagen.
+      else {
+
+        //Se lee el archivo obtenido.
+        var reader = new FileReader();
+        reader.readAsDataURL(archivo);
+
+        //Cuando la imagen ya se subió temporalmente.
+        reader.onload = (event) => {
+          //Se despliega en pantalla la imagen.
+          this.imagenPaciente = event.target["result"];
+        }
+
+      }
+
+    }
+    //Si ninguna imagen se seleccionó.
+    else {
+      //Se retorna a la imagen por default.
+      this.imagenPaciente = this.imagenPacienteDefault;
+    }
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarImagen.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para resetear la imagen del paciente.            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarImagen() {
+      //Se retorna a la imagen por default.
+      this.imagenPaciente = this.imagenPacienteDefault;
+      //Se resetea el campo.
+      this.imagenHTML.nativeElement.value = "";
+  }
 
 }

@@ -26,73 +26,94 @@
   <div class="row">
     <hr>
   </div>
-  <form [formGroup]="formAltaPaciente" (ngSubmit)="altaPaciente()">
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Nombre(s)*</span>
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="row">
+        <div class="col-lg-12">
+          <img class="img-thumbnail" [src]="imagenPaciente">
         </div>
-        <input [ngClass]="{'input-borde-rojo':pulsarCrear && nombres.invalid}" type="text" class="form-control" maxlength="60" [formControl]="nombres" #nombresHTML ngbTooltip="Nombre(s) del paciente. Ej. Juan Pablo." >
-      </div>
-      <div *ngIf="pulsarCrear && !nombres.valid" class="col-lg-3 alert-danger text-center campo-invalido">El Nombre es Requerido.</div>
-    </div>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Apellido Paterno*</span>
-        </div>
-        <input [ngClass]="{'input-borde-rojo':pulsarCrear && apellidoPaterno.invalid}" type="text" class="form-control" maxlength="25" [formControl]="apellidoPaterno" #apellidoPaternoHTML ngbTooltip="Apellido paterno del paciente. Ej. Pérez.">
-      </div>    
-      <div *ngIf="pulsarCrear && !apellidoPaterno.valid" class="col-lg-3 alert-danger text-center campo-invalido">El Apellido paterno es Requerido.</div>  
-    </div>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Apellido Materno</span>
-        </div>
-        <input type="text" class="form-control" maxlength="25" [formControl]="apellidoMaterno" #apellidoMaternoHTML ngbTooltip="Apellido materno del paciente. Ej. Martínez.">
-      </div>      
-    </div>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Email</span>
-        </div>
-        <input [ngClass]="{'input-borde-rojo':pulsarCrear && email.invalid}" type="email" class="form-control" maxlength="50" [formControl]="email" #emailHTML ngbTooltip="Email del paciente. Ej. juanperez@gmail.com.">
-      </div>
-      <div *ngIf="pulsarCrear && email.hasError('email')" class="col-lg-3 alert-danger text-center campo-invalido">El Email es inválido.</div>
-    </div>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Teléfono</span>
-        </div>
-        <input [ngClass]="{'input-borde-rojo':pulsarCrear && (telefono.hasError('minlength') || telefono.hasError('maxlength'))}" type="text" class="form-control" maxlength="10" [formControl]="telefono" #telefonoHTML ngbTooltip="Teléfono del paciente. Ej. 6144100000.">
-      </div>
-      <div *ngIf="pulsarCrear && (telefono.hasError('minlength') || telefono.hasError('maxlength'))"  class="col-lg-3 alert-danger text-center campo-invalido">El Teléfono debe contener 10 dígitos.</div>
-    </div>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="input-group input-group-lg col-lg-6">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Celular</span>
-        </div>
-        <input [ngClass]="{'input-borde-rojo':pulsarCrear && (celular.hasError('minlength') || celular.hasError('maxlength'))}" type="text" class="form-control" maxlength="10" [formControl]="celular" #celularHTML ngbTooltip="Celular del paciente. Ej. 6141992000.">
-      </div>
-      <div *ngIf="pulsarCrear && celular.hasError('minlength') || celular.hasError('maxlength')"  class="col-lg-3 alert-danger text-center campo-invalido">El Celular debe contener 10 dígitos.</div>
-    </div>
-    <br>
-    <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="col-lg-6">
-        <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Crear o dar de alta al paciente.">Crear</button>
       </div>
     </div>
-  </form>
+    <div class="col-lg-9">
+      <form [formGroup]="formAltaPaciente" (ngSubmit)="altaPaciente()">
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Nombre(s)*</span>
+            </div>
+            <input [ngClass]="{'input-borde-rojo':pulsarCrear && nombres.invalid}" type="text" class="form-control" maxlength="60" [formControl]="nombres"
+              #nombresHTML ngbTooltip="Nombre(s) del paciente. Ej. Juan Pablo.">
+          </div>
+          <div *ngIf="pulsarCrear && !nombres.valid" class="col-lg-5 alert-danger text-center campo-invalido">El Nombre es Requerido.</div>
+        </div>
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Apellido Paterno*</span>
+            </div>
+            <input [ngClass]="{'input-borde-rojo':pulsarCrear && apellidoPaterno.invalid}" type="text" class="form-control" maxlength="25"
+              [formControl]="apellidoPaterno" #apellidoPaternoHTML ngbTooltip="Apellido paterno del paciente. Ej. Pérez.">
+          </div>
+          <div *ngIf="pulsarCrear && !apellidoPaterno.valid" class="col-lg-5 alert-danger text-center campo-invalido">El Apellido paterno es Requerido.</div>
+        </div>
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Apellido Materno</span>
+            </div>
+            <input type="text" class="form-control" maxlength="25" [formControl]="apellidoMaterno" #apellidoMaternoHTML ngbTooltip="Apellido materno del paciente. Ej. Martínez.">
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Email</span>
+            </div>
+            <input [ngClass]="{'input-borde-rojo':pulsarCrear && email.invalid}" type="email" class="form-control" maxlength="50" [formControl]="email"
+              #emailHTML ngbTooltip="Email del paciente. Ej. juanperez@gmail.com.">
+          </div>
+          <div *ngIf="pulsarCrear && email.hasError('email')" class="col-lg-5 alert-danger text-center campo-invalido">El Email es inválido.</div>
+        </div>
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Teléfono</span>
+            </div>
+            <input [ngClass]="{'input-borde-rojo':pulsarCrear && (telefono.hasError('minlength') || telefono.hasError('maxlength'))}"
+              type="text" class="form-control" maxlength="10" [formControl]="telefono" #telefonoHTML ngbTooltip="Teléfono del paciente. Ej. 6144100000.">
+          </div>
+          <div *ngIf="pulsarCrear && (telefono.hasError('minlength') || telefono.hasError('maxlength'))" class="col-lg-5 alert-danger text-center campo-invalido">El Teléfono debe contener 10 dígitos.</div>
+        </div>
+        <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Celular</span>
+            </div>
+            <input [ngClass]="{'input-borde-rojo':pulsarCrear && (celular.hasError('minlength') || celular.hasError('maxlength'))}" type="text"
+              class="form-control" maxlength="10" [formControl]="celular" #celularHTML ngbTooltip="Celular del paciente. Ej. 6141992000.">
+          </div>
+          <div *ngIf="pulsarCrear && celular.hasError('minlength') || celular.hasError('maxlength')" class="col-lg-5 alert-danger text-center campo-invalido">El Celular debe contener 10 dígitos.</div>
+        </div>
+        <div class="row">
+          <div class="col-lg-1">
+            <button type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen()">
+              <i class="material-icons">clear</i>
+            </button>
+          </div>
+          <div class="col-lg-11">
+            <input type="file" class="btn btn-lg btn-block" ngbTooltip="Seleccionar una imagen." #imagenHTML (change)="seleccionarImagen($event)"
+              accept="image/*">
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-lg-7">
+            <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Crear o dar de alta al paciente.">Crear</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 </div>
