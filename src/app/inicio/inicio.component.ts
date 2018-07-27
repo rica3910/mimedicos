@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AutenticarService } from '../autenticar.service';
 import { EsperarService } from '../esperar.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DialogoAlertaComponent } from '../dialogo-alerta/dialogo-alerta.component';
 
 @Component({
   selector: 'app-inicio',

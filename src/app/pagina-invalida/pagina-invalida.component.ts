@@ -28,18 +28,18 @@ export class PaginaInvalidaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método constructor del componente.                      | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: router       = contiene los métodos para      |
+  |  PARÁMETROS DE ENTRADA: rutaNavegacion = contiene los métodos para    |
   |                                         manipular rutas.              |                  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 30/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(private router: Router) { }
+  constructor(private rutaNavegacion: Router) { }
   
   ngOnInit(){
     //Si escribe una url que no existe, lo retorna a la página de ingreso.
-    this.router.navigate(['ingresar']);
+    this.rutaNavegacion.navigate(['ingresar']);
   }
 
 }

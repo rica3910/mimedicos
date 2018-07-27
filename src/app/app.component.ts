@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
   |                                        manipular los modals,          |
   |                         esperar      = contiene los métodos para      |  
   |                                        abrir modals de espera,        |
-  |                         rutaActual   = para manipular las url's       |  
+  |                     rutaNavegacion   = para manipular las url's       |  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
   constructor(private autorizacion: AutenticarService,
     private modal: NgbModal,
     private esperar: EsperarService,
-    private rutaActual: Router) { }
+    private rutaNavegacion: Router) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -107,7 +107,7 @@ export class AppComponent implements OnInit {
         //Se detiene la espera.
         this.esperar.noEsperar();
         //Navega a la url ingresar.
-        this.rutaActual.navigate(['ingresar']);
+        this.rutaNavegacion.navigate(['ingresar']);
       });
     }
   }

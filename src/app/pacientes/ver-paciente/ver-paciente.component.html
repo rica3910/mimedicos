@@ -1,0 +1,101 @@
+<!------------------------------------------------------------------
+|NOMBRE: ver-paciente.                                             | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para ver a un paciente en específico.         |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 25/07/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-3">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de pacientes." (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-9">
+      <h1 class="display-4">Detalle del paciente</h1>
+    </div>
+  </div>
+  <div class="row">
+    <hr>
+  </div>
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="row">
+        <div class="col-lg-12">
+          <img class="img-thumbnail" [src]="imagen">
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-9">
+      <div class="row">
+        <div class="col-lg-12">
+        <ngb-accordion activeIds="panel-datos-generales">
+          <ngb-panel id="panel-datos-generales">
+            <ng-template ngbPanelTitle>
+              <span>
+                  <h4 class="text-center fuente-azul">Datos generales</h4>
+              </span>
+            </ng-template>
+            <ng-template ngbPanelContent>              
+                <table class="table table-striped table-bordered">
+                  <tr>
+                    <th>Nombres</th>
+                    <td>{{nombres}}</td>
+                  </tr>
+                  <tr>
+                    <th>Apellido paterno</th>
+                    <td>{{apellidoPaterno}}</td>
+                  </tr>
+                  <tr>
+                    <th>Apellido materno</th>
+                    <td>{{apellidoMaterno}}</td>
+                  </tr>
+                  <tr>
+                    <th>Email</th>
+                    <td>{{email}}</td>
+                  </tr>
+                  <tr>
+                    <th>Teléfono</th>
+                    <td>{{telefono}}</td>
+                  </tr>
+                  <tr>
+                    <th>Celular</th>
+                    <td>{{celular}}</td>
+                  </tr>
+                  <tr>
+                    <th>Estatus</th>
+                    <td>{{estatus}}</td>
+                  </tr>
+                </table>
+              
+            </ng-template>
+          </ngb-panel>
+          <ngb-panel>
+            <ng-template ngbPanelTitle>
+                <span>
+                    <h4 class="text-center fuente-azul">Datos de facturación</h4>
+                </span>
+            </ng-template>
+            <ng-template ngbPanelContent>
+              Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+              non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor,
+              sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh
+              helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
+              lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard
+              of them accusamus labore sustainable VHS.
+            </ng-template>
+          </ngb-panel>
+        </ngb-accordion>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

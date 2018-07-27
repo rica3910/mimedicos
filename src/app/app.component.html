@@ -51,10 +51,10 @@
 <!--Template de cuando el usuario NO está conectado.-->
 <ng-template #elseTemplate>
   <!--Template de login.-->
-  <app-login *ngIf="!rutaActual.url.includes('/cambiar-password-olvidado')">
+  <app-login *ngIf="!rutaNavegacion.url.includes('/cambiar-password-olvidado')">
   </app-login>
   <!--Template de cambiar password.-->
-  <app-cambiar-password-olvidado *ngIf="rutaActual.url.includes('/cambiar-password-olvidado')">
+  <app-cambiar-password-olvidado *ngIf="rutaNavegacion.url.includes('/cambiar-password-olvidado')">
   </app-cambiar-password-olvidado>
 </ng-template>
 <!--Fin del template #elseTemplate.-->

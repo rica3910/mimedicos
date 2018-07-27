@@ -14,10 +14,12 @@
 
 
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, ActivatedRoute } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router} from '@angular/router';
 import { Observable} from 'rxjs';
 import { AutenticarService } from './autenticar.service';
 import { map } from "rxjs/operators";
+import { EsperarService } from './esperar.service';
+
 
 
 @Injectable()
@@ -30,13 +32,16 @@ export class UsuarioTieneMenuGuard implements CanActivate {
   |  DESCRIPCIÓN: Método constructor del componente.                      | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: autorizacion = contiene los métodos para saber|
-  |                                        si un usuario está conectado.  |
+  |                                        si un usuario está conectado,  |
+  |  esperarService = contiene los métodos para mostrar modal de espera.  |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 04/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(private autorizacion: AutenticarService) { }
+  constructor(private autorizacion: AutenticarService,
+             private esperarService: EsperarService,
+             private rutaNavegacion: Router) { }
 
   /*----------------------------------------------------------------------|
 |  NOMBRE: canActivate.                                                 |
@@ -56,7 +61,11 @@ export class UsuarioTieneMenuGuard implements CanActivate {
 |----------------------------------------------------------------------*/
   canActivate(
     next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {     
+    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {    
+      
+      //Abre el modal de espera.
+      this.esperarService.esperar();
+
       //Obtiene  los menús de la url.  
       const menus: string[] =  state.url.split("/"); 
       //Almacenará el menú o la url para ver si el usuario puede accesar a él.
@@ -68,13 +77,22 @@ export class UsuarioTieneMenuGuard implements CanActivate {
         url = menus[1];
       }    
       //Si son dos menús.
-      else if(menus.length == 3){
+      else if(menus.length >= 3){
         //Solo obtiene la segunda ruta de la url.
         url = menus[2];
       }
-      
+
       //Retorna verdadero o falso en caso de que el usuario tenga o no el menú.
-      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {           
+      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {     
+        
+        //Detiene la espera.
+        this.esperarService.noEsperar();
+
+        //Si el usuario no tiene el menú, se le retorna al inicio o página principal.
+        if(!resultado["value"]){
+          this.rutaNavegacion.navigate(['inicio']);
+        }
+        //Retorna el resultado.
         return resultado["value"];             
       }));
       

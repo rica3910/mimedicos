@@ -1,7 +1,7 @@
 /******************************************************************|
-|NOMBRE: AltaPacienteComponent.                                    | 
+|NOMBRE: EditarPacienteComponent.                                  | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Componente para dar de alta pacientes.               |
+|DESCRIPCIÓN: Componente para dar editar pacientes.                |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
@@ -22,15 +22,17 @@ import { PacientesService } from '../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 
 @Component({
-  selector: 'app-alta-paciente',
-  templateUrl: './alta-paciente.component.html',
-  styleUrls: ['./alta-paciente.component.css']
+  selector: 'app-editar-paciente',
+  templateUrl: './editar-paciente.component.html',
+  styleUrls: ['./editar-paciente.component.css']
 })
-export class AltaPacienteComponent implements OnInit {
+export class EditarPacienteComponent implements OnInit {
 
 
-  //Objeto que contendrá el formulario de alta del paciente.
-  formAltaPaciente: FormGroup;
+  //Objeto que contendrá el formulario de edición del paciente.
+  formEditarPaciente: FormGroup;
+  //Objeto que contendrá el identificador del paciente.
+  pacienteId: string;  
   //Objeto del formulario que contendrá al nombre.
   nombres: AbstractControl;
   //Objeto del formulario que contendrá al apellido paterno.
@@ -45,6 +47,8 @@ export class AltaPacienteComponent implements OnInit {
   celular: AbstractControl;
   //Objeto del formulario que contendrá al explorador.
   imagen: AbstractControl;
+  //Objeto del formulario que contendrá el estatus.
+  estatus: AbstractControl;
   //Cuadro de texto del nombre del paciente.
   @ViewChild("nombresHTML") nombresHTML: ElementRef;
   //Cuadro de texto del apellido paterno del paciente.
@@ -59,15 +63,16 @@ export class AltaPacienteComponent implements OnInit {
   @ViewChild("celularHTML") celularHTML: ElementRef;
   //Cuadro de texto del celular.
   @ViewChild("imagenHTML") imagenHTML: ElementRef;
-  //Propiedad para cuando se oprime el botón de crear paciente.
-  pulsarCrear: boolean = false;
+ //Lista del estatus.
+ @ViewChild("estatusHTML") estatusHTML: ElementRef;  
+  //Propiedad para cuando se oprime el botón de editar paciente.
+  pulsarEditar: boolean = false;
   //Constante que almacena la url del icono del paciente.
   private imagenPacienteDefault: string = "../../../assets/img/pacientes/paciente_default.png";
   //Propiedad para almacenar la imagen del paciente.
   imagenPaciente: string = this.imagenPacienteDefault;
   //Propiedad que almacena el archivo de la imagen del paciente.
   imagenArchivo: string = "";
-
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -83,7 +88,7 @@ export class AltaPacienteComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 30/05/2018.                                                   |    
+  |  FECHA: 27/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private rutaNavegacion: Router,
     private fb: FormBuilder,
@@ -93,26 +98,28 @@ export class AltaPacienteComponent implements OnInit {
     private pacientesService: PacientesService
   ) {
 
-    //Se agregan las validaciones al formulario de ingresar.
-    this.formAltaPaciente = fb.group({
+    //Se agregan las validaciones al formulario de editar paciente.
+    this.formEditarPaciente = fb.group({
       'nombres': ['', Validators.required],
       'apellidoPaterno': ['', Validators.required],
       'apellidoMaterno': [''],
       'email': ['', Validators.email],
       'telefono': ['', [this.utilidadesService.numberValidator, Validators.maxLength(10), Validators.minLength(10)]],
       'celular': ['', [this.utilidadesService.numberValidator, Validators.maxLength(10), Validators.minLength(10)]],
-      'imagen': ['']
+      'imagen': [''],
+      'estatus': ['', Validators.required]
     });
 
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
-    this.nombres = this.formAltaPaciente.controls['nombres'];
-    this.apellidoPaterno = this.formAltaPaciente.controls['apellidoPaterno'];
-    this.apellidoMaterno = this.formAltaPaciente.controls['apellidoMaterno'];
-    this.email = this.formAltaPaciente.controls['email'];
-    this.telefono = this.formAltaPaciente.controls['telefono'];
-    this.celular = this.formAltaPaciente.controls['celular'];
-    this.imagen = this.formAltaPaciente.controls['imagen'];
+    this.nombres = this.formEditarPaciente.controls['nombres'];
+    this.apellidoPaterno = this.formEditarPaciente.controls['apellidoPaterno'];
+    this.apellidoMaterno = this.formEditarPaciente.controls['apellidoMaterno'];
+    this.email = this.formEditarPaciente.controls['email'];
+    this.telefono = this.formEditarPaciente.controls['telefono'];
+    this.celular = this.formEditarPaciente.controls['celular'];
+    this.imagen = this.formEditarPaciente.controls['imagen'];
+    this.estatus = this.formEditarPaciente.controls['estatus'];
 
   }
 
@@ -140,17 +147,17 @@ export class AltaPacienteComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaPaciente.                                                |
+  |  NOMBRE: editarPaciente.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que da de alta un paciente.                      |   
+  |  DESCRIPCIÓN: Método que edita un paciente.                           |   
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  altaPaciente() {
+  editarPaciente() {
 
-    this.pulsarCrear = true;
+    this.pulsarEditar = true;
 
     //Si los elementos del formulario no están llenos, se hace un focus para que se ingrese texto.
     if (this.nombres.invalid) {
@@ -183,6 +190,8 @@ export class AltaPacienteComponent implements OnInit {
     telefono = telefono.trim();
     let celular: string = this.celular.value ? this.celular.value : "";
     celular = celular.trim();
+    let estatus: string = this.estatus.value ? this.estatus.value: ""
+    estatus = estatus.trim();
 
     //Abre el modal de espera.
     this.esperarService.esperar();
@@ -202,7 +211,7 @@ export class AltaPacienteComponent implements OnInit {
         //Detiene la espera.
         this.esperarService.noEsperar();
 
-        this.pulsarCrear = false;
+        this.pulsarEditar = false;
 
         //Abre el modal.
         const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
@@ -219,12 +228,12 @@ export class AltaPacienteComponent implements OnInit {
         if (resultado["estado"] == "OK") {
 
           //Define el título del modal.
-          modalRef.componentInstance.titulo = "Alta satisfactoria.";
+          modalRef.componentInstance.titulo = "Modificación satisfactoria.";
           //Define el mensaje del modal.
-          modalRef.componentInstance.mensaje = "El paciente se dio de alta satisfactoriamente.";
+          modalRef.componentInstance.mensaje = "El paciente se modificó satisfactoriamente.";
 
           //Se resetea el formulario.
-          this.formAltaPaciente.reset();
+          this.formEditarPaciente.reset();
           //Limpia la imagen.
           this.limpiarImagen();
 

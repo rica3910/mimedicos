@@ -40,6 +40,12 @@ export class ListaPacientesComponent implements OnInit {
   private pacientesServidor: Array<JSON>;
   //Propiedad que indica si el usuario puede dar de alta pacientes.
   private altaPacientes: boolean = false;
+  //Propiedad que indica si el usuario puede ver pacientes.
+  private verPacientes: boolean = false;
+  //Propiedad que indica si el usuario puede editar pacientes.
+  private editarPacientes: boolean = false;
+  //Propiedad que indica si el usuario puede eliminar pacientes.
+  private eliminarPacientes: boolean = false;  
 
   //Cuadro de texto del usuario.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
@@ -57,7 +63,7 @@ export class ListaPacientesComponent implements OnInit {
   |                                          mostrar o no la espera,      |
   |  buscarInfoHTML = elemento de texto HTML que servirá como buscador,   |
   |  utilidadesService= Contiene métodos genéricos y útiles,              |
-  |  rutaActual   = para manipular las url's,                             |
+  |  rutaNavegacion   = para navegar a otras url´s                         |
   |  autenticarService = contiene los métodos de autenticación.           |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
@@ -68,7 +74,7 @@ export class ListaPacientesComponent implements OnInit {
     private modalService: NgbModal,
     private esperarService: EsperarService,
     private utilidadesService: UtilidadesService,
-    private rutaActual: Router,
+    private rutaNavegacion: Router,
     private autenticarService: AutenticarService) { }
 
   ngOnInit() {
@@ -132,7 +138,26 @@ export class ListaPacientesComponent implements OnInit {
     //El botón de dar de alta pacientes se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneMenu('alta-paciente').subscribe((respuesta: boolean) => {
       this.altaPacientes = respuesta["value"];
-    })
+    });
+
+    //El botón de ver a un paciente en la tabla de lista de pacientes,
+    // se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneMenu('ver-paciente').subscribe((respuesta: boolean) => {
+      this.verPacientes = respuesta["value"];
+    });
+
+    //El botón de editar a un paciente en la tabla de lista de pacientes,
+    // se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneMenu('editar-paciente').subscribe((respuesta: boolean) => {
+      this.editarPacientes = respuesta["value"];
+    });
+
+    //El botón de eliminar a un paciente en la tabla de lista de pacientes,
+    // se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneMenu('eliminar-paciente').subscribe((respuesta: boolean) => {
+      this.eliminarPacientes = respuesta["value"];
+    });    
+    
   }
 
   /*----------------------------------------------------------------------|
@@ -196,7 +221,7 @@ export class ListaPacientesComponent implements OnInit {
   |----------------------------------------------------------------------*/
   altaPaciente() {
 
-    this.rutaActual.navigate(['pacientes', 'alta-paciente']);
+    this.rutaNavegacion.navigate(['pacientes', 'alta-paciente']);
   }
 
   /*----------------------------------------------------------------------|
@@ -237,6 +262,32 @@ export class ListaPacientesComponent implements OnInit {
           this.pacientesServidor = respuesta["datos"];
         }
       });
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verPaciente.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para entrar al detalle del paciente.             |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 25/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verPaciente(id: string){
+    this.rutaNavegacion.navigateByUrl('pacientes/ver-paciente/' + id);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarPaciente.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para entrar al formulario de editar paciente.    |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 27/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarPaciente(id: string){
+    this.rutaNavegacion.navigateByUrl('pacientes/editar-paciente/' + id);
   }  
 
 }

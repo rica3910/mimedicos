@@ -88,7 +88,7 @@ export class AutenticarService {
 
                 //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
                 if (menu["value"]) {
-                  //Si no es el último url o menú.                  
+                  //Si es es el último url o menú.                  
                   if (indice == urlsMenus.length - 1) {
                     this._guardarMenus(url, true);
                   } else {
@@ -167,7 +167,7 @@ export class AutenticarService {
   /*----------------------------------------------------------------------|
   |  NOMBRE: _guardarMenus.                                               |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para almacenar el token.                         | 
+  |  DESCRIPCIÓN: Método para almacenar los menús que tiene el usuario.   | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: menu   = menú o url que se agregará,          |
   |                         final = si es el último menú.                 |
@@ -545,6 +545,48 @@ export class AutenticarService {
     //No está conectado.
     return of(false);
   }
+  
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTienePaciente.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene un paciente dado. | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario tenga o no el paciente respectivamente.    |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTienePaciente(pacienteId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+      
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-paciente/' + pacienteId, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene el paciente.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí tiene asignado el paciente.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }  
 
 }
 

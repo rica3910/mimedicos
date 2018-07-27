@@ -1,11 +1,11 @@
 /******************************************************************|
-|NOMBRE: lista-pacientes.                                          | 
+|NOMBRE: ver-paciente.                                             | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Se muestran lo estilos de la lista de pacientes.     |
+|DESCRIPCIÓN: Se muestran lo estilos para ver a un paciente.       |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 13/07/2018.                                                |
+|FECHA: 25/07/2018.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -17,3 +17,8 @@
     background-color: rgb(0, 162, 232);
     color: white;    
   }
+
+  /*Clase para darle a la fuente o letra que lo contiene el color azul. */
+.fuente-azul{
+  color: rgb(0, 162, 232);
+}

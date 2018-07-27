@@ -56,7 +56,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |                                        de validaciones de formularios,|
   |                         autorizacion = contiene los métodos para      |
   |                                        conectarse al sistema,         |
-  |                         router       = contiene los métodos para      |
+  |                 rutaNavegacion       = contiene los métodos para      |
   |                                         manipular rutas,              |
   |                         modalService = contiene los métodos para      |  
   |                                        manipular modals,              |
@@ -70,7 +70,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private fb: FormBuilder,
     private autorizacion: AutenticarService,
-    private router: Router,
+    private rutaNavegacion: Router,
     private modalService: NgbModal,
     private esperar: EsperarService,
     private utilidadesService: UtilidadesService
@@ -94,13 +94,13 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
     if (this.autorizacion.obtenerToken() === null) {
 
       //Obtiene el token de la url.
-      this.tokenUrl = this.router.url.split("/")[2];
+      this.tokenUrl = this.rutaNavegacion.url.split("/")[2];
 
       //Si el token es menor o mayor a 40 carácteres, es incorrecto.
       if (this.tokenUrl.length < 40 || this.tokenUrl.length > 40) {
         this._alerta("El token obtenido es inválido.").subscribe(() => {
           //Se retorna al formulario de ingresar.
-          this.router.navigate(['ingresar']);
+          this.rutaNavegacion.navigate(['ingresar']);
         });
       }
       //Si el token es válido en su longitud.
@@ -117,7 +117,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
           if (respuesta["estado"] === "ERROR") {
             this._alerta(respuesta["mensaje"]).subscribe(() => {
               //Se retorna al formulario de ingresar.
-              this.router.navigate(['ingresar']);
+              this.rutaNavegacion.navigate(['ingresar']);
             });
           }
           //Si el token es válido.
@@ -131,7 +131,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
     }
     //Si el usuario está conectado. Se manda a la página de inicio.
     else{
-      this.router.navigate(['inicio']);
+      this.rutaNavegacion.navigate(['inicio']);
     }
   }
 
@@ -178,7 +178,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
                       Favor de ingresar con su nuevo password.`)
             .subscribe(() => {
               //Se retorna al formulario de ingresar.
-              this.router.navigate(['ingresar']);
+              this.rutaNavegacion.navigate(['ingresar']);
             });
         }
       });

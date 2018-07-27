@@ -16,7 +16,7 @@ import { Injectable,ElementRef } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
-import { map, switchAll, debounceTime} from "rxjs/operators";
+import { map, debounceTime} from "rxjs/operators";
 
 @Injectable()
 export class UtilidadesService {
@@ -146,7 +146,7 @@ export class UtilidadesService {
   |  FECHA: 20/06/2018.                                                   |    
   |----------------------------------------------------------------------*/
   passwordValidator(control: FormControl): { [s: string]: boolean } {
-    if (!control.value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\|\$%\^&\*])(?=.{6,40})/)) {
+    if (control.value != null && !control.value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\|\$%\^&\*])(?=.{6,40})/)) {
       return { invalidPassword: true };
     }
   }  
@@ -164,7 +164,7 @@ export class UtilidadesService {
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   numberValidator(control: FormControl): { [s: string]: boolean } {
-    if (!control.value.match(/[^0-9]/)) {
+    if (control.value != null && !control.value.match(/[^0-9]/)) {
       return { invalidNumber: true };
     }
   }    

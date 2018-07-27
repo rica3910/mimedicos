@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
   |                                        de validaciones de formularios,|
   |                         autorizacion = contiene los métodos para      |
   |                                        conectarse al sistema,         |
-  |                         router       = contiene los métodos para      |
+  |                       rutaNavegacion = contiene los métodos para      |
   |                                         manipular rutas,              |
   |                         modalService = contiene los métodos para      |  
   |                                        manipular modals,              |
@@ -76,7 +76,7 @@ export class LoginComponent implements OnInit {
   |----------------------------------------------------------------------*/
   constructor(private fb: FormBuilder,
     private autorizacion: AutenticarService,
-    private router: Router,
+    private rutaNavegacion: Router,
     private modalService: NgbModal,
     private esperar: EsperarService,
     private cdRef: ChangeDetectorRef) {
@@ -113,7 +113,7 @@ export class LoginComponent implements OnInit {
 
     //Si ya se encuentra conectado al sistema, lo retorna al menú principal.
     if (this.autorizacion.obtenerToken() !== null) {
-      this.router.navigate(['inicio']);      
+      this.rutaNavegacion.navigate(['inicio']);      
     }
   }
 
@@ -195,7 +195,7 @@ export class LoginComponent implements OnInit {
           //Si se realiza con éxito el ingreso. 
           else {
             //Se navega a la página de inicio.
-            this.router.navigate(['inicio']);
+            this.rutaNavegacion.navigate(['inicio']);
           }
         }
       );
