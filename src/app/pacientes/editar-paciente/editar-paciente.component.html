@@ -89,20 +89,31 @@
             <div class="input-group-prepend">
               <span class="input-group-text">Celular</span>
             </div>
-            <input [ngClass]="{'input-borde-rojo':pulsarEditar && (celular.hasError('minlength') || celular.hasError('maxlength'))}" type="text"
-              class="form-control" maxlength="10" [formControl]="celular" #celularHTML ngbTooltip="Celular del paciente. Ej. 6141992000.">
+            <input [ngClass]="{'input-borde-rojo':pulsarEditar && (celular.hasError('minlength') || celular.hasError('maxlength'))}"
+              type="text" class="form-control" maxlength="10" [formControl]="celular" #celularHTML ngbTooltip="Celular del paciente. Ej. 6141992000.">
           </div>
           <div *ngIf="pulsarEditar && celular.hasError('minlength') || celular.hasError('maxlength')" class="col-lg-5 alert-danger text-center campo-invalido">El Celular debe contener 10 dígitos.</div>
         </div>
         <div class="row">
+          <div class="input-group input-group-lg col-lg-7">
+            <div class="input-group-prepend">
+              <span class="input-group-text"> Estatus</span>
+            </div>
+            <select class="form-control" #estatusHTML [formControl]="estatus" ngbTooltip="Estatus del paciente: ACTIVO o INACTIVO.">
+              <option id="ACTIVO">ACTIVO</option>
+              <option id="INACTIVO">INACTIVO</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
           <div class="col-lg-1">
-            <button type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen()">
+            <button type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen(true)">
               <i class="material-icons">clear</i>
             </button>
           </div>
           <div class="col-lg-11">
             <input type="file" class="btn btn-lg btn-block" ngbTooltip="Seleccionar una imagen." #imagenHTML (change)="seleccionarImagen($event)"
-              accept="image/*" [formControl]="imagen" >
+              accept="image/*" [formControl]="imagen">
           </div>
         </div>
         <br>

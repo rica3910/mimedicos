@@ -510,6 +510,8 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para saber si el usuario tiene un menú dado.     | 
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: url = url del menú.                           |
+  |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
   |                         en caso de que el usuario tenga o no el menú  |
   |                         respectivamente.                              |
@@ -553,6 +555,8 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para saber si el usuario tiene un paciente dado. | 
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: pacienteId: identificador del paciente.       |
+  |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
   |  en caso de que el usuario tenga o no el paciente respectivamente.    |  
   |-----------------------------------------------------------------------|
@@ -587,6 +591,51 @@ export class AutenticarService {
     //No está conectado.
     return of(false);
   }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneDetModulo.                                       |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene el detalle del    |
+  |  módulo.                                                              | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: nombreDetModulo = nombre del det. del módulo. |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |                         en caso de que el usuario tenga o no el menú  |
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneDetModulo(nombreDetModulo: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+      
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-det-modulo/' + nombreDetModulo, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene el menú.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que si tiene asignado el detalle del módulo.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }
+  
 
 }
 

@@ -23,6 +23,7 @@ import { UtilidadesService } from '../../utilidades.service';
 import { Router } from '@angular/router';
 import { map, switchAll, debounceTime } from "rxjs/operators";
 import { AutenticarService } from '../../autenticar.service';
+import { DialogoConfirmacionComponent } from './../../dialogo-confirmacion/dialogo-confirmacion.component';
 
 
 @Component({
@@ -45,7 +46,9 @@ export class ListaPacientesComponent implements OnInit {
   //Propiedad que indica si el usuario puede editar pacientes.
   private editarPacientes: boolean = false;
   //Propiedad que indica si el usuario puede eliminar pacientes.
-  private eliminarPacientes: boolean = false;  
+  private eliminarPacientes: boolean = false;
+  //Propiedad que indica si el usuario puede desasignar pacientes.
+  private desAsignarPacientes: boolean = false;
 
   //Cuadro de texto del usuario.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
@@ -96,7 +99,7 @@ export class ListaPacientesComponent implements OnInit {
           this.infoLista = false;
         }
         //Si todo salió bien.
-        else {          
+        else {
           //Se indica en la vista que ya puede mostrar la info.
           this.infoLista = true;
           //Se llena los arreglos de pacientes para que pueda ser mostrado.
@@ -154,10 +157,16 @@ export class ListaPacientesComponent implements OnInit {
 
     //El botón de eliminar a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('eliminar-paciente').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('ELIMINAR PACIENTE').subscribe((respuesta: boolean) => {
       this.eliminarPacientes = respuesta["value"];
+    });
+
+    //El botón de desasignar a un paciente en la tabla de lista de pacientes,
+    // se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('DESASIGNAR PACIENTE').subscribe((respuesta: boolean) => {
+      this.desAsignarPacientes = respuesta["value"];
     });    
-    
+
   }
 
   /*----------------------------------------------------------------------|
@@ -245,7 +254,7 @@ export class ListaPacientesComponent implements OnInit {
 
         //Se termina la espera.
         this.esperarService.noEsperar();
-        
+
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
@@ -254,7 +263,7 @@ export class ListaPacientesComponent implements OnInit {
           this.infoLista = false;
         }
         //Si todo salió bien.
-        else {          
+        else {
           //Se indica en la vista que ya puede mostrar la info.
           this.infoLista = true;
           //Se llena los arreglos de pacientes para que pueda ser mostrado.
@@ -262,7 +271,7 @@ export class ListaPacientesComponent implements OnInit {
           this.pacientesServidor = respuesta["datos"];
         }
       });
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: verPaciente.                                                 |
@@ -273,7 +282,7 @@ export class ListaPacientesComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 25/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  verPaciente(id: string){
+  verPaciente(id: string) {
     this.rutaNavegacion.navigateByUrl('pacientes/ver-paciente/' + id);
   }
 
@@ -286,8 +295,100 @@ export class ListaPacientesComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 27/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  editarPaciente(id: string){
+  editarPaciente(id: string) {
     this.rutaNavegacion.navigateByUrl('pacientes/editar-paciente/' + id);
-  }  
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarPaciente.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar a un paciente.                     |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: id = identificador del paciente.              |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarPaciente(id: string) {
+
+    //Abre el modal.
+    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = "Confirmación";
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = "Se eliminará permanentemente toda la información del paciente. "
+      + "¿Está seguro de eliminar al paciente?";
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
+    //Define la etiqueta del botón de Cancelar.
+    modalRef.componentInstance.etiquetaBotonCancelar = "No";
+    //Se retorna el botón pulsado.
+    modalRef.result.then((result) => {
+      //Si la respuesta es eliminar al paciente.
+      if (result === "Sí") {
+        this.pacientesService.eliminarPaciente(id).subscribe(respuesta => {
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this._alerta(respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            this._alerta("El paciente se eliminó permanentemente.");
+            //Se actualizan los datos.
+            this.buscar();
+          }
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desAsignarPaciente.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para desasignar a un paciente del usuario.       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: id = identificador del paciente.              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  desAsignarPaciente(id: string) {
+
+    //Abre el modal.
+    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = "Confirmación";
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = "Ya no podrá acceder a la información del paciente. "
+      + "¿Está seguro de desasignarse el paciente?";
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
+    //Define la etiqueta del botón de Cancelar.
+    modalRef.componentInstance.etiquetaBotonCancelar = "No";
+    //Se retorna el botón pulsado.
+    modalRef.result.then((result) => {
+      //Si la respuesta es eliminar al paciente.
+      if (result === "Sí") {
+        this.pacientesService.desAsignarPaciente(id).subscribe(respuesta => {
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this._alerta(respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            this._alerta("El paciente se desasignó satisfactoriamente.");
+            //Se actualizan los datos.
+            this.buscar();
+          }
+        });
+      }
+    });
+
+  }
+
 
 }

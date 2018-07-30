@@ -1,3 +1,4 @@
+import { element } from 'protractor';
 /******************************************************************|
 |NOMBRE: Pacientes.                                                | 
 |------------------------------------------------------------------|
@@ -105,23 +106,23 @@ export class PacientesService {
   |-----------------------------------------------------------------------|
   |  FECHA: 23/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  altaPaciente(nombres: string, 
-              apellidoPaterno: string, 
-              apellidoMaterno: string, 
-              email: string,
-              telefono: string,
-              celular: string,
-              imagen: string): Observable<any> {
+  altaPaciente(nombres: string,
+    apellidoPaterno: string,
+    apellidoMaterno: string,
+    email: string,
+    telefono: string,
+    celular: string,
+    imagen: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
-    let json = JSON.stringify({      
+    let json = JSON.stringify({
       nombres: nombres,
       apellidoPaterno: apellidoPaterno,
       apellidoMaterno: apellidoMaterno,
       email: email,
       telefono: telefono,
       celular: celular,
-      imagen:imagen
+      imagen: imagen
     });
 
     //Le concatena la palabra "json=" al json armado.
@@ -132,7 +133,7 @@ export class PacientesService {
       'X-API-KEY': this.autorizacion.obtenerToken(),
       'Content-Type': 'application/x-www-form-urlencoded'
     });
-   
+
     //Realiza la petición al servidor.
     return this.http
       .post(this.urlApi + 'alta-paciente',
@@ -169,7 +170,7 @@ export class PacientesService {
       });
 
       //Envía la petición al servidor backend para obtener los pacientes.
-      return this.http.get(this.urlApi + 'ver-paciente/' + pacienteId, { headers: headers})
+      return this.http.get(this.urlApi + 'ver-paciente/' + pacienteId, { headers: headers })
         .pipe(map(respuesta => {
           //Si todo salió bien.
           if (respuesta["estado"] === "OK") {
@@ -185,6 +186,142 @@ export class PacientesService {
 
   }
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarPaciente.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para editar a un paciente.                       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  pacienteid = identificador del paciente,                             |
+  |  nombres = nombres del paciente,                                      | 
+  |  apellidoPaterno = apellido paterno del paciente,                     |
+  |  apellidoMaterno = apellido materno del paciente,                     |
+  |  email = email del paciente,                                          |
+  |  telefono = teléfono fijo del paciente,                               |
+  |  celular = celular del paciente,                                      |
+  |  imagen = archivo de la imagen,                                       |
+  |  estatus = estatus del paciente.                                      |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarPaciente(
+    pacienteId: string,
+    nombres: string,
+    apellidoPaterno: string,
+    apellidoMaterno: string,
+    email: string,
+    telefono: string,
+    celular: string,
+    imagen: string,
+    estatus: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      pacienteId: pacienteId,
+      nombres: nombres,
+      apellidoPaterno: apellidoPaterno,
+      apellidoMaterno: apellidoMaterno,
+      email: email,
+      telefono: telefono,
+      celular: celular,
+      imagen: imagen,
+      estatus: estatus
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'editar-paciente',
+        params,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarPaciente.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar a un paciente.                     | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  pacienteid = identificador del paciente.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarPaciente(
+    pacienteId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      pacienteId: pacienteId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-paciente',
+        params,
+        { headers: headers });
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desAsignarPaciente.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para desasignar a un paciente del usuario.       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  pacienteid = identificador del paciente.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  desAsignarPaciente(
+    pacienteId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      pacienteId: pacienteId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'desasignar-paciente',
+        params,
+        { headers: headers });
+  }    
 
 }
 
