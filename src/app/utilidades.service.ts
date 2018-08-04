@@ -201,7 +201,31 @@ export class UtilidadesService {
         //Genera un evento de teclazo para que validar que sea número la cadena pegada.
         input.nativeElement.dispatchEvent(new Event('keyup'));
       });     
-  }    
+  } 
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoTexto.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo de texto.                               | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campo  = Campo HTML que se limpiará.          |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 03/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoTexto(campo: HTMLInputElement) {
+
+    //Si el campo tiene algo escrito se limpiará.
+    if (campo.value.length > 0) {
+      //limpia el cuadro de texto.
+      campo.value = "";
+    }
+    //Le da un focus al elemento de búsqueda.
+    campo.focus();
+  }
+  
 
 }
 

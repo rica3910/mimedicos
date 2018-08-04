@@ -23,7 +23,7 @@ import { UtilidadesService } from '../../utilidades.service';
 import { Router } from '@angular/router';
 import { map, switchAll, debounceTime } from "rxjs/operators";
 import { AutenticarService } from '../../autenticar.service';
-import { DialogoConfirmacionComponent } from './../../dialogo-confirmacion/dialogo-confirmacion.component';
+import { DialogoConfirmacionComponent } from '../../dialogo-confirmacion/dialogo-confirmacion.component';
 
 
 @Component({
@@ -66,7 +66,7 @@ export class ListaPacientesComponent implements OnInit {
   |                                          mostrar o no la espera,      |
   |  buscarInfoHTML = elemento de texto HTML que servirá como buscador,   |
   |  utilidadesService= Contiene métodos genéricos y útiles,              |
-  |  rutaNavegacion   = para navegar a otras url´s                         |
+  |  rutaNavegacion   = para navegar a otras url´s                        |
   |  autenticarService = contiene los métodos de autenticación.           |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |

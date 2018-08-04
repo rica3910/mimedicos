@@ -323,6 +323,50 @@ export class PacientesService {
         { headers: headers });
   }    
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroPacientes.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los pacientes activos del usuario   |
+  |  logueado.                                                            |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 03/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroPacientes(): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los pacientes.
+      return this.http.get(this.urlApi + 'filtro-pacientes', { headers: headers })
+        .pipe(map(respuesta => {
+          //Si todo salió bien.
+          if (respuesta["estado"] === "OK") {
+            //Se almacenan los pacientes en el arreglo.
+            this.pacientes = respuesta["datos"];
+          }
+
+          return respuesta;
+        }));
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

@@ -1,0 +1,57 @@
+<!------------------------------------------------------------------
+|NOMBRE: lista-citas.                                              | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página de citas.                                     |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 03/08/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-1">
+      <button type="button" class="btn btn-azul col-lg-12" placement="bottom" ngbTooltip="Realizar una cita." (click)="altaCita();">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Paciente</span>
+        </div>
+        <input type="text" class="form-control" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
+          (click)="clickBuscarPaciente$.next($event.target.value)" #buscarPacienteHTML #buscarPacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
+          [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
+        <div class="input-group-append">
+          <button class="btn" type="button" (click)="utilidadesService.limpiarCampoTexto(buscarPacienteHTML)" placement="bottom" ngbTooltip="Borrar contenido.">
+            <i class="material-icons">backspace</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="input-group input-group-lg">
+        <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
+        <div class="input-group-append">
+          <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda(buscarInfoHTML)" placement="bottom" ngbTooltip="Borrar búsqueda.">
+            <i class="material-icons">backspace</i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-1">
+      <button class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom" ngbTooltip="Buscar.">
+        <i class="material-icons">search</i>
+      </button>
+    </div>
+  </div>
+  <br>
+</div>

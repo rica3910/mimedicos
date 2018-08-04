@@ -76,18 +76,17 @@ export class AutenticarService {
           this._guardarNombreUsuario(respuesta["usuario"]);
 
           //Arreglo que contiene todos los menús del sistema.
-          const urlsMenus: string[] = ["pacientes"];
+          const urlsMenus: string[] = ["pacientes", "citas"];
           //Se borran los  menús en caso de que haya.
           this._eliminarMenus();
           //Establecer los menús que pueda utilizar el usuario ingresado.          
-          urlsMenus.forEach((url: string, indice: number) => {
+          urlsMenus.forEach((url: string, indice: number) => {          
 
             this.usuarioTieneMenu(url)
               //Se subscribe al servicio.
-              .subscribe((menu) => {
-
+              .subscribe((menu) => {        
                 //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
-                if (menu["value"]) {
+                if (menu["value"]) {                  
                   //Si es es el último url o menú.                  
                   if (indice == urlsMenus.length - 1) {
                     this._guardarMenus(url, true);

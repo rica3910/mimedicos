@@ -37,6 +37,8 @@ import { PACIENTES_PROVIDERS } from './pacientes/pacientes.service';
 import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 import { UTILIDADES_PROVIDERS } from './utilidades.service';
 import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
+import { rutas as  rutasCitas, CitasModule } from './citas/citas.module';
+import { CitasComponent } from './citas/citas.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -46,6 +48,7 @@ const rutas: Routes = [
   { path: 'cambiar-password-olvidado/:token', component: CambiarPasswordOlvidadoComponent},  
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },   
+  { path: 'citas', component: CitasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasCitas },
   { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
@@ -72,7 +75,8 @@ const rutas: Routes = [
     NgbModule.forRoot(),
     RouterModule.forRoot(rutas),
     HttpClientModule,
-    PacientesModule
+    PacientesModule,
+    CitasModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
