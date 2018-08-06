@@ -12,14 +12,15 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Injectable,ElementRef } from '@angular/core';
+import { Injectable, ElementRef } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
-import { map, debounceTime} from "rxjs/operators";
+import { map, debounceTime } from "rxjs/operators";
 
 @Injectable()
 export class UtilidadesService {
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -60,36 +61,36 @@ export class UtilidadesService {
       datos.forEach((json: JSON) => {
 
         //Variable que concatenará los valores del JSON.
-        let registroCompleto: string  = "";
+        let registroCompleto: string = "";
 
         //Se recorre el JSON, que equivale al registro actual de la iteración.
-        for(let campo in json){
+        for (let campo in json) {
           //Se concatena el JSON.
-          registroCompleto = registroCompleto + (json[campo] || "")  + " ";                    
+          registroCompleto = registroCompleto + (json[campo] || "") + " ";
         }
 
         //Variable para indicar que la palabra a buscar se encuentra en el JSON.
         let existePalabra: boolean = true;
         //Variable para dividir la búsqueda en palabras divididas por espacio en blanco.
         let palabrasBusqueda = busqueda.split(" ");
-        
+
         //Se recorren las palabras encontradas.
         palabrasBusqueda.forEach((palabra: string) => {
           //Si todas las palabras se encuentran en el JSON, sigue el flujo.
-          if (existePalabra) {            
+          if (existePalabra) {
             //Si la palabra no es un espacio en blanco.
             if (palabra.trim().length > 0) {
               //Se le quitan los acentos a la búsqueda y se convierte a mayúscula.
               //Y si la búsqueda está en el JSON.
               if (this.quitarAcentos(registroCompleto.toUpperCase()).includes(palabra)) {
                 //La palabra sí existe.
-                existePalabra = true;                
+                existePalabra = true;
               }
-              else {  
+              else {
                 //La palabra no existe.              
                 existePalabra = false;
               }
-            }            
+            }
           }
         });
 
@@ -102,7 +103,7 @@ export class UtilidadesService {
       });
     }
     //Sí la búsqueda está vacía o el cuadro de texto está vacío.
-    else{
+    else {
       //Se retorna el arreglo original.
       datosFiltrados = datos;
     }
@@ -149,7 +150,7 @@ export class UtilidadesService {
     if (control.value != null && !control.value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\|\$%\^&\*])(?=.{6,40})/)) {
       return { invalidPassword: true };
     }
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: numberValidator.                                             |
@@ -167,7 +168,7 @@ export class UtilidadesService {
     if (control.value != null && !control.value.match(/[^0-9]/)) {
       return { invalidNumber: true };
     }
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: inputNumerico.                                               |
@@ -188,20 +189,20 @@ export class UtilidadesService {
       //Se subscribe al evento.
       .subscribe((cadena: string) => {
         //Si se escriben letras, se remueven.
-        input.nativeElement.value = cadena.replace(/[^0-9]/g, "");          
+        input.nativeElement.value = cadena.replace(/[^0-9]/g, "");
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.
     fromEvent(input.nativeElement, 'paste')
       //Extrae el texto del cuadro de texto.
-      .pipe(map((e: any) => e.target.value))      
+      .pipe(map((e: any) => e.target.value))
       .pipe(debounceTime(50))
       //Se subscribe al evento.
-      .subscribe((cadena: string) => {        
+      .subscribe((cadena: string) => {
         //Genera un evento de teclazo para que validar que sea número la cadena pegada.
         input.nativeElement.dispatchEvent(new Event('keyup'));
-      });     
-  } 
+      });
+  }
 
 
   /*----------------------------------------------------------------------|
@@ -225,7 +226,8 @@ export class UtilidadesService {
     //Le da un focus al elemento de búsqueda.
     campo.focus();
   }
-  
+
+
 
 }
 

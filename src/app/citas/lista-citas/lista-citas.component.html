@@ -22,13 +22,111 @@
     <div class="col-lg-5">
       <div class="input-group">
         <div class="input-group-prepend">
+          <span class="input-group-text">Organización</span>
+        </div>
+        <select class="custom-select" ngbTooltip="Seleccionar una organización.">
+          <option>NENE</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Clínica</span>
+        </div>
+        <select class="custom-select" ngbTooltip="Seleccionar una clínica.">
+          <option>NENE</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Estatus</span>
+        </div>
+        <select class="custom-select" ngbTooltip="Seleccionar el estatus de la cita.">
+          <option>ACTIVO</option>
+          <option>INACTIVO</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Actividad</span>
+        </div>
+        <select class="custom-select" ngbTooltip="Seleccionar la actividad o proceso de la cita.">
+          <option>ACTIVO</option>
+          <option>INACTIVO</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Desde</span>
+        </div>
+        <input class="form-control" ngbDatepicker #d1="ngbDatepicker" ngbTooltip="Fecha desde donde inicia la búsqueda.">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" (click)="d1.toggle()" type="button" ngbTooltip="Abrir calendario.">
+            <i class="material-icons">date_range</i>
+          </button>
+          <button class="btn btn-outline-secondary"  type="button" ngbTooltip="Borrar fecha.">
+              <i class="material-icons">backspace</i>
+            </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Hasta</span>
+          </div>
+          <input class="form-control" ngbDatepicker #d2="ngbDatepicker" ngbTooltip="Fecha hasta donde termina la búsqueda.">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" (click)="d2.toggle()" type="button" ngbTooltip="Abrir calendario.">
+              <i class="material-icons">date_range</i>
+            </button>
+            <button class="btn btn-outline-secondary" type="button" ngbTooltip="Borrar fecha.">
+                <i class="material-icons">backspace</i>
+              </button>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
           <span class="input-group-text">Paciente</span>
         </div>
         <input type="text" class="form-control" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
           (click)="clickBuscarPaciente$.next($event.target.value)" #buscarPacienteHTML #buscarPacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
           [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
         <div class="input-group-append">
-          <button class="btn" type="button" (click)="utilidadesService.limpiarCampoTexto(buscarPacienteHTML)" placement="bottom" ngbTooltip="Borrar contenido.">
+          <button class="btn btn-outline-secondary" type="button" (click)="utilidadesService.limpiarCampoTexto(buscarPacienteHTML)" placement="bottom"
+            ngbTooltip="Borrar contenido.">
+            <i class="material-icons">backspace</i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Usuario</span>
+        </div>
+        <input type="text" class="form-control" />
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" (click)="utilidadesService.limpiarCampoTexto(buscarPacienteHTML)" placement="bottom"
+            ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
         </div>

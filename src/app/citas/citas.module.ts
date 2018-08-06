@@ -23,6 +23,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioTieneMenuGuard } from '../usuario-tiene-menu.guard';
 import { UsuarioTienePacienteGuard } from '../pacientes/usuario-tiene-paciente.guard';
 
+
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', component: ListaCitasComponent },
