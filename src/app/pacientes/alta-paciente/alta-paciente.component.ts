@@ -93,7 +93,7 @@ export class AltaPacienteComponent implements OnInit {
     private pacientesService: PacientesService
   ) {
 
-    //Se agregan las validaciones al formulario de ingresar.
+    //Se agregan las validaciones al formulario de alta paciente.
     this.formAltaPaciente = fb.group({
       'nombres': ['', Validators.required],
       'apellidoPaterno': ['', Validators.required],

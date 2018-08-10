@@ -24,8 +24,8 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Organización</span>
         </div>
-        <select class="form-control select" ngbTooltip="Seleccionar una organización." #organizacionHTML (change)="filtroClinicas(organizacionHTML.value, true)">
-          <option value="0">TODAS</option>
+        <select class="form-control select" [formControl]="organizacionControl" ngbTooltip="Seleccionar una organización." #organizacionHTML (change)="filtroClinicas(organizacionHTML.value, true)">
+          <option value = 0>TODAS</option>
           <option *ngFor="let organizacion of organizaciones" value={{organizacion.id}}>
             {{organizacion.nombre}}
           </option>
@@ -37,8 +37,8 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Clínica</span>
         </div>
-        <select class="form-control" ngbTooltip="Seleccionar una clínica." #clinicaHTML>
-          <option value=0>TODAS</option>
+        <select class="form-control" [formControl]="clinicaControl" ngbTooltip="Seleccionar una clínica." #clinicaHTML>
+          <option value = 0>TODAS</option>
           <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
             {{clinica.nombre}}
           </option>
@@ -53,9 +53,9 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Estatus</span>
         </div>
-        <select class="form-control" ngbTooltip="Seleccionar el estatus de la cita." #estatusHTML>
-          <option>ACTIVO</option>
-          <option>INACTIVO</option>
+        <select class="form-control" [formControl]="estatusControl" ngbTooltip="Seleccionar el estatus de la cita." #estatusHTML>
+          <option value="ACTIVO" selected>ACTIVO</option>
+          <option value="INACTIVO">INACTIVO</option>
         </select>
       </div>
     </div>
@@ -64,7 +64,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Actividad</span>
         </div>
-        <select class="form-control" ngbTooltip="Seleccionar la actividad o proceso de la cita." #estadoCitaHTML>
+        <select class="form-control" [formControl]="actividadControl" ngbTooltip="Seleccionar la actividad o proceso de la cita." #estadoCitaHTML>
           <option value=0>TODAS</option>
           <option *ngFor="let estadoCita of estadosCitas" value={{estadoCita.id}}>
             {{estadoCita.nombre}}
@@ -87,7 +87,8 @@
               ngbDatepicker
               class="form-control"    
               readonly 
-              ngbTooltip="Fecha desde donde inicia la búsqueda." >
+              ngbTooltip="Fecha desde donde inicia la búsqueda." 
+              [formControl]="fechaDesdeControl">
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" 
           (click)="mostrarPopUpFechaDesde()" 
@@ -114,7 +115,8 @@
               ngbDatepicker
               class="form-control"    
               readonly 
-              ngbTooltip="Fecha hasta donde inicia la búsqueda." >
+              ngbTooltip="Fecha hasta donde inicia la búsqueda." 
+              [formControl]="fechaHastaControl">            
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" 
           (click)="calendarioHastaHTML.toggle()" 
@@ -136,11 +138,11 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Paciente</span>
         </div>
-        <input type="text" class="form-control" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
+        <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
           (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
           [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button" (click)="utilidadesService.limpiarCampoTexto(pacienteHTML)"
+          <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoPaciente()"
             placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
@@ -152,11 +154,11 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Usuario</span>
         </div>
-        <input type="text" class="form-control" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
+        <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
         (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Buscar por usuario."
         [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button" (click)="utilidadesService.limpiarCampoTexto(usuarioHTML)"
+          <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoUsuario()"
             placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>

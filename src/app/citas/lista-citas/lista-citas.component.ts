@@ -27,7 +27,8 @@ import { OrganizacionesService } from '../../organizaciones.service';
 import { ClinicasService } from '../../clinicas.service';
 import { CitasService } from '../../citas.service';
 import { UsuariosService } from '../../usuarios.service';
-import { NgModel } from '@angular/forms';
+import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
+
 
 
 @Component({
@@ -51,6 +52,24 @@ export class ListaCitasComponent implements OnInit {
   usuarios: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
   pacientes: { id: string, nombres_paciente: string }[];
+  //Objeto que contendrá el formulario de búsqueda de las citas.
+  formBusquedCitas: FormGroup;
+  //Objeto del formulario que contendrá a la organización.
+  organizacionControl: AbstractControl;
+  //Objeto del formulario que contendrá a la clínica.
+  clinicaControl: AbstractControl;
+  //Objeto del formulario que contendrá al estatus.
+  estatusControl: AbstractControl;
+  //Objeto del formulario que contendrá a la actividad.
+  actividadControl: AbstractControl;
+  //Objeto del formulario que contendrá a la fecha desde.
+  fechaDesdeControl: AbstractControl;
+  //Objeto del formulario que contendrá a la fecha hasta.
+  fechaHastaControl: AbstractControl;
+  //Objeto del formulario que contendrá al paciente.
+  pacienteControl: AbstractControl;
+  //Objeto del formulario que contendrá al usuario.
+  usuarioControl: AbstractControl;
 
   /*Variable que sirve para cuando se le de clic o focus al usuario
 se ejecute el método buscar usuario.*/
@@ -97,13 +116,13 @@ se ejecute el método buscar usuario.*/
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
   //Fecha inicial del campo fecha desde.  
-  fechaDesdeInicial: NgbDateStruct;  
+  fechaDesdeInicial: NgbDateStruct;
   //Fecha desde seleccionada.
-  fechaDesdeSeleccionada: NgbDateStruct;  
+  fechaDesdeSeleccionada: NgbDateStruct;
   //Fecha mínima que puede tener el campo fechaHasta. Debe de ser por lo mínimo igual a la fecha desde.
   fechaHastaMinima: NgbDateStruct;
   //Fecha hasta seleccionada.
-  fechaHastaSeleccionada: NgbDateStruct;  
+  fechaHastaSeleccionada: NgbDateStruct;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -119,8 +138,9 @@ se ejecute el método buscar usuario.*/
   |  organizacionesService = contiene los métodos de base de datos de las |
   |  organizaciones,                                                      |
   |  clinicasService = contiene los métodos de la bd de las clínicas,     |
-  |  citasService = contiene los métodos de la bd de los estados de citas,
-  |  usuariosService = contiene los métodos de la bd de los usuarios.     |
+  |  citasService = contiene los métodos de la bd de los estados de citas,|
+  |  usuariosService = contiene los métodos de la bd de los usuarios,     |
+  |  fb = contiene los métodos para manipular formularios HTML,           |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -134,12 +154,39 @@ se ejecute el método buscar usuario.*/
     private organizacionesService: OrganizacionesService,
     private clinicasService: ClinicasService,
     private citasService: CitasService,
-    private usuariosService: UsuariosService) {
+    private usuariosService: UsuariosService,
+    private fb: FormBuilder) {
+
+    //Se agregan las validaciones al formulario de búsqueda de citas.
+    this.formBusquedCitas = fb.group({
+      'organizacion': ['0'],
+      'clinica': ['0'],
+      'estatus': ['ACTIVO'],
+      'actividad': ['0'],
+      'fechaDesde': [''],
+      'fechaHasta': [''],
+      'paciente': [''],
+      'usuario': ['']
+    });
+
+    //Se relacionan los elementos del formulario con las propiedades/variables creadas.
+    this.organizacionControl = this.formBusquedCitas.controls['organizacion'];
+    this.clinicaControl = this.formBusquedCitas.controls['clinica'];
+    this.estatusControl = this.formBusquedCitas.controls['estatus'];
+    this.actividadControl = this.formBusquedCitas.controls['actividad'];
+    this.fechaDesdeControl = this.formBusquedCitas.controls['fechaDesde'];
+    this.fechaHastaControl = this.formBusquedCitas.controls['fechaHasta'];
+    this.pacienteControl = this.formBusquedCitas.controls['paciente'];
+    this.usuarioControl = this.formBusquedCitas.controls['usuario'];
 
     //Al calendario del campo fecha desde y hasta se les establece la fecha actual.
     let fechaActual = new Date();
     this.fechaDesdeInicial = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };
     this.fechaHastaMinima = this.fechaDesdeInicial;
+    //Se selecciona en el calendario de fecha desde y fecha hasta la fecha actual.
+    this.fechaDesdeControl.setValue("");
+    this.fechaHastaControl.setValue("");
+    this.fechaDesdeSeleccionada = this.fechaDesdeInicial;
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
@@ -157,7 +204,7 @@ se ejecute el método buscar usuario.*/
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
-      
+
       //Si todos los filtros e información están listos.
       if (this.organizacionesInicioListas &&
         this.clinicasInicioListas &&
@@ -279,8 +326,11 @@ se ejecute el método buscar usuario.*/
 
     this.clinicasService.filtroClinicas(organizacionId).subscribe((respuesta) => {
 
-      this.clinicasInicioListas = true;
-      this.cargaInicialLista$.next(this.clinicasInicioListas);
+      //Solo se realiza al recargar la página.
+      if (!esperar) {
+        this.clinicasInicioListas = true;
+        this.cargaInicialLista$.next(this.clinicasInicioListas);
+      }
 
       //Si esperar es verdadero, entonces se cierra el modal de espera.
       esperar ? this.esperarService.noEsperar() : null;
@@ -295,6 +345,8 @@ se ejecute el método buscar usuario.*/
 
         //Se almacenan las clínicas en el arreglo de clínicas.
         this.clinicas = respuesta["datos"];
+        //Se inicializa el select.
+        this.clinicaControl.setValue(0);
       }
     });
 
@@ -428,6 +480,8 @@ se ejecute el método buscar usuario.*/
     /*La fecha mínima a seleccionar en el campo hasta es la fecha desde,
     ya que no puede ser menor.*/
     this.fechaHastaMinima = fechaSeleccionada;
+    //Se selecciona la fecha mínima a seleccionar en la fecha hasta.
+    this.fechaHastaControl.setValue(fechaSeleccionada);
   }
 
   /*----------------------------------------------------------------------|
@@ -451,25 +505,27 @@ se ejecute el método buscar usuario.*/
     //Se obtiene la fecha actual.
     let fechaActual = new Date();
     //Se establece la fecha actual en el calendario de las fechas desde y hasta.
-    this.fechaDesdeInicial = {year: fechaActual.getFullYear() , month: fechaActual.getMonth() + 1, day: fechaActual.getDate()};
+    this.fechaDesdeInicial = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };
     this.fechaHastaMinima = this.fechaDesdeInicial;
+    this.fechaDesdeControl.setValue("");
+    this.fechaHastaControl.setValue("");
 
   }
-/*----------------------------------------------------------------------|
-|  NOMBRE: mostrarPopUpFechaDesde.                                      |
-|-----------------------------------------------------------------------|
-|  DESCRIPCIÓN: Muestra el calendario de la fecha desde.                | 
-|-----------------------------------------------------------------------|
-|  AUTOR: Ricardo Luna.                                                 |
-|-----------------------------------------------------------------------|
-|  FECHA: 08/08/2018.                                                   |    
-|----------------------------------------------------------------------*/
-  mostrarPopUpFechaDesde() {  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: mostrarPopUpFechaDesde.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Muestra el calendario de la fecha desde.                | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 08/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  mostrarPopUpFechaDesde() {
     /*Se cierra el calendario de fecha hasta, para que cuando se vuelva a abrir,
     se abra con la fecha mínima, que es la fecha desde.*/
     this.calendarioHastaHTML.close();
     //Se abre el el popup del calendario fecha desde.
-    this.calendarioDesdeHTML.toggle();    
+    this.calendarioDesdeHTML.toggle();
   }
 
   /*----------------------------------------------------------------------|
@@ -507,8 +563,64 @@ se ejecute el método buscar usuario.*/
 
     //La fecha mínima de la fecha desde será la fecha desde seleccionada.
     this.fechaHastaMinima = this.fechaDesdeSeleccionada;
+    this.fechaHastaControl.setValue("");
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoPaciente.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo paciente.                               |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoPaciente() {
+
+    //Se limpia la caja de texto y su valor.
+    this.utilidadesService.limpiarCampoTexto(this.pacienteHTML.nativeElement);
+    this.pacienteControl.setValue("");
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoUsuario.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo usuario.                                |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoUsuario() {
+    //Se limpia la caja de texto y su valor.
+    this.utilidadesService.limpiarCampoTexto(this.usuarioHTML.nativeElement);
+    this.usuarioControl.setValue("");
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: buscar.                                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Ejecuta la búsqueda.                                    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  buscar() {
+
+    console.log(this.organizacionControl.value);
+    console.log(this.clinicaControl.value);
+    console.log(this.estatusControl.value);
+    console.log(this.actividadControl.value);
+    console.log(this.fechaDesdeControl.value);
+    console.log(this.fechaHastaControl.value);
+    console.log(this.pacienteControl.value);
+    console.log(this.usuarioControl.value);
+
+
+  }
+
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: _alerta.                                                     |

@@ -150,13 +150,13 @@ export class EditarPacienteComponent implements OnInit {
         this.esperarService.noEsperar();
 
         //Se inicializan todas las variables.
-        this.nombres.setValue("");
+        /*this.nombres.setValue("");
         this.apellidoPaterno.setValue("");
         this.apellidoMaterno.setValue("");
         this.email.setValue("");
         this.telefono.setValue("");
         this.celular.setValue("");
-        this.estatus.setValue("");
+        this.estatus.setValue("");*/
         //Se le asigna al paciente una imagen por default para que no salga vacío el cuadro de la imagen.
         this.imagenPaciente = this.imagenPacienteSinImagen;
 

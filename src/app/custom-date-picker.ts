@@ -75,16 +75,22 @@ export class FormatDatePicker extends NgbDateParserFormatter {
     |----------------------------------------------------------------------*/
     format(date: NgbDateStruct): string {
 
-        //Se obtiene el día.
-        let dia: string = date.day.toString();
-        //Si el día es de un dígito se le agrega un cero a la izquierda.
-        dia = dia.length == 1 ? dia = "0" + dia : dia;
-        //Se obtiene el mes.
-        let mes: string = date.month.toString();
-        //Si el mes es de un dígito se le agrega un cero a la izquierda.
-        mes = mes.length == 1 ? mes = "0" + mes : mes;
+        //Si la fecha existe.
+        if (date) {
+            //Se obtiene el día.
+            let dia: string = date.day.toString();
+            //Si el día es de un dígito se le agrega un cero a la izquierda.
+            dia = dia.length == 1 ? dia = "0" + dia : dia;
+            //Se obtiene el mes.
+            let mes: string = date.month.toString();
+            //Si el mes es de un dígito se le agrega un cero a la izquierda.
+            mes = mes.length == 1 ? mes = "0" + mes : mes;
 
-        //Se retorna la fecha formateada.
-        return `${dia}/${mes}/${date.year}`;
+            //Se retorna la fecha formateada.
+            return `${dia}/${mes}/${date.year}`;
+        }
+
+        //Si la fecha es vacía o nula.
+        return null;
     }
 }
