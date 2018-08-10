@@ -16,9 +16,8 @@
 .btn-azul{
     background-color: rgb(0, 162, 232);
     color: white;    
-  }
-
-  .form-control select{
-    background-color: rgb(0, 162, 232);
+    font-size: 15px;
 
   }
+
+  

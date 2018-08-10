@@ -1,12 +1,12 @@
 /******************************************************************|
-|NOMBRE: Citas.                                                    | 
+|NOMBRE: Organizaciones.                                           | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Servicio que contiene los métodos para el mto. de    |
-|citas.                                                            |
+|DESCRIPCIÓN: Servicio que contiene los métodos de base de datos de|
+|las organizaciones.                                               |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 03/08/2018.                                                |
+|FECHA: 06/08/2018.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -17,8 +17,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
 
+
 @Injectable()
-export class CitasService {
+export class OrganizacionesService {
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -38,11 +39,12 @@ export class CitasService {
     @Inject('URL_API_BACKEND') private urlApi: string,
     private autorizacion: AutenticarService) { }
 
+
   /*----------------------------------------------------------------------|
-  |  NOMBRE: filtroEstadosCitas.                                          |
+  |  NOMBRE: filtroOrganizaciones.                                        |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para obtener los estados de las citas            |
-  |  del usuario logueado.                                                |  
+  |  DESCRIPCIÓN: Método para obtener las organizaciones activas          |
+  |  del usuario logueado.                                                |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
@@ -53,7 +55,7 @@ export class CitasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 06/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstadosCitas(): Observable<any> {
+  filtroOrganizaciones(): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -64,16 +66,17 @@ export class CitasService {
       });
 
       //Envía la petición al servidor backend para obtener los registros.
-      return this.http.get(this.urlApi + 'filtro-estados-citas', { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-organizaciones', { headers: headers });
     }
     //No está conectado.
     return of(false);
 
   }
-  
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.
-export const CITAS_PROVIDERS: Array<any> = [
-  { provide: CitasService, useClass: CitasService }
+export const ORGANIZACIONES_PROVIDERS: Array<any> = [
+  { provide: OrganizacionesService, useClass: OrganizacionesService }
 ];

@@ -14,7 +14,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PacientesService } from '../pacientes.service';
+import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 
 @Component({

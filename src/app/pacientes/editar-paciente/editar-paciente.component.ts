@@ -18,7 +18,7 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, FormControl } from
 import { UtilidadesService } from '../../utilidades.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
-import { PacientesService } from '../pacientes.service';
+import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 
 @Component({

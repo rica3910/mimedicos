@@ -33,12 +33,16 @@ import { HttpClientModule } from '@angular/common/http';
 import { CambiarPasswordOlvidadoComponent } from './cambiar-password-olvidado/cambiar-password-olvidado.component';
 import { PacientesComponent } from './pacientes/pacientes.component';
 import { PaginaInvalidaComponent } from './pagina-invalida/pagina-invalida.component';
-import { PACIENTES_PROVIDERS } from './pacientes/pacientes.service';
+import { PACIENTES_PROVIDERS } from './pacientes.service';
 import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 import { UTILIDADES_PROVIDERS } from './utilidades.service';
 import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
 import { rutas as  rutasCitas, CitasModule } from './citas/citas.module';
 import { CitasComponent } from './citas/citas.component';
+import { ORGANIZACIONES_PROVIDERS } from './organizaciones.service';
+import { CLINICAS_PROVIDERS } from './clinicas.service';
+import { CITAS_PROVIDERS } from './citas.service';
+import { USUARIOS_PROVIDERS } from './usuarios.service';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -85,7 +89,11 @@ const rutas: Routes = [
     UsuarioTieneMenuGuard,
     {provide: 'URL_API_BACKEND', useValue: 'http://telmexcatedral.ddns.net/mimedicos-backend/index.php/'},
     PACIENTES_PROVIDERS,
-    UTILIDADES_PROVIDERS
+    UTILIDADES_PROVIDERS,
+    ORGANIZACIONES_PROVIDERS,
+    CLINICAS_PROVIDERS,
+    CITAS_PROVIDERS,
+    USUARIOS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

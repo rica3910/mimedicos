@@ -210,13 +210,14 @@ export class UtilidadesService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Limpia el campo de texto.                               | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: campo  = Campo HTML que se limpiará.          |
+  |  PARÁMETROS DE ENTRADA: campo  = Campo HTML que se limpiará,          |
+  |  focus = indica si se le dará un focus al campo después de limpiarse. |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 03/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  limpiarCampoTexto(campo: HTMLInputElement) {
+  limpiarCampoTexto(campo: HTMLInputElement, focus: boolean = true) {
 
     //Si el campo tiene algo escrito se limpiará.
     if (campo.value.length > 0) {
@@ -224,7 +225,7 @@ export class UtilidadesService {
       campo.value = "";
     }
     //Le da un focus al elemento de búsqueda.
-    campo.focus();
+    focus ? campo.focus() : null;
   }
 
 

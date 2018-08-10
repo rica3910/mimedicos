@@ -14,7 +14,7 @@
 
 
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { PacientesService } from '../pacientes.service';
+import { PacientesService } from '../../pacientes.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from '../../esperar.service';

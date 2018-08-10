@@ -1,4 +1,3 @@
-import { element } from 'protractor';
 /******************************************************************|
 |NOMBRE: Pacientes.                                                | 
 |------------------------------------------------------------------|
@@ -16,7 +15,7 @@ import { element } from 'protractor';
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { AutenticarService } from '../autenticar.service';
+import { AutenticarService } from './autenticar.service';
 import { map } from "rxjs/operators";
 
 @Injectable()
@@ -349,23 +348,12 @@ export class PacientesService {
       });
 
       //Envía la petición al servidor backend para obtener los pacientes.
-      return this.http.get(this.urlApi + 'filtro-pacientes', { headers: headers })
-        .pipe(map(respuesta => {
-          //Si todo salió bien.
-          if (respuesta["estado"] === "OK") {
-            //Se almacenan los pacientes en el arreglo.
-            this.pacientes = respuesta["datos"];
-          }
-
-          return respuesta;
-        }));
+      return this.http.get(this.urlApi + 'filtro-pacientes', { headers: headers });
     }
     //No está conectado.
     return of(false);
 
   }
-
-
 
 }
 

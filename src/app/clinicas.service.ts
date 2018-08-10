@@ -1,24 +1,26 @@
 /******************************************************************|
-|NOMBRE: Citas.                                                    | 
+|NOMBRE: Clinicas.                                                 | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Servicio que contiene los métodos para el mto. de    |
-|citas.                                                            |
+|DESCRIPCIÓN: Servicio que contiene los métodos de base de datos de|
+|las clínicas.                                                     |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 03/08/2018.                                                |
+|FECHA: 06/08/2018.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
+
+
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
 
 @Injectable()
-export class CitasService {
+export class ClinicasService {
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -39,10 +41,12 @@ export class CitasService {
     private autorizacion: AutenticarService) { }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: filtroEstadosCitas.                                          |
+  |  NOMBRE: filtroClinicas.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para obtener los estados de las citas            |
-  |  del usuario logueado.                                                |  
+  |  DESCRIPCIÓN: Método para obtener las clínicas activas                |
+  |  del usuario logueado.                                                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:  organizacionId = id de la organización.      |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
@@ -53,7 +57,7 @@ export class CitasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 06/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstadosCitas(): Observable<any> {
+  filtroClinicas(organizacionId: number): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -64,16 +68,15 @@ export class CitasService {
       });
 
       //Envía la petición al servidor backend para obtener los registros.
-      return this.http.get(this.urlApi + 'filtro-estados-citas', { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-clinicas/' + organizacionId, { headers: headers });
     }
     //No está conectado.
     return of(false);
 
   }
-  
 }
 
 //Constante que se utilizará para inyectar el servicio.
-export const CITAS_PROVIDERS: Array<any> = [
-  { provide: CitasService, useClass: CitasService }
+export const CLINICAS_PROVIDERS: Array<any> = [
+  { provide: ClinicasService, useClass: ClinicasService }
 ];
