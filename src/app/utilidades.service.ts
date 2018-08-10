@@ -17,6 +17,7 @@ import { Observable, of } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime } from "rxjs/operators";
+import { NgbDateStruct } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class UtilidadesService {
@@ -227,6 +228,39 @@ export class UtilidadesService {
     //Le da un focus al elemento de búsqueda.
     focus ? campo.focus() : null;
   }
+
+ /*----------------------------------------------------------------------|
+    |  NOMBRE: format.                                                      |
+    |-----------------------------------------------------------------------|
+    |  DESCRIPCIÓN: Método para formatear la fecha en dd/mm/yyyy.           |
+    |-----------------------------------------------------------------------|
+    |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d).           |   
+    |-----------------------------------------------------------------------|
+    |  AUTOR: Ricardo Luna.                                                 |
+    |-----------------------------------------------------------------------|
+    |  FECHA: 10/08/2018.                                                   |    
+    |----------------------------------------------------------------------*/
+    formatearFecha(date: NgbDateStruct): string {
+
+      //Si la fecha existe.
+      if (date) {
+          //Se obtiene el día.
+          let dia: string = date.day.toString();
+          //Si el día es de un dígito se le agrega un cero a la izquierda.
+          dia = dia.length == 1 ? dia = "0" + dia : dia;
+          //Se obtiene el mes.
+          let mes: string = date.month.toString();
+          //Si el mes es de un dígito se le agrega un cero a la izquierda.
+          mes = mes.length == 1 ? mes = "0" + mes : mes;
+
+          //Se retorna la fecha formateada.
+          return `${dia}/${mes}/${date.year}`;
+      }
+
+      //Si la fecha es vacía o nula.
+      return null;
+  }
+
 
 
 

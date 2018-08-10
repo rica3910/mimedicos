@@ -16,6 +16,7 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
+import { map } from "rxjs/operators";
 
 @Injectable()
 export class CitasService {
@@ -70,7 +71,66 @@ export class CitasService {
     return of(false);
 
   }
-  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaCitas.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener las citas de los pacientes.         |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: organizacion = id. de la organización,        | 
+  |  clinica = id. de la clínica,                                         |
+  |  estatus = estado de la cita,                                         |
+  |  actividad = id. de la actividad de la cita,                          |
+  |  desde = fecha inicial,                                               |
+  |  hasta = fecha final,                                                 |
+  |  paciente= id. del paciente,                                          |
+  |  usuario = id. del usuario.                                           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  listaCitas(
+    organizacion: string,
+    clinica: string,
+    estatus: string,
+    actividad: string,
+    desde: string,
+    hasta: string,
+    paciente: string,
+    usuario: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      console.log("ORGANIZACIÓN: " +  organizacion);
+      console.log("CLÍNICA: " +  clinica);
+      console.log("ESTATUS: " +  estatus);
+      console.log("ACTIVIDAD: " +  actividad);
+      console.log("DESDE: " +  desde);
+      console.log("HASTA: " +  hasta);
+      console.log("PACIENTE: " +  paciente);
+      console.log("USUARIO: " +  usuario);
+
+      //Envía la petición al servidor backend para obtener las citas.
+     // return this.http.get(this.urlApi + 'lista-citas', { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

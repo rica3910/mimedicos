@@ -15,7 +15,7 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-1">
-      <button type="button" class="btn btn-azul col-lg-12 btn-sm" ngbTooltip="Realizar una cita." (click)="altaCita();">
+      <button *ngIf="altaCitas" type="button" class="btn btn-azul col-lg-12 btn-sm" ngbTooltip="Realizar una cita." (click)="altaCita();">
         <i class="material-icons">add</i>
       </button>
     </div>
@@ -25,7 +25,7 @@
           <span class="input-group-text">Organización</span>
         </div>
         <select class="form-control select" [formControl]="organizacionControl" ngbTooltip="Seleccionar una organización." #organizacionHTML (change)="filtroClinicas(organizacionHTML.value, true)">
-          <option value = 0>TODAS</option>
+          <option value = "0">TODAS</option>
           <option *ngFor="let organizacion of organizaciones" value={{organizacion.id}}>
             {{organizacion.nombre}}
           </option>
@@ -38,7 +38,7 @@
           <span class="input-group-text">Clínica</span>
         </div>
         <select class="form-control" [formControl]="clinicaControl" ngbTooltip="Seleccionar una clínica." #clinicaHTML>
-          <option value = 0>TODAS</option>
+          <option value = "0">TODAS</option>
           <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
             {{clinica.nombre}}
           </option>
@@ -54,6 +54,7 @@
           <span class="input-group-text">Estatus</span>
         </div>
         <select class="form-control" [formControl]="estatusControl" ngbTooltip="Seleccionar el estatus de la cita." #estatusHTML>
+          <option value="" selected>TODOS</option>
           <option value="ACTIVO" selected>ACTIVO</option>
           <option value="INACTIVO">INACTIVO</option>
         </select>
@@ -65,7 +66,7 @@
           <span class="input-group-text">Actividad</span>
         </div>
         <select class="form-control" [formControl]="actividadControl" ngbTooltip="Seleccionar la actividad o proceso de la cita." #estadoCitaHTML>
-          <option value=0>TODAS</option>
+          <option value="0">TODAS</option>
           <option *ngFor="let estadoCita of estadosCitas" value={{estadoCita.id}}>
             {{estadoCita.nombre}}
           </option>

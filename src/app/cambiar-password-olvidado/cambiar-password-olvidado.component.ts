@@ -189,8 +189,7 @@ export class CambiarPasswordOlvidadoComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método que envía una alerta o mensaje de diálogo.       |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: título  = Título que tendrá la alerta,        |
-  |                         mensaje = Mensaje que tendrá la alerta        |                                      |
+  |  PARÁMETROS DE ENTRADA: mensaje = Mensaje que tendrá la alerta        |                                      |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|

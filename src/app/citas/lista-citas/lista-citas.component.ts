@@ -13,7 +13,7 @@
 */
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
@@ -41,6 +41,8 @@ import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 })
 export class ListaCitasComponent implements OnInit {
 
+  //Propiedad que indica si el usuario puede dar de alta citas.
+  altaCitas: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -222,6 +224,16 @@ se ejecute el método buscar usuario.*/
 
   ngOnInit() {
   }
+
+  ngAfterViewInit() {
+
+    //El botón de dar de alta citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneMenu('alta-cita').subscribe((respuesta: boolean) => {
+      this.altaCitas = respuesta["value"];
+    });
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: buscarUsuario.                                               |
@@ -609,14 +621,72 @@ se ejecute el método buscar usuario.*/
   |----------------------------------------------------------------------*/
   buscar() {
 
-    console.log(this.organizacionControl.value);
-    console.log(this.clinicaControl.value);
-    console.log(this.estatusControl.value);
-    console.log(this.actividadControl.value);
-    console.log(this.fechaDesdeControl.value);
-    console.log(this.fechaHastaControl.value);
-    console.log(this.pacienteControl.value);
-    console.log(this.usuarioControl.value);
+
+    //Si algunas de las fechas está seleccionada, la otra también debe de estarlo.
+    let fechaDesde: NgbDateStruct = this.fechaDesdeControl.value;
+    let fechaHasta: NgbDateStruct = this.fechaHastaControl.value;
+    if (fechaDesde && !fechaHasta) {
+      //Muestra una alerta indicando que se deben de llenar las dos fechas.      
+      this._alerta("La fecha final debe ser completada.").subscribe(() => {
+        this.fechaHastaHTML.nativeElement.focus();
+      });
+      return;
+    }
+    else if (!fechaDesde && fechaHasta) {
+      //Muestra una alerta indicando que se deben de llenar las dos fechas.      
+      this._alerta("La fecha inicial debe ser completada.").subscribe(() => {
+        this.fechaDesdeHTML.nativeElement.focus();
+      });
+      return;
+    }
+    //Si la fecha inicial es mayor a la fecha final.
+    else if (fechaDesde && fechaHasta &&
+      (fechaDesde.year >= fechaHasta.year &&
+        fechaDesde.month >= fechaHasta.month &&
+        fechaDesde.day > fechaHasta.day)) {
+      this._alerta("La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
+        this.fechaDesdeHTML.nativeElement.focus();
+      });
+      return;
+    }
+
+    let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
+    //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
+    if (paciente && !paciente.id) {
+      this._alerta("Seleccione un paciente válido.").subscribe(() => {
+        this.pacienteHTML.nativeElement.focus();
+      });
+      return
+    }
+
+    let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
+    //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
+    if (usuario && !usuario.id) {
+      this._alerta("Seleccione un usuario válido.").subscribe(() => {
+        this.usuarioHTML.nativeElement.focus();
+      });
+      return
+    }
+
+    //Inicia la espera de respuesta.
+    //this.esperarService.esperar();
+
+    //Busca las citas según los filtros aplicados.
+    this.citasService.listaCitas(
+      this.organizacionControl.value,
+      this.clinicaControl.value,
+      this.estatusControl.value,
+      this.actividadControl.value,
+      fechaDesde ? this.utilidadesService.formatearFecha(fechaDesde) : "",
+      fechaHasta ? this.utilidadesService.formatearFecha(fechaHasta) : "",
+      paciente ? paciente.id : "0",
+      usuario ? usuario.id : "0").subscribe(() => {
+
+        //Detiene la espera, signo de que ya se obtuvo la información.
+        //this.esperarService.noEsperar();
+
+      });
+
 
 
   }
@@ -634,18 +704,37 @@ se ejecute el método buscar usuario.*/
     |-----------------------------------------------------------------------|
     |  FECHA: 03/08/2018.                                                   |    
     |----------------------------------------------------------------------*/
-  private _alerta(mensaje: String) {
 
+  private _alerta(mensaje: string): Observable<any> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<any> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+
+    //No se cierra cuando se pulsa esc.
+    modalOption.keyboard = false;
+    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
+    modalOption.backdrop = 'static';
+    //Modal centrado.
+    modalOption.centered = true;
     //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });
-
+    const modalRef = this.modalService.open(DialogoAlertaComponent, modalOption);
     //Define el título del modal.
     modalRef.componentInstance.titulo = "Notificación";
     //Define el mensaje del modal.
     modalRef.componentInstance.mensaje = mensaje;
     //Define la etiqueta del botón de Aceptar.
     modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+    //Se retorna el botón pulsado.
+    modalRef.result.then(() => {
+      //Se retorna un nulo, ya que no se espera un resultado.         
+      subject.next(null);
+    });
 
+    //Se retorna el observable.
+    return subject.asObservable();
   }
 
 }

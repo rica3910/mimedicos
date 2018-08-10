@@ -14,8 +14,9 @@
 */
 
 import { Injectable } from '@angular/core';
-import { NgbModal,NgbModalOptions, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoEsperaComponent } from './dialogo-espera/dialogo-espera.component';
+import { Observable, Subject } from '../../node_modules/rxjs';
 
 @Injectable()
 export class EsperarService {
@@ -23,7 +24,6 @@ export class EsperarService {
   //Propiedad que almacena el modal activo.
   modalRef: NgbModalRef;
 
-  
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -35,7 +35,7 @@ export class EsperarService {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 04/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/    
+  |----------------------------------------------------------------------*/
   constructor(private modalService: NgbModal) { }
 
   /*----------------------------------------------------------------------|
@@ -47,7 +47,7 @@ export class EsperarService {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 31/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
+  |----------------------------------------------------------------------*/
   esperar() {
 
     //Arreglo de opciones para personalizar el modal.
@@ -62,10 +62,11 @@ export class EsperarService {
     //Abre el modal.   
     //Se utiliza un timeout para evitar el error del modal de alerta. 
     setTimeout(() => {
-      this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);  
+      this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);
     });
-    
-  }     
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: noEsperar.                                                   |
@@ -75,11 +76,11 @@ export class EsperarService {
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 04/06/2018.                                                   |    
-  |----------------------------------------------------------------------*/ 
-  noEsperar(){
-    
+  |----------------------------------------------------------------------*/
+  noEsperar() {
+
     this.modalRef.dismiss();
-    this.modalRef.close();    
+    this.modalRef.close();
   }
 
 }
