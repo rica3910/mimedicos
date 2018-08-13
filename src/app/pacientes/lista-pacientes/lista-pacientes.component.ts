@@ -50,7 +50,7 @@ export class ListaPacientesComponent implements OnInit {
   //Propiedad que indica si el usuario puede desasignar pacientes.
   private desAsignarPacientes: boolean = false;
 
-  //Cuadro de texto del usuario.
+  //Cuadro de texto del búsqueda.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
 
   /*----------------------------------------------------------------------|
@@ -127,7 +127,7 @@ export class ListaPacientesComponent implements OnInit {
             .pipe(debounceTime(50))
             //Se subscribe al evento.
             .subscribe((cadena: string) => {
-              //Genera un evento de teclazo para que validar que sea número la cadena pegada.
+              //Genera un evento de teclazo para asegurar que se dispare el evento.
               this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
             });
         }

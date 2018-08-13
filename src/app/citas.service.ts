@@ -114,22 +114,54 @@ export class CitasService {
         'X-API-KEY': this.autorizacion.obtenerToken()
       });
 
-      console.log("ORGANIZACIÓN: " +  organizacion);
-      console.log("CLÍNICA: " +  clinica);
-      console.log("ESTATUS: " +  estatus);
-      console.log("ACTIVIDAD: " +  actividad);
-      console.log("DESDE: " +  desde);
-      console.log("HASTA: " +  hasta);
-      console.log("PACIENTE: " +  paciente);
-      console.log("USUARIO: " +  usuario);
-
       //Envía la petición al servidor backend para obtener las citas.
-     // return this.http.get(this.urlApi + 'lista-citas', { headers: headers });
+      return this.http.get(this.urlApi + `lista-citas/${organizacion}/${clinica}/${estatus}/${actividad}/${desde}/${hasta}/${paciente}/${usuario}`, { headers: headers });
+
     }
     //No está conectado.
     return of(false);
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarCita.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una cita.                          | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  pacienteId = identificador del paciente,                             |
+  |  citaId = identificador de la cita,                                   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarCita(
+    pacienteId: string,
+    citaId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      pacienteId: pacienteId,
+      citaId: citaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-cita',
+        params,
+        { headers: headers });
+  }    
 
 }
 

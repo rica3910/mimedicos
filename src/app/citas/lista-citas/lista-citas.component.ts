@@ -15,7 +15,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, switchAll} from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -28,7 +28,8 @@ import { ClinicasService } from '../../clinicas.service';
 import { CitasService } from '../../citas.service';
 import { UsuariosService } from '../../usuarios.service';
 import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
-
+import { fromEvent } from 'rxjs';
+import { DialogoConfirmacionComponent } from './../../dialogo-confirmacion/dialogo-confirmacion.component';
 
 
 @Component({
@@ -43,6 +44,8 @@ export class ListaCitasComponent implements OnInit {
 
   //Propiedad que indica si el usuario puede dar de alta citas.
   altaCitas: boolean = false;
+  //Propiedad que indica si el usuario puede eliminar citas.
+  eliminarCitas: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -91,6 +94,8 @@ se ejecute el método buscar usuario.*/
   @ViewChild('fechaHastaHTML') fechaHastaHTML: ElementRef;
   //Variable que almacena el calendario de la fecha hasta (popup).
   @ViewChild('calendarioHastaHTML') calendarioHastaHTML: NgbInputDatepicker
+  //Cuadro de texto de búsqueda.
+  @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
 
 
   //Variable que reacciona al focus del campo buscar usuario.
@@ -117,6 +122,8 @@ se ejecute el método buscar usuario.*/
   usuariosListos: boolean = false;
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
+  //Indica si la información de citas ya se obtuvo.
+  citaslistas: boolean = false;
   //Fecha inicial del campo fecha desde.  
   fechaDesdeInicial: NgbDateStruct;
   //Fecha desde seleccionada.
@@ -125,6 +132,11 @@ se ejecute el método buscar usuario.*/
   fechaHastaMinima: NgbDateStruct;
   //Fecha hasta seleccionada.
   fechaHastaSeleccionada: NgbDateStruct;
+
+  //Almacena las citas de la base de datos pero su información se puede filtrar.
+  citas: JSON[] = [];
+  //Almacena las citas de la base de datos original sin que se filtre su información.
+  citasServidor: JSON[] = [];
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -163,7 +175,7 @@ se ejecute el método buscar usuario.*/
     this.formBusquedCitas = fb.group({
       'organizacion': ['0'],
       'clinica': ['0'],
-      'estatus': ['ACTIVO'],
+      'estatus': ['ABIERTO'],
       'actividad': ['0'],
       'fechaDesde': [''],
       'fechaHasta': [''],
@@ -213,8 +225,10 @@ se ejecute el método buscar usuario.*/
         this.estadosCitasListos &&
         this.usuariosListos &&
         this.pacientesInicioListo) {
-        //Se termina la espera.
+        //Se detiene la espera.
         this.esperarService.noEsperar();
+        //Se busca la información según los filtros iniciales.
+        this.buscar();
       }
 
 
@@ -223,6 +237,31 @@ se ejecute el método buscar usuario.*/
   }
 
   ngOnInit() {
+
+     //Se obtiene el método de tecleado del elemento HTML de búsqueda.
+     fromEvent(this.buscarInfoHTML.nativeElement, 'keyup')
+     //Extrae el valor de la búsqueda.
+     .pipe(map((e: any) => e.target.value))
+     //Se realiza la búsqueda.
+     .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.citasServidor)))
+     //Se utiliza para obtener solo la búsqueda más reciente.
+     .pipe(switchAll())
+     //Se actualiza la información del arreglo de pacientes.
+     .subscribe((resultados: JSON[]) => {
+       //Se actualiza la información en pantalla.        
+       this.citas = resultados;
+     });
+
+   //Evento de cuando se pega con el mouse algun texto en la caja de texto.
+   fromEvent(this.buscarInfoHTML.nativeElement, 'paste')
+     //Extrae el texto del cuadro de texto.
+     .pipe(map((e: any) => e.target.value))
+     .pipe(debounceTime(50))
+     //Se subscribe al evento.
+     .subscribe((cadena: string) => {
+       //Genera un evento de teclazo para asegurar que se dispare el evento.
+       this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
+     });
   }
 
   ngAfterViewInit() {
@@ -230,6 +269,11 @@ se ejecute el método buscar usuario.*/
     //El botón de dar de alta citas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneMenu('alta-cita').subscribe((respuesta: boolean) => {
       this.altaCitas = respuesta["value"];
+    });
+
+    //El botón de eliminar citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ELIMINAR CITA').subscribe((respuesta: boolean) => {
+      this.eliminarCitas = respuesta["value"];
     });
 
   }
@@ -669,7 +713,7 @@ se ejecute el método buscar usuario.*/
     }
 
     //Inicia la espera de respuesta.
-    //this.esperarService.esperar();
+    this.esperarService.esperar();
 
     //Busca las citas según los filtros aplicados.
     this.citasService.listaCitas(
@@ -677,20 +721,103 @@ se ejecute el método buscar usuario.*/
       this.clinicaControl.value,
       this.estatusControl.value,
       this.actividadControl.value,
-      fechaDesde ? this.utilidadesService.formatearFecha(fechaDesde) : "",
-      fechaHasta ? this.utilidadesService.formatearFecha(fechaHasta) : "",
+      fechaDesde ? this.utilidadesService.formatearFecha(fechaDesde, false) : " ",
+      fechaHasta ? this.utilidadesService.formatearFecha(fechaHasta, false) : " ",
       paciente ? paciente.id : "0",
-      usuario ? usuario.id : "0").subscribe(() => {
+      usuario ? usuario.id : "0").subscribe((respuesta) => {
 
         //Detiene la espera, signo de que ya se obtuvo la información.
-        //this.esperarService.noEsperar();
+        this.esperarService.noEsperar();
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this._alerta(respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan las citas en el arreglo de citas.
+          this.citas = respuesta["datos"];  
+          this.citasServidor =  respuesta["datos"];    
+          //Le da un focus al elemento de búsqueda.
+          this.buscarInfoHTML.nativeElement.focus();
+
+        }        
 
       });
 
-
-
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoBusqueda.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo de búsqueda y restablece la info. orig. | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoBusqueda() {
+
+    //Si el campo tiene algo escrito se limpiará.
+    if (this.buscarInfoHTML.nativeElement.value.length > 0) {
+      //limpia el cuadro de texto.
+      this.buscarInfoHTML.nativeElement.value = "";
+      //Actualiza la información con la original.
+      this.citas = this.citasServidor;
+    }
+    //Le da un focus al elemento de búsqueda.
+    this.buscarInfoHTML.nativeElement.focus();
+  }
+
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarCita.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una cita.                          |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: pacienteId = identificador del paciente,      |
+  |                         citaId = identificador de la cita.            |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarCita(pacienteId: string, citaId: string) {
+
+    //Abre el modal.
+    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = "Confirmación";
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = "Se eliminará permanentemente toda la información de la cita. "
+      + "¿Está seguro de eliminar la cita?";
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
+    //Define la etiqueta del botón de Cancelar.
+    modalRef.componentInstance.etiquetaBotonCancelar = "No";
+    //Se retorna el botón pulsado.
+    modalRef.result.then((result) => {
+      //Si la respuesta es eliminar al paciente.
+      if (result === "Sí") {
+        this.citasService.eliminarCita(pacienteId, citaId).subscribe(respuesta => {
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this._alerta(respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            this._alerta("La cita se eliminó permanentemente.");
+            //Se actualizan los datos.
+            this.buscar();
+          }
+        });
+      }
+    });
+  }
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: _alerta.                                                     |

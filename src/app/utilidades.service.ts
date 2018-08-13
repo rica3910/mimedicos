@@ -229,18 +229,19 @@ export class UtilidadesService {
     focus ? campo.focus() : null;
   }
 
- /*----------------------------------------------------------------------|
+    /*----------------------------------------------------------------------|
     |  NOMBRE: format.                                                      |
     |-----------------------------------------------------------------------|
     |  DESCRIPCIÓN: Método para formatear la fecha en dd/mm/yyyy.           |
     |-----------------------------------------------------------------------|
-    |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d).           |   
+    |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d),           |
+    |  diagonales = indica si se incluirán las diagonales en la fecha.      |   
     |-----------------------------------------------------------------------|
     |  AUTOR: Ricardo Luna.                                                 |
     |-----------------------------------------------------------------------|
     |  FECHA: 10/08/2018.                                                   |    
     |----------------------------------------------------------------------*/
-    formatearFecha(date: NgbDateStruct): string {
+    formatearFecha(date: NgbDateStruct, diagonales: boolean = true): string {
 
       //Si la fecha existe.
       if (date) {
@@ -254,7 +255,7 @@ export class UtilidadesService {
           mes = mes.length == 1 ? mes = "0" + mes : mes;
 
           //Se retorna la fecha formateada.
-          return `${dia}/${mes}/${date.year}`;
+          return diagonales? `${dia}/${mes}/${date.year}` : `${dia}${mes}${date.year}`;
       }
 
       //Si la fecha es vacía o nula.
