@@ -14,7 +14,7 @@
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, Subject, merge, of } from 'rxjs';
+import { Observable, Subject, merge, fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, switchAll} from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { PacientesService } from '../../pacientes.service';
@@ -28,8 +28,8 @@ import { ClinicasService } from '../../clinicas.service';
 import { CitasService } from '../../citas.service';
 import { UsuariosService } from '../../usuarios.service';
 import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
-import { fromEvent } from 'rxjs';
 import { DialogoConfirmacionComponent } from './../../dialogo-confirmacion/dialogo-confirmacion.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -46,6 +46,10 @@ export class ListaCitasComponent implements OnInit {
   altaCitas: boolean = false;
   //Propiedad que indica si el usuario puede eliminar citas.
   eliminarCitas: boolean = false;
+  //Propiedad que indica si el usuario puede inactivar citas.
+  inactivarCitas: boolean = false;
+  //Propiedad que indica si el usuario puede activar citas.
+  activarCitas: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -155,6 +159,7 @@ se ejecute el método buscar usuario.*/
   |  citasService = contiene los métodos de la bd de los estados de citas,|
   |  usuariosService = contiene los métodos de la bd de los usuarios,     |
   |  fb = contiene los métodos para manipular formularios HTML,           |
+  |  rutaNavegacion   = para navegar a otras url´s                        |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -169,7 +174,8 @@ se ejecute el método buscar usuario.*/
     private clinicasService: ClinicasService,
     private citasService: CitasService,
     private usuariosService: UsuariosService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private rutaNavegacion: Router) {
 
     //Se agregan las validaciones al formulario de búsqueda de citas.
     this.formBusquedCitas = fb.group({
@@ -275,6 +281,17 @@ se ejecute el método buscar usuario.*/
     this.autenticarService.usuarioTieneDetModulo('ELIMINAR CITA').subscribe((respuesta: boolean) => {
       this.eliminarCitas = respuesta["value"];
     });
+
+    //El botón de inactivar citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('INACTIVAR CITA').subscribe((respuesta: boolean) => {
+      this.inactivarCitas = respuesta["value"];
+    });
+    
+    //El botón de activar citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ACTIVAR CITA').subscribe((respuesta: boolean) => {
+      console.log(respuesta["value"]   );
+      this.activarCitas = respuesta["value"];
+    });    
 
   }
 
@@ -778,14 +795,13 @@ se ejecute el método buscar usuario.*/
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para eliminar una cita.                          |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: pacienteId = identificador del paciente,      |
-  |                         citaId = identificador de la cita.            |
+  |  PARÁMETROS DE ENTRADA: citaId = identificador de la cita.            |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 12/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  eliminarCita(pacienteId: string, citaId: string) {
+  eliminarCita(citaId: string) {
 
     //Abre el modal.
     const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
@@ -802,7 +818,7 @@ se ejecute el método buscar usuario.*/
     modalRef.result.then((result) => {
       //Si la respuesta es eliminar al paciente.
       if (result === "Sí") {
-        this.citasService.eliminarCita(pacienteId, citaId).subscribe(respuesta => {
+        this.citasService.eliminarCita(citaId).subscribe(respuesta => {
           //Si hubo un error.
           if (respuesta["estado"] === "ERROR") {
             //Muestra una alerta con el porqué del error.
@@ -818,6 +834,20 @@ se ejecute el método buscar usuario.*/
       }
     });
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaCita.                                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de crear cita.           |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 13/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaCita() {
+
+    this.rutaNavegacion.navigate(['citas', 'alta-cita']);
+  }  
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: _alerta.                                                     |
@@ -863,5 +893,68 @@ se ejecute el método buscar usuario.*/
     //Se retorna el observable.
     return subject.asObservable();
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cambiarEstatusCita.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cambiar el estatus de una cita.             |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId = identificador de la cita.            |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 16/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  cambiarEstatusCita(citaId: string, estatus: string) {
+
+    //Abre el modal.
+    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = "Confirmación";
+
+    // Mensaje que mostrará la confirmación según la opción: CERRADO o ABIERTO.
+    let mensaje: string;
+    // Mensaje que se mostrará al modificar el estatus de la cita.
+    let mensajeCorrecto: string;
+    if(estatus === 'CERRADO'){
+      mensaje = "¿Desea inactivar/cerrar la cita?";
+      mensajeCorrecto = "La cita se inactivó/cerró satisfactoriamente.";
+    }else{
+      mensaje = "¿Desea activar/abrir la cita?";
+      mensajeCorrecto = "La cita se activó/abrió satisfactoriamente.";
+    }
+
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = mensaje;
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
+    //Define la etiqueta del botón de Cancelar.
+    modalRef.componentInstance.etiquetaBotonCancelar = "No";
+    //Se retorna el botón pulsado.
+    modalRef.result.then((result) => {
+      //Si la respuesta es eliminar al paciente.
+      if (result === "Sí") {
+        //Abre el modal de espera.
+        this.esperarService.esperar();
+        this.citasService.cambiarEstatusCita(citaId,estatus).subscribe(respuesta => {
+
+          //Cierra el modal de espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this._alerta(respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            this._alerta(mensajeCorrecto).subscribe(() => {
+              //Se actualizan los datos.
+              this.buscar();
+            });            
+          }
+        });
+      }
+    });
+  }  
 
 }

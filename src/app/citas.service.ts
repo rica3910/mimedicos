@@ -128,9 +128,8 @@ export class CitasService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para eliminar una cita.                          | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:                                               |
-  |  pacienteId = identificador del paciente,                             |
-  |  citaId = identificador de la cita,                                   |
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  citaId = identificador de la cita.                                   |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
@@ -138,12 +137,9 @@ export class CitasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 12/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  eliminarCita(
-    pacienteId: string,
-    citaId: string): Observable<any> {
+  eliminarCita(citaId: string): Observable<any> {
     //Arma el json a partir de los parámetros.
-    let json = JSON.stringify({
-      pacienteId: pacienteId,
+    let json = JSON.stringify({      
       citaId: citaId
     });
 
@@ -162,6 +158,141 @@ export class CitasService {
         params,
         { headers: headers });
   }    
+
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioCitaFechaOcupada.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Sirve para ver el número de citas que tiene el usuario  |
+  |  de atención en una fecha y hora dada.                                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               | 
+  |  usuarioAtencionId = id. del usuario de atención de citas,            |
+  |  fechaHora = fecha y hora de la cita.
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  usuarioCitaFechaOcupada(
+    usuarioAtencionId: string,
+    fechaHora: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener el número de citas.
+      return this.http.get(this.urlApi + `usuario-cita-fecha-ocupada/${usuarioAtencionId}/${fechaHora}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaCita.                                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta una cita.                       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  usuarioAtencionId = identificador del paciente,                      |
+  |  pacienteId = identificador de la cita,                               | 
+  |  clinicaId = identificador de la clínica,                             |                            
+  |  fechaHora = fecha y hora de la cita,                                 |   
+  |  estadoCitaId = identificador del estado de la cita.                  |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaCita(
+    usuarioAtencionId: string,
+    pacienteId: string,
+    clinicaId:string,
+    fechaHora:string,
+    estadoCitaId:string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      usuarioAtencionId: usuarioAtencionId,
+      pacienteId: pacienteId,
+      clinicaId: clinicaId,
+      fechaHora: fechaHora,
+      estadoCitaId: estadoCitaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-cita',
+        params,
+        { headers: headers });
+  }    
+
+
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cambiarEstatusCita.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cambiar el estatus de la cita.              | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  citaId = identificador de la cita,                                   |
+  |  estatus = estatus de la cita (ABIERTO o CERRADO).                    |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 16/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  cambiarEstatusCita(citaId: string, estatus: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      citaId: citaId,
+      estatus: estatus
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'cambiar-estatus-cita',
+        params,
+        { headers: headers });
+  }    
+
+
 
 }
 

@@ -22,12 +22,14 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioTieneMenuGuard } from '../usuario-tiene-menu.guard';
 import { UsuarioTienePacienteGuard } from '../pacientes/usuario-tiene-paciente.guard';
+import { AltaCitaComponent } from './alta-cita/alta-cita.component';
 
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', component: ListaCitasComponent },
   { path: 'lista-citas', component: ListaCitasComponent, canActivate: [UsuarioTieneMenuGuard]}, 
+  { path: 'alta-cita', component: AltaCitaComponent, canActivate: [UsuarioTieneMenuGuard]}, 
   { path: '**', redirectTo: 'citas' }
 ];
 
@@ -38,7 +40,7 @@ export const rutas: Routes = [
     NgbModule.forRoot(),
     ReactiveFormsModule
   ],
-  declarations: [CitasComponent, ListaCitasComponent],
+  declarations: [CitasComponent, ListaCitasComponent, AltaCitaComponent],
   exports: [CitasComponent],
   providers: [
     UsuarioTieneMenuGuard,

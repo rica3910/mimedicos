@@ -1,0 +1,109 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-cita.                                                | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para dar de alta citas.                       |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 13/08/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de citas." (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Alta de citas</h1>
+    </div>
+  </div>
+  <div class="row">
+    <hr>
+  </div>
+  <form [formGroup]="formAltaCitas" (ngSubmit)="altaCita()">
+    <div class="row">
+      <div class="col-lg-3"></div>
+      <div class="col-lg-3">
+        <ngb-datepicker [formControl]="fechaControl" (navigate)="date = $event.next"></ngb-datepicker>
+      </div>
+      <div class="col-lg-6">
+        <ngb-timepicker [formControl]="horaControl"></ngb-timepicker>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Usuario*</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
+            (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Buscar por usuario."
+            [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+          </div>
+        </div>
+        <div  *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El Usuario es Requerido.</div>
+      </div>
+      <div class="col-lg-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Paciente*</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
+            (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
+            [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+          </div>
+        </div>
+        <div  *ngIf="pulsarCrear && !pacienteControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El Paciente es Requerido.</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica*</span>
+          </div>
+          <select class="form-control" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica.">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La clínica es Requerida.</div>
+      </div>
+      <div class="col-lg-6">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Actividad*</span>
+          </div>
+          <select class="form-control" [formControl]="actividadControl" #actividadHTML ngbTooltip="Seleccionar la actividad o proceso de la cita.">
+            <option *ngFor="let estadoCita of estadosCitas" value={{estadoCita.id}}>
+              {{estadoCita.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !actividadControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La Actividad es Requerida.</div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-lg-12">
+        <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Crear o dar de alta una cita.">Crear</button>
+      </div>
+    </div>
+  </form>
+</div>

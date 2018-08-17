@@ -17,7 +17,7 @@ import { Observable, of } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime } from "rxjs/operators";
-import { NgbDateStruct } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbTimeStruct } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class UtilidadesService {
@@ -229,41 +229,88 @@ export class UtilidadesService {
     focus ? campo.focus() : null;
   }
 
-    /*----------------------------------------------------------------------|
-    |  NOMBRE: format.                                                      |
-    |-----------------------------------------------------------------------|
-    |  DESCRIPCIÓN: Método para formatear la fecha en dd/mm/yyyy.           |
-    |-----------------------------------------------------------------------|
-    |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d),           |
-    |  diagonales = indica si se incluirán las diagonales en la fecha.      |   
-    |-----------------------------------------------------------------------|
-    |  AUTOR: Ricardo Luna.                                                 |
-    |-----------------------------------------------------------------------|
-    |  FECHA: 10/08/2018.                                                   |    
-    |----------------------------------------------------------------------*/
-    formatearFecha(date: NgbDateStruct, diagonales: boolean = true): string {
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: formatearFecha.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para formatear la fecha en dd/mm/yyyy.           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d),           |
+  |  diagonales = indica si se incluirán las diagonales en la fecha.      |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  formatearFecha(date: NgbDateStruct, diagonales: boolean = true): string {
 
-      //Si la fecha existe.
-      if (date) {
-          //Se obtiene el día.
-          let dia: string = date.day.toString();
-          //Si el día es de un dígito se le agrega un cero a la izquierda.
-          dia = dia.length == 1 ? dia = "0" + dia : dia;
-          //Se obtiene el mes.
-          let mes: string = date.month.toString();
-          //Si el mes es de un dígito se le agrega un cero a la izquierda.
-          mes = mes.length == 1 ? mes = "0" + mes : mes;
+    //Si la fecha existe.
+    if (date) {
+      //Se obtiene el día.
+      let dia: string = date.day.toString();
+      //Si el día es de un dígito se le agrega un cero a la izquierda.
+      dia = dia.length == 1 ? dia = "0" + dia : dia;
+      //Se obtiene el mes.
+      let mes: string = date.month.toString();
+      //Si el mes es de un dígito se le agrega un cero a la izquierda.
+      mes = mes.length == 1 ? mes = "0" + mes : mes;
 
-          //Se retorna la fecha formateada.
-          return diagonales? `${dia}/${mes}/${date.year}` : `${dia}${mes}${date.year}`;
-      }
+      //Se retorna la fecha formateada.
+      return diagonales ? `${dia}/${mes}/${date.year}` : `${dia}${mes}${date.year}`;
+    }
 
-      //Si la fecha es vacía o nula.
-      return null;
+    //Si la fecha es vacía o nula.
+    return null;
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: formatearFechaHora.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para formatear la fecha y hora en ddmmyyyyhis.   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: date = estructura de fecha (y,m,d),           |
+  |  time  = estructura de hora (h,m),                                    |
+  |  diagonales = se incluirán las diagonales y puntos en la fecha.       |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 14/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  formatearFechaHora(date: NgbDateStruct, time: NgbTimeStruct, diagonales: boolean = true): string {
 
+    let fecha: string;
+    //Si la fecha existe.
+    if (date) {
+      //Se obtiene el día.
+      let dia: string = date.day.toString();
+      //Si el día es de un dígito se le agrega un cero a la izquierda.
+      dia = dia.length == 1 ? dia = "0" + dia : dia;
+      //Se obtiene el mes.
+      let mes: string = date.month.toString();
+      //Si el mes es de un dígito se le agrega un cero a la izquierda.
+      mes = mes.length == 1 ? mes = "0" + mes : mes;
 
+      //Se arma la fecha formateada.
+      fecha = diagonales ? `${dia}/${mes}/${date.year}` : `${dia}${mes}${date.year}`;
+    }
+
+    //Si el tiempo existe.
+    if (time) {
+      //Se obtiene la hora.
+      let hora: string = time.hour.toString();
+      //Si la hora es de un dígito se le agrega un cero a la izquierda.
+      hora = hora.length == 1 ? hora = "0" + hora : hora;
+      //Se obtienen los minutos.
+      let minutos: string = time.minute.toString();
+       //Si los minutos son de un dígito se le agrega un cero a la izquierda.
+       minutos = minutos.length == 1 ? minutos = "0" + minutos : minutos;
+
+      //Se arma la fecha junto con la hora formateada.
+      return  diagonales ? `${fecha} ${hora}:${minutos}` : `${fecha}${hora}${minutos}`;
+    }
+
+    //Si la fecha y/o hora es vacía o nula.
+    return null;
+  }
 
 }
 
