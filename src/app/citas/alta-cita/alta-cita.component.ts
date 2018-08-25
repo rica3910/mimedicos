@@ -54,7 +54,7 @@ se ejecute el método buscar usuario.*/
   //Variable que almacena el control del formulario de la búsqueda del paciente.
   @ViewChild('pacienteHTML') pacienteHTML: ElementRef;
   //Variable que almacena el control del formulario de la clínica.
-  @ViewChild('clincaHTML') clincaHTML: ElementRef;
+  @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable que almacena el control del formulario de la actividad.
   @ViewChild('actividadHTML') actividadHTML: ElementRef;
 
@@ -398,17 +398,17 @@ se ejecute el método buscar usuario.*/
   }
 
   /*----------------------------------------------------------------------|
-    |  NOMBRE: filtroClinicas.                                              |
-    |-----------------------------------------------------------------------|
-    |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               |
-    |-----------------------------------------------------------------------|
-    |  PARÁMETROS DE ENTRADA: organizacionId = id de la organización,       |
-    |  esperar = para saber si se despliega el modal de espera.             |   
-    |-----------------------------------------------------------------------|
-    |  AUTOR: Ricardo Luna.                                                 |
-    |-----------------------------------------------------------------------|
-    |  FECHA: 13/08/2018.                                                   |    
-    |----------------------------------------------------------------------*/
+  |  NOMBRE: filtroClinicas.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: organizacionId = id de la organización,       |
+  |  esperar = para saber si se despliega el modal de espera.             |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 13/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
   filtroClinicas(organizacionId: number, esperar: boolean = false) {
 
     //Si esperar es verdadero, entonces se abre el modal de espera.
@@ -493,7 +493,7 @@ se ejecute el método buscar usuario.*/
     let hora: NgbTimeStruct = this.horaControl.value;
     let fecha: NgbDateStruct = this.fechaControl.value;
 
-    //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
+    //Si no es una hora válida.
     if (!hora) {
       this._alerta("Seleccione una hora válida.").subscribe(() => { });
       return
@@ -525,7 +525,7 @@ se ejecute el método buscar usuario.*/
       this.pacienteHTML.nativeElement.focus();
       return;
     } else if (this.clinicaControl.invalid) {
-      this.clincaHTML.nativeElement.focus();
+      this.clinicaHTML.nativeElement.focus();
       return;
     } else if (this.actividadControl.invalid) {
       this.actividadHTML.nativeElement.focus();

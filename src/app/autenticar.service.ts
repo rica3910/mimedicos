@@ -520,17 +520,19 @@ export class AutenticarService {
   |  FECHA: 04/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   usuarioTieneMenu(url: string): Observable<any> {
+  
 
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
+
       //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-      
+
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
-        .pipe(map(respuesta => {
+      return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })                    
+        .pipe(map(respuesta => {      
 
           //Si el usuario no tiene el menú.
           if (respuesta["estado"] === "ERROR") {
@@ -541,7 +543,7 @@ export class AutenticarService {
           //Retorna un verdadero, signo de que si tiene asignado el menú.
           return of(true);
 
-        }));
+        }));        
     }
     //No está conectado.
     return of(false);
@@ -634,6 +636,52 @@ export class AutenticarService {
     //No está conectado.
     return of(false);
   }
+
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeModificarCita.                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda modificar   |
+  | una cita.                                                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId: identificador de la cita,             |
+  |  soloVer = Se utiliza para ver solo la cita, sin modificar.           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda modificar la cita respectivamente.   |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeModificarCita(citaId: string, soloVer: string = '0'): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+      
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-modificar-cita/${citaId}/${soloVer}` , { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede acceder o editar la cita.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí puede acceder o modificar la cita.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }   
   
 
 }

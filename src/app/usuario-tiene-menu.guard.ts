@@ -80,13 +80,13 @@ export class UsuarioTieneMenuGuard implements CanActivate {
       else if(menus.length >= 3){
         //Solo obtiene la segunda ruta de la url.
         url = menus[2];
-      }
-
+      }                  
+      
       //Retorna verdadero o falso en caso de que el usuario tenga o no el menú.
-      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {     
-        
+      return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {    
+
         //Detiene la espera.
-        this.esperarService.noEsperar();
+        this.esperarService.noEsperar();                  
 
         //Si el usuario no tiene el menú, se le retorna al inicio o página principal.
         if(!resultado["value"]){
@@ -94,7 +94,7 @@ export class UsuarioTieneMenuGuard implements CanActivate {
         }
         //Retorna el resultado.
         return resultado["value"];             
-      }));
+      })).toPromise();
       
   }
 }

@@ -1,0 +1,85 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-det-cita.                                            | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para dar de alta un detalle a una cita.       |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 23/08/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-3">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar a la edición de la cita." (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-6">
+      <h1 class="display-4 text-center">Alta de evento</h1>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8 table-responsive" *ngIf="cita">
+      <table class="table table-bordered">
+        <tr>
+          <th class="text-center">Usuario</th>
+          <td class="text-center">{{cita.nombres_usuario}}</td>
+        </tr>
+        <tr>
+          <th class="text-center">Paciente</th>
+          <td class="text-center">{{cita.nombres_paciente}}</td>
+        </tr>
+        <tr>
+          <th class="text-center">Clínica</th>
+          <td class="text-center">{{cita.nombre_clinica}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <form [formGroup]="formAltaDetCitas" (ngSubmit)="altaDetCita()">
+    <div class="row">
+      <div class="col-lg-3">
+        <ngb-datepicker [formControl]="fechaControl" (navigate)="date = $event.next"></ngb-datepicker>
+      </div>
+      <div class="col-lg-2">
+        <ngb-timepicker [formControl]="horaControl"></ngb-timepicker>
+      </div>
+      <div class="col-lg-6">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Evento*</span>
+              </div>
+              <select class="form-control" [formControl]="estadoCitaControl" #estadoCitaHTML ngbTooltip="Seleccionar el evento o proceso de la cita.">
+                <option *ngFor="let estadoCita of estadosCitas" value={{estadoCita.id}}>
+                  {{estadoCita.nombre}}
+                </option>
+              </select>
+            </div>
+            <div *ngIf="pulsarCrear && !estadoCitaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+              Evento es Requerido.</div>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-lg-12">
+            <textarea class="form-control" [formControl]="comentariosControl" rows="7" placeholder="Comentarios" ngbTooltip="Ingresar comentarios al evento."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-lg-12">
+        <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Crear o dar de alta el evento de la cita.">Crear</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -290,6 +290,214 @@ export class CitasService {
       .post(this.urlApi + 'cambiar-estatus-cita',
         params,
         { headers: headers });
+  }
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verCita.                                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver una cita en específico.                 |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId = id. de la cita,                      | 
+  |  soloVer = Se utiliza para cuando solo se quiere ver la cita.         |
+  |  Es decir, sin modificar. 0 = modificar, 1 = solo ver.                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  verCita(
+    citaId: string,
+    soloVer: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener las cita.
+      return this.http.get(this.urlApi + `ver-cita/${citaId}/${soloVer}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarCita.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para editar una cita.                            | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  citaId = identificador de la cita,                                   |
+  |  usuarioAtencionId = identificador del paciente,                      |
+  |  pacienteId = identificador de la cita,                               | 
+  |  clinicaId = identificador de la clínica.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarCita(
+    citaId: string,
+    usuarioAtencionId: string,
+    pacienteId: string,
+    clinicaId:string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      citaId: citaId,
+      usuarioAtencionId: usuarioAtencionId,
+      pacienteId: pacienteId,
+      clinicaId: clinicaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'editar-cita',
+        params,
+        { headers: headers });
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaDetCitas.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver los eventos o detalle de una cita.      |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId = id. de la cita,                      | 
+  |  soloVer = Se utiliza para cuando solo se quiere ver la cita.         |
+  |  Es decir, sin modificar. 0 = modificar, 1 = solo ver.                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  listaDetCitas(
+    citaId: string,
+    soloVer: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener las cita.
+      return this.http.get(this.urlApi + `lista-det-citas/${citaId}/${soloVer}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarDetCita.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar el detalle de una cita.            | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  detCitaId = identificador del detalle de una cita.                   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarDetCita(detCitaId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      detCitaId: detCitaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-det-cita',
+        params,
+        { headers: headers });
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetCita.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un evento o detalle de una cita.| 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  citaId = identificador de la cita,                                   |
+  |  estadoCitaId = identificador del estado de la cita,                  |
+  |  fechaHora = fecha y hora de la cita,                                 | 
+  |  comentarios = comentarios del evento.                                |                            
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetCita(
+    citaId: string,
+    estadoCitaId: string,
+    fechaHora:string,
+    comentarios:string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      citaId: citaId,
+      estadoCitaId: estadoCitaId,
+      fechaHora: fechaHora,
+      comentarios: comentarios      
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-det-cita',
+        params,
+        { headers: headers });
   }    
 
 

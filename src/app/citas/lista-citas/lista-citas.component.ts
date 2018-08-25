@@ -15,7 +15,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, fromEvent } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map, switchAll} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, switchAll } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -44,6 +44,8 @@ export class ListaCitasComponent implements OnInit {
 
   //Propiedad que indica si el usuario puede dar de alta citas.
   altaCitas: boolean = false;
+  //Propiedad que indica si el usuario puede editar citas.
+  editarCitas: boolean = false;
   //Propiedad que indica si el usuario puede eliminar citas.
   eliminarCitas: boolean = false;
   //Propiedad que indica si el usuario puede inactivar citas.
@@ -244,30 +246,30 @@ se ejecute el método buscar usuario.*/
 
   ngOnInit() {
 
-     //Se obtiene el método de tecleado del elemento HTML de búsqueda.
-     fromEvent(this.buscarInfoHTML.nativeElement, 'keyup')
-     //Extrae el valor de la búsqueda.
-     .pipe(map((e: any) => e.target.value))
-     //Se realiza la búsqueda.
-     .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.citasServidor)))
-     //Se utiliza para obtener solo la búsqueda más reciente.
-     .pipe(switchAll())
-     //Se actualiza la información del arreglo de pacientes.
-     .subscribe((resultados: JSON[]) => {
-       //Se actualiza la información en pantalla.        
-       this.citas = resultados;
-     });
+    //Se obtiene el método de tecleado del elemento HTML de búsqueda.
+    fromEvent(this.buscarInfoHTML.nativeElement, 'keyup')
+      //Extrae el valor de la búsqueda.
+      .pipe(map((e: any) => e.target.value))
+      //Se realiza la búsqueda.
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.citasServidor)))
+      //Se utiliza para obtener solo la búsqueda más reciente.
+      .pipe(switchAll())
+      //Se actualiza la información del arreglo.
+      .subscribe((resultados: JSON[]) => {
+        //Se actualiza la información en pantalla.        
+        this.citas = resultados;
+      });
 
-   //Evento de cuando se pega con el mouse algun texto en la caja de texto.
-   fromEvent(this.buscarInfoHTML.nativeElement, 'paste')
-     //Extrae el texto del cuadro de texto.
-     .pipe(map((e: any) => e.target.value))
-     .pipe(debounceTime(50))
-     //Se subscribe al evento.
-     .subscribe((cadena: string) => {
-       //Genera un evento de teclazo para asegurar que se dispare el evento.
-       this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
-     });
+    //Evento de cuando se pega con el mouse algun texto en la caja de texto.
+    fromEvent(this.buscarInfoHTML.nativeElement, 'paste')
+      //Extrae el texto del cuadro de texto.
+      .pipe(map((e: any) => e.target.value))
+      .pipe(debounceTime(50))
+      //Se subscribe al evento.
+      .subscribe((cadena: string) => {
+        //Genera un evento de teclazo para asegurar que se dispare el evento.
+        this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
+      });
   }
 
   ngAfterViewInit() {
@@ -275,6 +277,11 @@ se ejecute el método buscar usuario.*/
     //El botón de dar de alta citas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneMenu('alta-cita').subscribe((respuesta: boolean) => {
       this.altaCitas = respuesta["value"];
+    });
+
+    //El botón de editar citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('EDITAR CITA').subscribe((respuesta: boolean) => {
+      this.editarCitas = respuesta["value"];
     });
 
     //El botón de eliminar citas se hará visible solamente si el usuario tiene el privilegio.
@@ -286,12 +293,11 @@ se ejecute el método buscar usuario.*/
     this.autenticarService.usuarioTieneDetModulo('INACTIVAR CITA').subscribe((respuesta: boolean) => {
       this.inactivarCitas = respuesta["value"];
     });
-    
+
     //El botón de activar citas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ACTIVAR CITA').subscribe((respuesta: boolean) => {
-      console.log(respuesta["value"]   );
       this.activarCitas = respuesta["value"];
-    });    
+    });
 
   }
 
@@ -755,12 +761,12 @@ se ejecute el método buscar usuario.*/
         else {
 
           //Se almacenan las citas en el arreglo de citas.
-          this.citas = respuesta["datos"];  
-          this.citasServidor =  respuesta["datos"];    
+          this.citas = respuesta["datos"];
+          this.citasServidor = respuesta["datos"];
           //Le da un focus al elemento de búsqueda.
           this.buscarInfoHTML.nativeElement.focus();
 
-        }        
+        }
 
       });
 
@@ -826,8 +832,8 @@ se ejecute el método buscar usuario.*/
           }
           //Si todo salió bien.
           else {
+            //Se actualizan los datos.            
             this._alerta("La cita se eliminó permanentemente.");
-            //Se actualizan los datos.
             this.buscar();
           }
         });
@@ -847,7 +853,22 @@ se ejecute el método buscar usuario.*/
   altaCita() {
 
     this.rutaNavegacion.navigate(['citas', 'alta-cita']);
-  }  
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarCita.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de editar cita.          |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId = identificador de la cita.            |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarCita(citaId) {
+    this.rutaNavegacion.navigateByUrl('citas/editar-cita/' + citaId);
+  }
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: _alerta.                                                     |
@@ -916,10 +937,10 @@ se ejecute el método buscar usuario.*/
     let mensaje: string;
     // Mensaje que se mostrará al modificar el estatus de la cita.
     let mensajeCorrecto: string;
-    if(estatus === 'CERRADO'){
+    if (estatus === 'CERRADO') {
       mensaje = "¿Desea inactivar/cerrar la cita?";
       mensajeCorrecto = "La cita se inactivó/cerró satisfactoriamente.";
-    }else{
+    } else {
       mensaje = "¿Desea activar/abrir la cita?";
       mensajeCorrecto = "La cita se activó/abrió satisfactoriamente.";
     }
@@ -936,7 +957,7 @@ se ejecute el método buscar usuario.*/
       if (result === "Sí") {
         //Abre el modal de espera.
         this.esperarService.esperar();
-        this.citasService.cambiarEstatusCita(citaId,estatus).subscribe(respuesta => {
+        this.citasService.cambiarEstatusCita(citaId, estatus).subscribe(respuesta => {
 
           //Cierra el modal de espera.
           this.esperarService.noEsperar();
@@ -947,14 +968,13 @@ se ejecute el método buscar usuario.*/
           }
           //Si todo salió bien.
           else {
-            this._alerta(mensajeCorrecto).subscribe(() => {
-              //Se actualizan los datos.
-              this.buscar();
-            });            
+            this._alerta(mensajeCorrecto).subscribe();
+             //Se actualizan los datos.
+             this.buscar();
           }
         });
       }
     });
-  }  
+  }
 
 }

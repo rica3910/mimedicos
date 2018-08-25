@@ -62,7 +62,8 @@ export class EsperarService {
     //Abre el modal.   
     //Se utiliza un timeout para evitar el error del modal de alerta. 
     setTimeout(() => {
-      this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);
+      this.modalRef? this.modalRef.close(): null;
+      this.modalRef = this.modalService.open(DialogoEsperaComponent, modalOption);      
     });
 
   }

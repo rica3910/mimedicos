@@ -82,7 +82,7 @@ export class EditarPacienteComponent implements OnInit {
   |  DESCRIPCIÓN: Método constructor del componente.                      | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  rutaActual   = para navegar a otras url's,                           |
+  |  rutaActual: Para obtener los parámetros de la url.                   |
   |  fb = contiene los métodos para manipular formularios HTML,           |
   |  utilidadesService = métodos genéricos y útiles,                      |
   |  pacientesService = contiene los métodos ABC/K de los pacientes,      |
