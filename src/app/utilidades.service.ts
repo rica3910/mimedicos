@@ -172,6 +172,24 @@ export class UtilidadesService {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: decimalNumberValidator.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que acepta solo números decimales.               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
+  |                         validará.                                     |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  decimalNumberValidator(control: FormControl): { [s: string]: boolean } {
+    if (control.value != null && !control.value.match(/[^0-9].?/)) {
+      return { invalidNumber: true };
+    }
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: inputNumerico.                                               |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método que solo acepta números en un input text.        |
@@ -203,6 +221,24 @@ export class UtilidadesService {
         //Genera un evento de teclazo para que validar que sea número la cadena pegada.
         input.nativeElement.dispatchEvent(new Event('keyup'));
       });
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: inputNumericoHTML.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que solo acepta números en un input text.        | 
+  |  Se utiliza directamente en el HTML.                                  |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: input = Elemento del formulario.              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 31/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  inputNumericoHTML(input: ElementRef) {
+    input["value"] = input["value"].replace(/[a-z] + [^0-9\s.]+|.(?!\d)/g, "");
+    
   }
 
 
@@ -301,11 +337,11 @@ export class UtilidadesService {
       hora = hora.length == 1 ? hora = "0" + hora : hora;
       //Se obtienen los minutos.
       let minutos: string = time.minute.toString();
-       //Si los minutos son de un dígito se le agrega un cero a la izquierda.
-       minutos = minutos.length == 1 ? minutos = "0" + minutos : minutos;
+      //Si los minutos son de un dígito se le agrega un cero a la izquierda.
+      minutos = minutos.length == 1 ? minutos = "0" + minutos : minutos;
 
       //Se arma la fecha junto con la hora formateada.
-      return  diagonales ? `${fecha} ${hora}:${minutos}` : `${fecha}${hora}${minutos}`;
+      return diagonales ? `${fecha} ${hora}:${minutos}` : `${fecha}${hora}${minutos}`;
     }
 
     //Si la fecha y/o hora es vacía o nula.

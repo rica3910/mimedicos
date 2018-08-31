@@ -38,11 +38,14 @@ import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 import { UTILIDADES_PROVIDERS } from './utilidades.service';
 import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
 import { rutas as  rutasCitas, CitasModule } from './citas/citas.module';
+import { rutas as  rutasConsultas, ConsultasModule } from './consultas/consultas.module';
 import { CitasComponent } from './citas/citas.component';
 import { ORGANIZACIONES_PROVIDERS } from './organizaciones.service';
 import { CLINICAS_PROVIDERS } from './clinicas.service';
 import { CITAS_PROVIDERS } from './citas.service';
 import { USUARIOS_PROVIDERS } from './usuarios.service';
+import { CONSULTAS_PROVIDERS } from './consultas.service';
+import { ConsultasComponent } from './consultas/consultas.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -53,6 +56,7 @@ const rutas: Routes = [
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },   
   { path: 'citas', component: CitasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasCitas },
+  { path: 'consultas', component: ConsultasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasConsultas },
   { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
@@ -80,7 +84,8 @@ const rutas: Routes = [
     RouterModule.forRoot(rutas),
     HttpClientModule,
     PacientesModule,
-    CitasModule
+    CitasModule,
+    ConsultasModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
@@ -93,7 +98,8 @@ const rutas: Routes = [
     ORGANIZACIONES_PROVIDERS,
     CLINICAS_PROVIDERS,
     CITAS_PROVIDERS,
-    USUARIOS_PROVIDERS
+    USUARIOS_PROVIDERS,
+    CONSULTAS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

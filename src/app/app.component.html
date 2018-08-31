@@ -35,7 +35,10 @@
           </li>      
           <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('citas')">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/citas']">Citas</a>
-          </li>               
+          </li>    
+          <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('consultas')">
+            <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/consultas']">Consultas</a>
+          </li>                     
         </ul>        
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-desplegable" id="dropdownBasic1" ngbDropdownToggle>{{autorizacion.obtenerNombreUsuario()}}</button>
