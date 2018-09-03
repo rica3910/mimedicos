@@ -166,13 +166,13 @@ export class UtilidadesService {
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   numberValidator(control: FormControl): { [s: string]: boolean } {
-    if (control.value != null && !control.value.match(/[^0-9]/)) {
+    if (control.value != null && !control.value.match(/^[0-9]+$/g)) {
       return { invalidNumber: true };
     }
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: decimalNumberValidator.                                      |
+  |  NOMBRE: decimalValidator.                                            |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método que acepta solo números decimales.               |
   |-----------------------------------------------------------------------|
@@ -183,8 +183,8 @@ export class UtilidadesService {
   |-----------------------------------------------------------------------|
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  decimalNumberValidator(control: FormControl): { [s: string]: boolean } {
-    if (control.value != null && !control.value.match(/[^0-9].?/)) {
+  decimalValidator(control: FormControl): { [s: string]: boolean } {
+    if (control.value != null && !control.value.match(/^-?[0-9]+(\.[0-9]*){0,1}$/g)) {
       return { invalidNumber: true };
     }
   }
@@ -194,21 +194,45 @@ export class UtilidadesService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método que solo acepta números en un input text.        |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: input = Elemento del formulario.              |
+  |  PARÁMETROS DE ENTRADA: input = Elemento del formulario,              |
+  |  decimal = verdadero: número decimal, falso: número entero.           |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  inputNumerico(input: ElementRef) {
+  inputNumerico(input: ElementRef, decimal: boolean = false) {
+
+    //Expresión regular.
+    let regExp: RegExp;
+
+    //Si es decimal se usa una expresión regular y si es entero se usa otra.
+    decimal ? regExp = /^-?[0-9]+(\.[0-9]*){0,1}$/g : regExp = /^[0-9]+$/g;
+
     //Evento de tecleado.
     fromEvent(input.nativeElement, 'keyup')
       //Extrae el texto del cuadro de texto.
       .pipe(map((e: any) => e.target.value))
       //Se subscribe al evento.
       .subscribe((cadena: string) => {
-        //Si se escriben letras, se remueven.
-        input.nativeElement.value = cadena.replace(/[^0-9]/g, "");
+
+        //Se divide la palabra escrita en carácteres.
+        let caracteres: string[] = cadena.split("");
+        /*Se utiliza para ir concatenando lo escrito en el caja de texto
+        e ir analizando carácter por carácter.
+        */
+        let cadenaFormada: string = "";
+
+        caracteres.forEach(caracter => {
+          //Se va formando la cadena final.
+          cadenaFormada = cadenaFormada + caracter;
+          //Si no se escriben números, se remueven.
+          if (!cadenaFormada.match(regExp)) {
+            cadenaFormada = cadenaFormada.substring(0, cadenaFormada.length - 1);
+          }
+        });
+        //Se retorna la cadena formateada.
+        input.nativeElement.value = cadenaFormada;
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.
@@ -222,25 +246,6 @@ export class UtilidadesService {
         input.nativeElement.dispatchEvent(new Event('keyup'));
       });
   }
-
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: inputNumericoHTML.                                           |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que solo acepta números en un input text.        | 
-  |  Se utiliza directamente en el HTML.                                  |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: input = Elemento del formulario.              |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 31/08/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  inputNumericoHTML(input: ElementRef) {
-    input["value"] = input["value"].replace(/[a-z] + [^0-9\s.]+|.(?!\d)/g, "");
-    
-  }
-
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: limpiarCampoTexto.                                           |

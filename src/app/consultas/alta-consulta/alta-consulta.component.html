@@ -83,13 +83,15 @@
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text">{{campo.etiqueta}}{{campo.requerido == "1" ? "*": ""}} </span>
-          </div>
-          <input *ngIf="campo.tipo_campo == 'NUMÉRICO'" [formControlName]="'control' + campo.id" type="number" class="form-control" ngbTooltip="{{campo.indicio}}">
-          <input *ngIf="campo.tipo_campo == 'TEXTO'" [formControlName]="'control' + campo.id" #HTML1 (keyup)="utilidadesService.inputNumericoHTML(HTML1)" type="text" class="form-control" ngbTooltip="{{campo.indicio}}">          
-          <textarea  *ngIf="campo.tipo_campo == 'COMENTARIO'" [formControlName]="'control' + campo.id"  class="form-control" ngbTooltip="{{campo.indicio}}"></textarea>
-          <input *ngIf="campo.tipo_campo == 'FECHA'" [formControlName]="'control' + campo.id"   type="date" class="form-control" ngbTooltip="{{campo.indicio}}">          
-          <input *ngIf="campo.tipo_campo == 'HORA'" [formControlName]="'control' + campo.id"  type="time" class="form-control" ngbTooltip="{{campo.indicio}}">          
-          <input *ngIf="campo.tipo_campo == 'IMAGEN'" [formControlName]="'control' + campo.id"  type="file" class="form-control" ngbTooltip="{{campo.indicio}}">          
+          </div>        
+          <input *ngIf="campo.tipo_campo.includes('ENTERO') || 
+                        campo.tipo_campo.includes('DECIMAL')|| 
+                        campo.tipo_campo.includes('TEXTO')" #campoHTML [formControlName]="'control' + campo.id" id="control{{campo.id}}" type="text" class="form-control" ngbTooltip="{{campo.indicio}}">                                        
+          <textarea  *ngIf="campo.tipo_campo == 'COMENTARIO'" #campoHTML [formControlName]="'control' + campo.id"  id="control{{campo.id}}"  class="form-control" ngbTooltip="{{campo.indicio}}"></textarea>
+          <input *ngIf="campo.tipo_campo == 'FECHA'" #campoHTML [formControlName]="'control' + campo.id" id="control{{campo.id}}"   type="date" class="form-control" ngbTooltip="{{campo.indicio}}">          
+          <input *ngIf="campo.tipo_campo == 'HORA'" #campoHTML [formControlName]="'control' + campo.id" id="control{{campo.id}}"   type="time" class="form-control" ngbTooltip="{{campo.indicio}}">          
+          <input *ngIf="campo.tipo_campo == 'IMAGEN'" #campoHTML [formControlName]="'control' + campo.id" id="control{{campo.id}}"   type="file" class="form-control" ngbTooltip="{{campo.indicio}}" accept="image/*" (change)="seleccionarImagen($event)">    
+          <div *ngIf="pulsarCrear && !formAltaConsultas.controls['control' + campo.id].valid" class="col-lg-12 alert-danger text-center campo-invalido">El campo {{campo.etiqueta}} es inválido.</div>          
         </div>
       </div>        
       <div class="col-lg-3"></div>

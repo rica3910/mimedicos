@@ -210,7 +210,7 @@ export class CitasService {
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
   |  usuarioAtencionId = identificador del paciente,                      |
-  |  pacienteId = identificador de la cita,                               | 
+  |  pacienteId = identificador del paciente,                             | 
   |  clinicaId = identificador de la clínica,                             |                            
   |  fechaHora = fecha y hora de la cita,                                 |   
   |  estadoCitaId = identificador del estado de la cita.                  |

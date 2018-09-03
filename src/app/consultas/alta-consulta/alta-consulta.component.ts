@@ -12,10 +12,10 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, ContentChildren, ContentChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbTypeahead, NgbModalOptions, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge } from 'rxjs';
+import { NgbTypeahead, NgbModalOptions, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, Observable, merge, of } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
@@ -24,10 +24,7 @@ import { FormGroup, FormBuilder, AbstractControl, Validators, FormControl, FormC
 import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
-import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
-import { DialogoConfirmacionComponent } from '../../dialogo-confirmacion/dialogo-confirmacion.component';
 import { ConsultasService } from '../../consultas.service';
-
 
 @Component({
   selector: 'app-alta-consulta',
@@ -41,7 +38,7 @@ export class AltaConsultaComponent implements OnInit {
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
   pacientes: { id: string, nombres_paciente: string }[];
   //Variable para almacenar los campos.
-  campos: JSON[]  = new Array();
+  campos: JSON[] = new Array();
 
   /*Variable que sirve para cuando se le de clic o focus al usuario
   se ejecute el método buscar usuario.*/
@@ -54,9 +51,9 @@ export class AltaConsultaComponent implements OnInit {
   //Variable que almacena el control del formulario de la búsqueda del paciente.
   @ViewChild('pacienteHTML') pacienteHTML: ElementRef;
   //Variable que almacena el control del formulario de la clínica.
-  @ViewChild('clinicaHTML') clinicaHTML: ElementRef;  
-  //Variable que almacena el control del formulario de la clínica.
-  @ViewChild('campoHTML') campoHTML: ElementRef;  
+  @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
+  //Variable que almacena los campos dinámicos del formulario.
+  @ViewChildren('campoHTML') campoHTML: QueryList<any>;
 
   //Variable que reacciona al focus del campo buscar usuario.
   focusBuscarUsuario$ = new Subject<string>();
@@ -92,7 +89,8 @@ export class AltaConsultaComponent implements OnInit {
   camposListos: boolean = false;
   //Propiedad para cuando se oprime el botón de crear consulta.
   pulsarCrear: boolean = false;
-
+  //Propiedad para almacenar las imágenes que pudiera tener el formulario.
+  imagenes: any[] = new Array();
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: constructor.                                                 |
@@ -123,8 +121,8 @@ export class AltaConsultaComponent implements OnInit {
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
     private consultaService: ConsultasService) {
-      
-      //Al calendario se le establece la fecha actual.
+
+    //Al calendario se le establece la fecha actual.
     let fechaActual = new Date();
 
     //Se agregan las validaciones al formulario de alta de consultas.
@@ -132,7 +130,7 @@ export class AltaConsultaComponent implements OnInit {
       'usuario': ['', Validators.required],
       'paciente': ['', Validators.required],
       'clinica': ['', [Validators.required]]
-    });    
+    });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
     this.usuarioControl = this.formAltaConsultas.controls['usuario'];
@@ -166,21 +164,20 @@ export class AltaConsultaComponent implements OnInit {
 
     });
 
-
   }
 
   ngOnInit() {
   }
 
-/*----------------------------------------------------------------------|
-|  NOMBRE: filtroUsuarios.                                              |
-|-----------------------------------------------------------------------|
-|  DESCRIPCIÓN: Método para llenar el filtro de usuarios.               | 
-|-----------------------------------------------------------------------|
-|  AUTOR: Ricardo Luna.                                                 |
-|-----------------------------------------------------------------------|
-|  FECHA: 29/08/2018.                                                   |    
-|----------------------------------------------------------------------*/
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroUsuarios.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de usuarios.               | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
   filtroUsuarios() {
 
     //Intenta obtener los usuarios del usuario ingresado.
@@ -380,66 +377,359 @@ export class AltaConsultaComponent implements OnInit {
   |----------------------------------------------------------------------*/
   regresar() {
     this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
-  }  
+  }
 
 
-/*----------------------------------------------------------------------|
-|  NOMBRE: obtenerCampos.                                               |
-|-----------------------------------------------------------------------|
-|  DESCRIPCIÓN: Método para obtener los campos del usuario logueado.    | 
-|-----------------------------------------------------------------------|
-|  AUTOR: Ricardo Luna.                                                 |
-|-----------------------------------------------------------------------|
-|  FECHA: 30/08/2018.                                                   |    
-|----------------------------------------------------------------------*/
-obtenerCampos() {
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerCampos.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los campos del usuario logueado.    | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 30/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  obtenerCampos() {
 
-  //Intenta obtener los campos del usuario logueado.
-  this.consultaService.camposConsultaUsuario("1")
-    .subscribe((respuesta) => {
+    //Intenta obtener los campos del usuario logueado.
+    this.consultaService.camposConsultaUsuario("1")
+      .subscribe((respuesta) => {
 
-      //Indica que los campos del usuario ya se cargaron.
-      this.camposListos = true;
-      this.cargaInicialLista$.next(this.camposListos);
+        //Indica que los campos del usuario ya se cargaron.
+        this.camposListos = true;
+        this.cargaInicialLista$.next(this.camposListos);
 
-      //Si hubo un error en la obtención de información.
-      if (respuesta["estado"] === "ERROR") {
-        //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this._alerta(respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los campos en forma de JSON.        
+          this.campos = respuesta["datos"];
+
+          //Se empiezan a crear los campos del formulario.
+          this.campos.forEach(campo => {
+            //Se crea el control dinámico.
+            let control: FormControl;
+            //Se crean las validaciones que tendrá cada campo.
+            let validaciones: Array<any> = new Array();
+
+            //Si el campo es requerido.
+            campo["requerido"] == "1" ? validaciones.push(Validators.required) : null;
+            campo["tipo_campo"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
+            campo["tipo_campo"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
+
+            //Se agrega el campo control al formulario.
+            control = new FormControl(campo["valor"], validaciones);
+            this.formAltaConsultas.addControl('control' + campo["id"], control);
+
+          });
+
+          //Se obtienen los campos HTML creados dinámicamente.
+          this.campoHTML.changes.subscribe(() => {
+            this.campoHTML.forEach((campo: ElementRef) => {
+              //Se obtiene solo el identificador del campo.
+              let campoId: string = campo.nativeElement["id"];
+              campoId = campoId.replace("control", "");
+              /*Se recorren de nuevo los campos obtenidos de la BD
+               para aplicarles la máscara si es que necesitan.*/
+              this.campos.forEach(campoBD => {
+                //Si se encuentra el campo.
+                if (campoBD["id"] == campoId) {
+                  switch (campoBD["tipo_campo"]) {
+                    //Si el campo es numérico.
+                    case 'ENTERO': {
+                      this.utilidadesService.inputNumerico(campo);
+                      break;
+                    }
+                    //Si el campo es decimal.
+                    case 'DECIMAL': {
+                      this.utilidadesService.inputNumerico(campo, true);
+                      break;
+                    }
+                  }
+                }
+              });
+
+            });
+          });
+
+        }
+      });
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaConsulta.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta una consulta.                   | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaConsulta() {
+
+    //Se pulsa el botón  de dar de alta consulta.
+    this.pulsarCrear = true;
+
+    /*Si los elementos del formulario estáticos requeridos no están llenos, 
+    se hace un focus para que se ingrese texto.*/
+    if (this.usuarioControl.invalid) {
+      this.usuarioHTML.nativeElement.focus();
+      return;
+    } else if (this.pacienteControl.invalid) {
+      this.pacienteHTML.nativeElement.focus();
+      return;
+    } else if (this.clinicaControl.invalid) {
+      this.clinicaHTML.nativeElement.focus();
+      return;
+    }
+
+    let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
+    //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
+    if (usuario && !usuario.id) {
+      this._alerta("Seleccione un usuario válido.").subscribe(() => {
+        this.usuarioHTML.nativeElement.focus();
+      });
+      return
+    }
+
+    let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
+    //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
+    if (paciente && !paciente.id) {
+      this._alerta("Seleccione un paciente válido.").subscribe(() => {
+        this.pacienteHTML.nativeElement.focus();
+      });
+      return
+    }
+
+    /*Si los elementos del formulario dinámicos requeridos no están llenos, 
+    se hace un focus para que se ingrese texto.*/
+    if (this.formAltaConsultas.invalid) {
+      return;
+    }
+
+
+    /*Se recorren los campos obtenidos de la BD
+    para verificar que los datos introducidos sean válidos.*/
+    this.campos.forEach(campo => {
+
+      switch (campo["tipo_campo"]) {
+        case "FECHA": {
+          //Se obtiene el valor escrito en el campo de fecha.
+          let fecha = new Date(this.formAltaConsultas.controls["control" + campo["id"]].value);
+          //Si no es una fecha válida.
+          if (!fecha.getDate()) {
+            this._alerta("Introduzca una fecha válida.").subscribe(() => {
+              //Se hace focus en el campo.
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "control" + campo["id"]).nativeElement.focus();
+            });
+          }
+          break;
+        }
+        case "HORA": {
+          //Se obtiene el valor escrito en el campo de hora.
+          let hora = new Date('01/01/1910 ' + this.formAltaConsultas.controls["control" + campo["id"]].value);
+          //Si no es una hora válida.;
+          if (!hora.getTime()) {
+            this._alerta("Introduzca una hora válida.").subscribe(() => {
+              //Se hace focus en el campo.
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "control" + campo["id"]).nativeElement.focus();
+            });
+          }
+          break;
+        }
       }
-      //Si todo salió bien.
-      else {
-  
-        //Se almacenan los campos en forma de JSON.        
-        this.campos = respuesta["datos"];
 
-        //Se empiezan a crear los campos del formulario.
-        this.campos.forEach(campo => {
-          //Se crea el control dinámico.
-          let control: FormControl;
-          //Se crean las validaciones que tendrá cada campo.
-          let validaciones: Array<any> = new Array();
-
-          //Si el campo es requerido.
-          campo["requerido"] == "1" ?  validaciones.push(Validators.required) : null;
-          campo["tipo_campo"] == "NUMÉRICO" ? validaciones.push(this.utilidadesService.numberValidator) :null;
-                
-          control = new FormControl(campo["valor"], validaciones);
-
-          //this.utilidadesService.inputNumerico(this.campoHTML);          
-          this.formAltaConsultas.addControl('control' + campo["id"], control ); 
-                    
-        });        
-  
-      }
     });
 
-}
+    //Se abre el modal de espera.
+    this.esperarService.esperar();
 
-hola(event){
-  console.log(event);
-}
+    //Se intenta dar de alta la consulta.
+    this.consultaService.altaConsulta(this.pacienteControl.value.id, this.clinicaControl.value, this.usuarioControl.value.id)
+      .subscribe(respuesta => {
 
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this._alerta(respuesta["mensaje"]);
+        }
+        else {
+
+          //Se obtiene el identificador de la consulta recién creado.
+          let consultaId: string = respuesta["mensaje"];
+          //Variable que almacenará los campos a insertar en el detalle de la consulta.
+          let camposAlta: any[] = new Array();
+
+          /*Se recorren los campos obtenidos de la BD
+          para obtener los valores introducidos en los campos del formulario.*/
+          for (let iteracion: number = 0; iteracion < this.campos.length; iteracion++) {
+
+            let campo = this.campos[iteracion];
+
+            //Almacena lo escrito en el campo.
+            let valor: string = "";
+            //Para los campos de tipo archivo.
+            let archivo: string = "";
+            //Si el campo es un archivo o imagen.
+            if (campo["tipo_campo"] == "IMAGEN") {              
+              //Se obtiene el archivo.
+              archivo = this.formAltaConsultas.controls["control" + campo["id"]].value;
+              //Si el archivo es nulo, se inicializa en cadena vacía.
+              if(archivo !== null){
+                for(let i = 0; i < this.imagenes.length ; i++){
+                  console.log("iteracion " + i );
+                  if(this.imagenes[i]["campoId"] == "control" + campo["id"]){
+                    archivo = this.imagenes[i]["json"];
+                    break;
+                  }
+                }                                       
+              }
+              else{
+                archivo = "";
+              }
+              //No puede tener archivo y valor juntos, o es uno u otro.              
+              valor = "";
+            } else {
+              archivo = "";
+              valor = this.formAltaConsultas.controls["control" + campo["id"]].value;
+              valor === null ? valor = "" : null;
+            }
+
+            //Se agregan al arreglo los campos que se van a insertar en el detalle de consulta.
+            camposAlta.push({ "consultaId": consultaId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
+          }
+
+          //Se recoren los campos a insertar recursivamente.
+          this.altaDetConsulta(camposAlta, 0);
+        }
+
+      });
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetConsulta.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta los campos en el detalle de la  |
+  |  consulta.                                                            |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campos = campos que se insertarán,            |
+  |  iteracion = iteración o registro que sigue para insertar.            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 02/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetConsulta(campos: any[], iteracion: number) {
+
+    //Se almacenan los campos que se insertarán en el detalle.
+    let consultaId: string = campos[iteracion].consultaId;
+    let campoId: string = campos[iteracion].campoId;
+    let valor: string = campos[iteracion].valor;
+    let archivo: string = campos[iteracion].archivo;
+
+    //Se intenta dar de alta el detalle de la consulta.
+    this.consultaService.altaDetConsulta(consultaId, campoId, valor, archivo)
+      .subscribe(respuesta => {
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
+          this.esperarService.noEsperar();
+          this._alerta(respuesta["mensaje"]).subscribe(() => {
+            //Se retorna a la lista de consultas.
+            this.regresar();
+            return;
+          });         
+        }
+        //Si la inserción fue correcta.
+        else {
+          //Si no es el último registro.
+          if (iteracion < campos.length - 1) {
+            this.altaDetConsulta(campos, iteracion + 1);
+          }
+          //Si ya es el último registro, se despliega alerta de éxito.
+          else {
+            this.esperarService.noEsperar();
+            this._alerta("La consulta se dio de alta correctamente." + respuesta["mensaje"]).subscribe(() => {
+              //Se retorna a la lista de consultas.
+              this.regresar();
+            });
+          }
+        }
+      });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: seleccionarImagen.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para campos de tipo imágen.                      |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 02/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  seleccionarImagen(event){
+
+    //Si ha sido seleccionada una imagen.
+    if (event.target.files && event.target.files[0]) {
+
+      //Variable que almacena la ruta del archivo.
+      let archivo: File = event.target.files[0];
+      //Variable que almacena la extensión o tipo del archivo.
+      let tipoArchivo: string = archivo["type"];
+
+      //Si el archivo no es una imagen.
+      if (!tipoArchivo.toUpperCase().includes("IMAGE")) {
+
+        this._alerta("El archivo que seleccionó No es una imagen.");
+
+      }
+      //Si sí es una imagen.
+      else {
+
+        //Se lee el archivo obtenido.
+        var reader = new FileReader();
+        reader.readAsDataURL(archivo);
+
+        //Si el tamaño del archivo es muy grande.
+        if (archivo.size > 160000) {
+          this._alerta("El tamaño de la imagen debe ser menor a 16 megas.");
+        }
+        else {
+
+          //Obtiene el campo de la imagen.
+          let campoId = event.target["id"];
+
+          //Cuando la imagen ya se subió temporalmente.
+          reader.onload = (event) => {
+            
+            //Arma el JSON de la información de la imageny la almacena en el arreglo de imágenes.
+            this.imagenes.push({"campoId": campoId, "json": JSON.stringify({              
+              nombre: archivo.name,
+              extension: archivo.type,
+              tamano: archivo.size,
+              //decodifica la imagen para que todos los carácteres se almacenen.
+              valor: btoa(event.target["result"])
+            })});  
+
+            console.log(this.imagenes);
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }  
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: _alerta.                                                     |

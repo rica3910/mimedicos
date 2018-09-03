@@ -47,7 +47,6 @@ import { USUARIOS_PROVIDERS } from './usuarios.service';
 import { CONSULTAS_PROVIDERS } from './consultas.service';
 import { ConsultasComponent } from './consultas/consultas.component';
 
-
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
   { path: '', redirectTo: 'ingresar', pathMatch: 'full'}, 
