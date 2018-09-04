@@ -348,7 +348,7 @@ export class ListaConsultasComponent implements OnInit {
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -391,7 +391,7 @@ export class ListaConsultasComponent implements OnInit {
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -427,7 +427,7 @@ export class ListaConsultasComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -462,7 +462,7 @@ export class ListaConsultasComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -635,14 +635,14 @@ export class ListaConsultasComponent implements OnInit {
     let fechaHasta: NgbDateStruct = this.fechaHastaControl.value;
     if (fechaDesde && !fechaHasta) {
       //Muestra una alerta indicando que se deben de llenar las dos fechas.      
-      this._alerta("La fecha final debe ser completada.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida", "La fecha final debe ser completada.").subscribe(() => {
         this.fechaHastaHTML.nativeElement.focus();
       });
       return;
     }
     else if (!fechaDesde && fechaHasta) {
       //Muestra una alerta indicando que se deben de llenar las dos fechas.      
-      this._alerta("La fecha inicial debe ser completada.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida", "La fecha inicial debe ser completada.").subscribe(() => {
         this.fechaDesdeHTML.nativeElement.focus();
       });
       return;
@@ -652,26 +652,26 @@ export class ListaConsultasComponent implements OnInit {
       (fechaDesde.year >= fechaHasta.year &&
         fechaDesde.month >= fechaHasta.month &&
         fechaDesde.day > fechaHasta.day)) {
-      this._alerta("La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida","La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
         this.fechaDesdeHTML.nativeElement.focus();
       });
       return;
     }
 
-    let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
-    //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
-    if (paciente && !paciente.id) {
-      this._alerta("Seleccione un paciente válido.").subscribe(() => {
-        this.pacienteHTML.nativeElement.focus();
+    let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
+    //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
+    if (usuario && !usuario.id) {
+      this.utilidadesService.alerta("Usuario inválido", "Seleccione un usuario válido.").subscribe(() => {
+        this.usuarioHTML.nativeElement.focus();
       });
       return
     }
 
-    let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
-    //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
-    if (usuario && !usuario.id) {
-      this._alerta("Seleccione un usuario válido.").subscribe(() => {
-        this.usuarioHTML.nativeElement.focus();
+    let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
+    //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
+    if (paciente && !paciente.id) {
+      this.utilidadesService.alerta("Paciente inválido","Seleccione un paciente válido.").subscribe(() => {
+        this.pacienteHTML.nativeElement.focus();
       });
       return
     }
@@ -694,7 +694,8 @@ export class ListaConsultasComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          
         }
         //Si todo salió bien.
         else {
@@ -807,51 +808,6 @@ export class ListaConsultasComponent implements OnInit {
   |----------------------------------------------------------------------*/
   editarConsulta(consultaId) {
     this.rutaNavegacion.navigateByUrl('consultas/editar-consulta/' + consultaId);
-  }
-
-  /*----------------------------------------------------------------------|
-    |  NOMBRE: _alerta.                                                     |
-    |-----------------------------------------------------------------------|
-    |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
-    |               de la base de datos en forma de alerta.                 | 
-    |-----------------------------------------------------------------------|
-    |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
-    |-----------------------------------------------------------------------|
-    |  AUTOR: Ricardo Luna.                                                 |
-    |-----------------------------------------------------------------------|
-    |  FECHA: 03/08/2018.                                                   |    
-    |----------------------------------------------------------------------*/
-
-  private _alerta(mensaje: string): Observable<any> {
-
-    //Se utiliza para esperar a que se pulse el botón aceptar.
-    let subject: Subject<any> = new Subject<null>();
-
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-
-    //No se cierra cuando se pulsa esc.
-    modalOption.keyboard = false;
-    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
-    modalOption.backdrop = 'static';
-    //Modal centrado.
-    modalOption.centered = true;
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, modalOption);
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Notificación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = mensaje;
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-    //Se retorna el botón pulsado.
-    modalRef.result.then(() => {
-      //Se retorna un nulo, ya que no se espera un resultado.         
-      subject.next(null);
-    });
-
-    //Se retorna el observable.
-    return subject.asObservable();
   }
 
 }

@@ -46,6 +46,7 @@ import { CITAS_PROVIDERS } from './citas.service';
 import { USUARIOS_PROVIDERS } from './usuarios.service';
 import { CONSULTAS_PROVIDERS } from './consultas.service';
 import { ConsultasComponent } from './consultas/consultas.component';
+import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -69,12 +70,13 @@ const rutas: Routes = [
     DialogoAlertaComponent,
     DialogoEsperaComponent,
     CambiarPasswordOlvidadoComponent,    
-    PaginaInvalidaComponent
+    PaginaInvalidaComponent, DesplegarImagenComponent
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
     DialogoAlertaComponent, 
-    DialogoEsperaComponent],
+    DialogoEsperaComponent,
+    DesplegarImagenComponent],
   imports: [
     BrowserModule,
     FormsModule,

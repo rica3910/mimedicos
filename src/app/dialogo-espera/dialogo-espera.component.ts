@@ -23,6 +23,7 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./dialogo-espera.component.css']
 })
 export class DialogoEsperaComponent implements OnInit {
+
   
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |

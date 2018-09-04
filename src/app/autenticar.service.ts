@@ -14,7 +14,7 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of} from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from "rxjs/operators";
 
 @Injectable()
@@ -60,13 +60,13 @@ export class AutenticarService {
     //Le concatena la palabra "json=" al json armado.
     let params = "json=" + json;
     //Le agrega el header codificado.
-    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');    
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
     //Realiza la petición al servidor.
     return this.http
       .post(this.urlApi + 'ingresar',
         params,
-        { headers: headers })                      
+        { headers: headers })
       .pipe(map((respuesta) => {
 
         //Si el ingreso se hace satisfactoriamente.
@@ -79,27 +79,11 @@ export class AutenticarService {
           const urlsMenus: string[] = ["pacientes", "citas", "consultas"];
           //Se borran los  menús en caso de que haya.
           this._eliminarMenus();
-          //Establecer los menús que pueda utilizar el usuario ingresado.          
-          urlsMenus.forEach((url: string, indice: number) => {          
-
-            this.usuarioTieneMenu(url)
-              //Se subscribe al servicio.
-              .subscribe((menu) => {      
-                                
-                //Si sí tiene el menú, lo añade al arreglo de los menús del usuario logueado.
-                if (menu["value"]) {                  
-                  //Si es es el último url o menú.                  
-                  if (indice == urlsMenus.length - 1) {
-                    this._guardarMenus(url, true);
-                  } else {
-                    this._guardarMenus(url);
-                  }                  
-                }
-
-              });
-          });
-
+          //Se despliegan los menús que tiene asignados el usuario logueado.
+          this.usuarioTieneMenus(urlsMenus, 0);   
+          
         }
+        
         return respuesta;
 
       }));
@@ -150,13 +134,13 @@ export class AutenticarService {
     let menus: string[] = new Array();
 
     //Si hay menús.
-    if(this._obtenerMenus() !== null){
+    if (this._obtenerMenus() !== null) {
 
       //Se almacenan los menús en una constante de tipo cadena para obtener los métodos.
-      const menusString = this._obtenerMenus();      
+      const menusString = this._obtenerMenus();
 
       //Se transforman los menús en un arreglo.
-      menus =  menusString.split(",");
+      menus = menusString.split(",");
 
     }
 
@@ -180,7 +164,7 @@ export class AutenticarService {
 
     //SÍ hay menús guardados.
     if (this._obtenerMenus() !== null) {
-      
+
       //Si es el último menú.
       if (final) {
         localStorage.setItem("menus", this._obtenerMenus() + menu);
@@ -193,7 +177,7 @@ export class AutenticarService {
     }
     //Si NO hay menús.
     else {
-      
+
       //Se empieza a armar la cadena con comas.      
       //Si es el último menú.
       if (final) {
@@ -505,6 +489,53 @@ export class AutenticarService {
         { headers: headers });
   }
 
+/*----------------------------------------------------------------------|
+|  NOMBRE: usuarioTieneMenus.                                           |
+|-----------------------------------------------------------------------|
+|  DESCRIPCIÓN: Método que despliega los menús que tiene el usuario.    | 
+|-----------------------------------------------------------------------|
+|  PARÁMETROS DE ENTRADA: urls = todas las urls o menús del sistema,    |
+|  iteracion = índice o iteración actual en el arreglo de menús.        |
+|-----------------------------------------------------------------------|
+|  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+|                         en caso de que el usuario tenga o no el menú  |
+|                         respectivamente.                              |
+|-----------------------------------------------------------------------|
+|  AUTOR: Ricardo Luna.                                                 |
+|-----------------------------------------------------------------------|
+|  FECHA: 03/09/2018.                                                   |    
+|----------------------------------------------------------------------*/
+  usuarioTieneMenus(urls: string[], iteracion: number) {
+
+      let url = urls[iteracion];
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      this.usuarioTieneMenu(url).subscribe((respuesta) => {
+
+        //Si el usuario tiene el menú.
+        if (respuesta.value) {
+
+          //Retorna un verdadero, signo de que sí tiene asignado el menú.
+          //Si es es el último url o menú.                  
+          if (iteracion == urls.length - 1) {
+            this._guardarMenus(url, true);
+          } else if (iteracion < urls.length - 1) {
+            this._guardarMenus(url);
+            this.usuarioTieneMenus(urls, iteracion + 1);
+          }
+
+        }
+
+      });
+
+  }
+
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: usuarioTieneMenu.                                            |
   |-----------------------------------------------------------------------|
@@ -521,7 +552,7 @@ export class AutenticarService {
   |  FECHA: 04/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
   usuarioTieneMenu(url: string): Observable<any> {
-  
+
 
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
@@ -532,8 +563,8 @@ export class AutenticarService {
       });
 
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })                    
-        .pipe(map(respuesta => {      
+      return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
+        .pipe(map(respuesta => {
 
           //Si el usuario no tiene el menú.
           if (respuesta["estado"] === "ERROR") {
@@ -544,12 +575,12 @@ export class AutenticarService {
           //Retorna un verdadero, signo de que si tiene asignado el menú.
           return of(true);
 
-        }));        
+        }));
     }
     //No está conectado.
     return of(false);
   }
-  
+
 
 
   /*----------------------------------------------------------------------|
@@ -574,7 +605,7 @@ export class AutenticarService {
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-      
+
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'usuario-tiene-paciente/' + pacienteId, { headers: headers })
         .pipe(map(respuesta => {
@@ -592,7 +623,7 @@ export class AutenticarService {
     }
     //No está conectado.
     return of(false);
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: usuarioTieneDetModulo.                                       |
@@ -618,7 +649,7 @@ export class AutenticarService {
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-      
+
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'usuario-tiene-det-modulo/' + nombreDetModulo, { headers: headers })
         .pipe(map(respuesta => {
@@ -664,9 +695,9 @@ export class AutenticarService {
       const headers: HttpHeaders = new HttpHeaders({
         'X-API-KEY': this.obtenerToken()
       });
-      
+
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + `usuario-puede-modificar-cita/${citaId}/${soloVer}` , { headers: headers })
+      return this.http.get(this.urlApi + `usuario-puede-modificar-cita/${citaId}/${soloVer}`, { headers: headers })
         .pipe(map(respuesta => {
 
           //Si el usuario no puede acceder o editar la cita.
@@ -682,8 +713,8 @@ export class AutenticarService {
     }
     //No está conectado.
     return of(false);
-  }   
-  
+  }
+
 
 }
 

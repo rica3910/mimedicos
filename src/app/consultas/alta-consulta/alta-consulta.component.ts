@@ -191,7 +191,7 @@ export class AltaConsultaComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -225,7 +225,7 @@ export class AltaConsultaComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -352,7 +352,7 @@ export class AltaConsultaComponent implements OnInit {
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -402,7 +402,7 @@ export class AltaConsultaComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -433,7 +433,7 @@ export class AltaConsultaComponent implements OnInit {
             this.campoHTML.forEach((campo: ElementRef) => {
               //Se obtiene solo el identificador del campo.
               let campoId: string = campo.nativeElement["id"];
-              campoId = campoId.replace("control", "");
+              campoId = campoId.replace("campoHTML", "");
               /*Se recorren de nuevo los campos obtenidos de la BD
                para aplicarles la máscara si es que necesitan.*/
               this.campos.forEach(campoBD => {
@@ -492,7 +492,7 @@ export class AltaConsultaComponent implements OnInit {
     let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
     //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
     if (usuario && !usuario.id) {
-      this._alerta("Seleccione un usuario válido.").subscribe(() => {
+      this.utilidadesService.alerta("Usuario inválido", "Seleccione un usuario válido.").subscribe(() => {
         this.usuarioHTML.nativeElement.focus();
       });
       return
@@ -501,7 +501,7 @@ export class AltaConsultaComponent implements OnInit {
     let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
     //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
     if (paciente && !paciente.id) {
-      this._alerta("Seleccione un paciente válido.").subscribe(() => {
+      this.utilidadesService.alerta("Paciente inválido", "Seleccione un paciente válido.").subscribe(() => {
         this.pacienteHTML.nativeElement.focus();
       });
       return
@@ -524,9 +524,9 @@ export class AltaConsultaComponent implements OnInit {
           let fecha = new Date(this.formAltaConsultas.controls["control" + campo["id"]].value);
           //Si no es una fecha válida.
           if (!fecha.getDate()) {
-            this._alerta("Introduzca una fecha válida.").subscribe(() => {
+            this.utilidadesService.alerta("Fecha inválida","Introduzca una fecha válida.").subscribe(() => {
               //Se hace focus en el campo.
-              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "control" + campo["id"]).nativeElement.focus();
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campo["id"]).nativeElement.focus();
             });
           }
           break;
@@ -536,9 +536,9 @@ export class AltaConsultaComponent implements OnInit {
           let hora = new Date('01/01/1910 ' + this.formAltaConsultas.controls["control" + campo["id"]].value);
           //Si no es una hora válida.;
           if (!hora.getTime()) {
-            this._alerta("Introduzca una hora válida.").subscribe(() => {
+            this.utilidadesService.alerta("Hora inválida", "Introduzca una hora válida.").subscribe(() => {
               //Se hace focus en el campo.
-              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "control" + campo["id"]).nativeElement.focus();
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campo["id"]).nativeElement.focus();
             });
           }
           break;
@@ -557,7 +557,7 @@ export class AltaConsultaComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         else {
 
@@ -577,20 +577,22 @@ export class AltaConsultaComponent implements OnInit {
             //Para los campos de tipo archivo.
             let archivo: string = "";
             //Si el campo es un archivo o imagen.
-            if (campo["tipo_campo"] == "IMAGEN") {              
+            if (campo["tipo_campo"] == "IMAGEN") {
+              
               //Se obtiene el archivo.
-              archivo = this.formAltaConsultas.controls["control" + campo["id"]].value;
-              //Si el archivo es nulo, se inicializa en cadena vacía.
-              if(archivo !== null){
-                for(let i = 0; i < this.imagenes.length ; i++){
-                  console.log("iteracion " + i );
-                  if(this.imagenes[i]["campoId"] == "control" + campo["id"]){
-                    archivo = this.imagenes[i]["json"];
+              archivo = this.formAltaConsultas.controls["control" + campo["id"]].value;              
+              //Si el archivo es nulo, se le establece una cadena vacía.
+              archivo = archivo == null ? "" : archivo;
+              //Si el archivo no es nulo o vacío.
+              if (archivo.length > 0) {
+                for (let i = 0; i < this.imagenes.length; i++) {
+                  if (this.imagenes[i]["campoId"] ==  campo["id"]) {
+                    archivo = JSON.stringify(this.imagenes[i]["json"]);                    
                     break;
                   }
-                }                                       
+                }
               }
-              else{
+              else {
                 archivo = "";
               }
               //No puede tener archivo y valor juntos, o es uno u otro.              
@@ -642,11 +644,11 @@ export class AltaConsultaComponent implements OnInit {
         if (respuesta["estado"] === "ERROR") {
           //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
           this.esperarService.noEsperar();
-          this._alerta(respuesta["mensaje"]).subscribe(() => {
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
             //Se retorna a la lista de consultas.
             this.regresar();
             return;
-          });         
+          });
         }
         //Si la inserción fue correcta.
         else {
@@ -657,7 +659,7 @@ export class AltaConsultaComponent implements OnInit {
           //Si ya es el último registro, se despliega alerta de éxito.
           else {
             this.esperarService.noEsperar();
-            this._alerta("La consulta se dio de alta correctamente." + respuesta["mensaje"]).subscribe(() => {
+            this.utilidadesService.alerta("Alta exitosa", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
               //Se retorna a la lista de consultas.
               this.regresar();
             });
@@ -675,7 +677,7 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 02/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  seleccionarImagen(event){
+  seleccionarImagen(event) {
 
     //Si ha sido seleccionada una imagen.
     if (event.target.files && event.target.files[0]) {
@@ -688,7 +690,7 @@ export class AltaConsultaComponent implements OnInit {
       //Si el archivo no es una imagen.
       if (!tipoArchivo.toUpperCase().includes("IMAGE")) {
 
-        this._alerta("El archivo que seleccionó No es una imagen.");
+        this.utilidadesService.alerta("Imágen inválida", "El archivo que seleccionó No es una imagen.");
 
       }
       //Si sí es una imagen.
@@ -698,28 +700,34 @@ export class AltaConsultaComponent implements OnInit {
         var reader = new FileReader();
         reader.readAsDataURL(archivo);
 
-        //Si el tamaño del archivo es muy grande.
-        if (archivo.size > 160000) {
-          this._alerta("El tamaño de la imagen debe ser menor a 16 megas.");
+        //Si el tamaño del archivo es muy grande. Se usan bytes.
+        if (archivo.size > 16000000) {
+          this.utilidadesService.alerta("Imagen inválida","El tamaño de la imagen debe ser menor a 16 megas.");
         }
         else {
 
           //Obtiene el campo de la imagen.
-          let campoId = event.target["id"];
+          let campoId: string = event.target["id"].replace("campoHTML", "");
+          //Se elimina la imagen del arreglo para ser substituida por la nueva.
+          this.limpiarImagen(campoId , false);
 
+          //Inica la espera de subida de la imagen.
+          this.esperarService.esperar();
           //Cuando la imagen ya se subió temporalmente.
           reader.onload = (event) => {
-            
+            //Se termina la espera.
+            this.esperarService.noEsperar();
             //Arma el JSON de la información de la imageny la almacena en el arreglo de imágenes.
-            this.imagenes.push({"campoId": campoId, "json": JSON.stringify({              
-              nombre: archivo.name,
-              extension: archivo.type,
-              tamano: archivo.size,
-              //decodifica la imagen para que todos los carácteres se almacenen.
-              valor: btoa(event.target["result"])
-            })});  
+            this.imagenes.push({
+               campoId: campoId, "json": {
+                nombre: archivo.name,
+                extension: archivo.type,
+                tamano: archivo.size,
+                //decodifica la imagen para que todos los carácteres se almacenen.
+                valor: btoa(event.target["result"])                
+              }
+            });
 
-            console.log(this.imagenes);
 
           }
 
@@ -729,53 +737,55 @@ export class AltaConsultaComponent implements OnInit {
 
     }
 
-  }  
+  }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: _alerta.                                                     |
+  |  NOMBRE: limpiarImagen.                                               |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
-  |               de la base de datos en forma de alerta.                 | 
+  |  DESCRIPCIÓN: Método para resetear o limpiar la imagen del campo.     |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
+  |  PARÁMETROS DE ENTRADA: campoId  = identificador del campo,           |
+  |  limpiarTexto = Si se requiere limpiar el texto de la imagen.         |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 03/08/2018.                                                   |    
+  |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-
-  private _alerta(mensaje: string): Observable<any> {
-
-    //Se utiliza para esperar a que se pulse el botón aceptar.
-    let subject: Subject<any> = new Subject<null>();
-
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-
-    //No se cierra cuando se pulsa esc.
-    modalOption.keyboard = false;
-    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
-    modalOption.backdrop = 'static';
-    //Modal centrado.
-    modalOption.centered = true;
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, modalOption);
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Notificación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = mensaje;
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-    //Se retorna el botón pulsado.
-    modalRef.result.then(() => {
-      //Se retorna un nulo, ya que no se espera un resultado.         
-      subject.next(null);
-    });
-
-    //Se retorna el observable.
-    return subject.asObservable();
+  limpiarImagen(campoId, limpiarTexto: boolean = true) {
+    
+    //Se resetea o limpia el campo.
+    limpiarTexto ? this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement.value = "" : null;    
+    //Se elimina la imagen del arreglo de imagenes.
+    for (let i = 0; i < this.imagenes.length; i++){         
+      if(this.imagenes[i].campoId ==  campoId){
+        this.imagenes.splice(i);
+        break;
+      }
+    }
   }
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verImagen.                                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver o desplegar la imagen en un modal.      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campoId  = identificador del campo.           |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 03/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verImagen(campoId) {
+        
+    for (let i = 0; i < this.imagenes.length; i++){      
+      if(this.imagenes[i].campoId == campoId){          
+        this.utilidadesService.desplegarImagen(atob(this.imagenes[i].json.valor));
+        break;
+      }
+    }    
+
+  }  
 
 
 }
