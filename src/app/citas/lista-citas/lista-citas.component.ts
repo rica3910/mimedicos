@@ -42,6 +42,8 @@ import { Router } from '@angular/router';
 })
 export class ListaCitasComponent implements OnInit {
 
+  //Propiedad que indica si el usuario puede ver citas.
+  verCitas: boolean = false;
   //Propiedad que indica si el usuario puede dar de alta citas.
   altaCitas: boolean = false;
   //Propiedad que indica si el usuario puede editar citas.
@@ -274,10 +276,16 @@ se ejecute el método buscar usuario.*/
 
   ngAfterViewInit() {
 
+    //El botón de ver citas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER CITA').subscribe((respuesta: boolean) => {
+      this.verCitas = respuesta["value"];
+    });
+
     //El botón de dar de alta citas se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('alta-cita').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('ALTA CITA').subscribe((respuesta: boolean) => {
       this.altaCitas = respuesta["value"];
     });
+
 
     //El botón de editar citas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('EDITAR CITA').subscribe((respuesta: boolean) => {
@@ -374,7 +382,7 @@ se ejecute el método buscar usuario.*/
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -417,7 +425,7 @@ se ejecute el método buscar usuario.*/
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -450,7 +458,7 @@ se ejecute el método buscar usuario.*/
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this._alerta(respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       //Si todo salió bien.
       else {
@@ -485,7 +493,7 @@ se ejecute el método buscar usuario.*/
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -520,7 +528,7 @@ se ejecute el método buscar usuario.*/
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -694,14 +702,14 @@ se ejecute el método buscar usuario.*/
     let fechaHasta: NgbDateStruct = this.fechaHastaControl.value;
     if (fechaDesde && !fechaHasta) {
       //Muestra una alerta indicando que se deben de llenar las dos fechas.      
-      this._alerta("La fecha final debe ser completada.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida", "La fecha final debe ser completada.").subscribe(() => {
         this.fechaHastaHTML.nativeElement.focus();
       });
       return;
     }
     else if (!fechaDesde && fechaHasta) {
       //Muestra una alerta indicando que se deben de llenar las dos fechas.      
-      this._alerta("La fecha inicial debe ser completada.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida", "La fecha inicial debe ser completada.").subscribe(() => {
         this.fechaDesdeHTML.nativeElement.focus();
       });
       return;
@@ -711,7 +719,7 @@ se ejecute el método buscar usuario.*/
       (fechaDesde.year >= fechaHasta.year &&
         fechaDesde.month >= fechaHasta.month &&
         fechaDesde.day > fechaHasta.day)) {
-      this._alerta("La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida","La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
         this.fechaDesdeHTML.nativeElement.focus();
       });
       return;
@@ -720,7 +728,7 @@ se ejecute el método buscar usuario.*/
     let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
     //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
     if (paciente && !paciente.id) {
-      this._alerta("Seleccione un paciente válido.").subscribe(() => {
+      this.utilidadesService.alerta("Paciente inválido", "Seleccione un paciente válido.").subscribe(() => {
         this.pacienteHTML.nativeElement.focus();
       });
       return
@@ -729,7 +737,7 @@ se ejecute el método buscar usuario.*/
     let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
     //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
     if (usuario && !usuario.id) {
-      this._alerta("Seleccione un usuario válido.").subscribe(() => {
+      this.utilidadesService.alerta("Usuario inválido", "Seleccione un usuario válido.").subscribe(() => {
         this.usuarioHTML.nativeElement.focus();
       });
       return
@@ -755,7 +763,7 @@ se ejecute el método buscar usuario.*/
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
         }
         //Si todo salió bien.
         else {
@@ -828,12 +836,12 @@ se ejecute el método buscar usuario.*/
           //Si hubo un error.
           if (respuesta["estado"] === "ERROR") {
             //Muestra una alerta con el porqué del error.
-            this._alerta(respuesta["mensaje"]);
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
           }
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this._alerta("La cita se eliminó permanentemente.");
+            this.utilidadesService.alerta("Cita eliminada","La cita se eliminó permanentemente.");
             this.buscar();
           }
         });
@@ -871,49 +879,20 @@ se ejecute el método buscar usuario.*/
   }
 
   /*----------------------------------------------------------------------|
-    |  NOMBRE: _alerta.                                                     |
-    |-----------------------------------------------------------------------|
-    |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
-    |               de la base de datos en forma de alerta.                 | 
-    |-----------------------------------------------------------------------|
-    |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
-    |-----------------------------------------------------------------------|
-    |  AUTOR: Ricardo Luna.                                                 |
-    |-----------------------------------------------------------------------|
-    |  FECHA: 03/08/2018.                                                   |    
-    |----------------------------------------------------------------------*/
-
-  private _alerta(mensaje: string): Observable<any> {
-
-    //Se utiliza para esperar a que se pulse el botón aceptar.
-    let subject: Subject<any> = new Subject<null>();
-
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-
-    //No se cierra cuando se pulsa esc.
-    modalOption.keyboard = false;
-    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
-    modalOption.backdrop = 'static';
-    //Modal centrado.
-    modalOption.centered = true;
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, modalOption);
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Notificación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = mensaje;
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-    //Se retorna el botón pulsado.
-    modalRef.result.then(() => {
-      //Se retorna un nulo, ya que no se espera un resultado.         
-      subject.next(null);
-    });
-
-    //Se retorna el observable.
-    return subject.asObservable();
+  |  NOMBRE: verCita.                                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama a la página de ver cita.               |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: citaId = identificador de la cita.            |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verCita(citaId){
+    this.rutaNavegacion.navigateByUrl('citas/ver-cita/' + citaId + '/1');
   }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: cambiarEstatusCita.                                          |
@@ -964,13 +943,13 @@ se ejecute el método buscar usuario.*/
           //Si hubo un error.
           if (respuesta["estado"] === "ERROR") {
             //Muestra una alerta con el porqué del error.
-            this._alerta(respuesta["mensaje"]);
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
           }
           //Si todo salió bien.
           else {
-            this._alerta(mensajeCorrecto).subscribe();
-             //Se actualizan los datos.
-             this.buscar();
+            this.utilidadesService.alerta("Estatus actualizado",mensajeCorrecto).subscribe();
+            //Se actualizan los datos.
+            this.buscar();
           }
         });
       }

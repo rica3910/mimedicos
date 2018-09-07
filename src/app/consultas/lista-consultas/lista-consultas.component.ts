@@ -266,12 +266,12 @@ export class ListaConsultasComponent implements OnInit {
 
     //El botón de editar consultas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('EDITAR CONSULTA').subscribe((respuesta: boolean) => {
-      this.editarConsulta = respuesta["value"];
+      this.editarConsultas = respuesta["value"];
     });
 
     //El botón de eliminar consultas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ELIMINAR CONSULTA').subscribe((respuesta: boolean) => {
-      this.eliminarConsulta = respuesta["value"];
+      this.eliminarConsultas = respuesta["value"];
     });
 
   }  
@@ -764,19 +764,23 @@ export class ListaConsultasComponent implements OnInit {
     modalRef.result.then((result) => {
       //Si la respuesta es eliminar al paciente.
       if (result === "Sí") {
-        /*this.citasService.eliminarCita(citaId).subscribe(respuesta => {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.eliminarConsulta(consultaId).subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
           //Si hubo un error.
           if (respuesta["estado"] === "ERROR") {
             //Muestra una alerta con el porqué del error.
-            this._alerta(respuesta["mensaje"]);
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
           }
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this._alerta("La cita se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa","La cita se eliminó permanentemente.");
             this.buscar();
           }
-        });*/
+        });
       }
     });
   }

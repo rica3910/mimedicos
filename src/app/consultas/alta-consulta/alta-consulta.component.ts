@@ -407,11 +407,42 @@ export class AltaConsultaComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los campos en forma de JSON.        
-          this.campos = respuesta["datos"];
+          //Se almacenan los campos en forma de JSON.                  
+          let campos: JSON[] = respuesta["datos"];
+          //Se utiliza para obtener los campos a utilizar.
+          let camposUnicos: any[] = new Array();
+          /*Si hay un campo con el mismo nombre, quiere decir que es una lista.
+          Esta variable ayudará a distinguir cuando sean iguales.*/
+          let etiqueta: string = "";
+
+          //Se recorren los campos de la base de datos.
+          campos.forEach((campo: JSON) => {
+
+            //Solo almacenará los campos que no estén repetidos.
+            if (etiqueta != campo["etiqueta"]) {
+
+              //Se arma el JSON.
+              let json: string = JSON.stringify({
+                "requerido": campo["requerido"],
+                "tipo_campo": campo["tipo_campo"],
+                "etiqueta": campo["etiqueta"],
+                "indicio": campo["indicio"],
+                "id": campo["id"]
+              });
+
+              //Se agrega el campo al arreglo.
+              camposUnicos.push(JSON.parse(json));
+            }
+
+            etiqueta = campo["etiqueta"];
+          });
+
+          //Se almacenan los campos únicos.
+          this.campos = camposUnicos;
 
           //Se empiezan a crear los campos del formulario.
-          this.campos.forEach(campo => {
+          this.campos.forEach((campo: JSON) => {
+
             //Se crea el control dinámico.
             let control: FormControl;
             //Se crean las validaciones que tendrá cada campo.
@@ -423,36 +454,61 @@ export class AltaConsultaComponent implements OnInit {
             campo["tipo_campo"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
             //Se agrega el campo control al formulario.
-            control = new FormControl(campo["valor"], validaciones);
+            control = new FormControl("", validaciones);
             this.formAltaConsultas.addControl('control' + campo["id"], control);
 
           });
 
           //Se obtienen los campos HTML creados dinámicamente.
           this.campoHTML.changes.subscribe(() => {
-            this.campoHTML.forEach((campo: ElementRef) => {
+            this.campoHTML.forEach((campoHTML: ElementRef) => {
+
               //Se obtiene solo el identificador del campo.
-              let campoId: string = campo.nativeElement["id"];
+              let campoId: string = campoHTML.nativeElement["id"];              
               campoId = campoId.replace("campoHTML", "");
-              /*Se recorren de nuevo los campos obtenidos de la BD
-               para aplicarles la máscara si es que necesitan.*/
-              this.campos.forEach(campoBD => {
-                //Si se encuentra el campo.
-                if (campoBD["id"] == campoId) {
-                  switch (campoBD["tipo_campo"]) {
-                    //Si el campo es numérico.
-                    case 'ENTERO': {
-                      this.utilidadesService.inputNumerico(campo);
-                      break;
-                    }
-                    //Si el campo es decimal.
-                    case 'DECIMAL': {
-                      this.utilidadesService.inputNumerico(campo, true);
-                      break;
-                    }
-                  }
-                }
+
+              //Se obtiene el identificador del campo (no del detalle del campo).
+              let usuarioCampoExpedienteId = campos.filter(function (item) {
+                return item["id"] === campoId;
+              })[0]["usuario_campo_expediente_id"];
+
+              /*Se obtienen los elementos que tienen cada campo.
+              (Solo los selects o listas tendrán mas de 1 elemento.*/
+              let elementosPorCampo: any[] = campos.filter(function (item) {
+                return item["usuario_campo_expediente_id"] === usuarioCampoExpedienteId;
               });
+              
+              //Si hay más de un elemento o es un Select o lista.
+              if (elementosPorCampo.length > 1 || campoHTML.nativeElement["type"].includes("select")) {                
+                //Se agregan a la lista los elementos.
+                elementosPorCampo.forEach(elemento => {
+                  let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
+                  campoHTML.nativeElement.add(opcion);
+                });
+
+              } 
+              //Si no es una lista o select.
+              else {
+                elementosPorCampo.forEach(elemento => {
+                  campoHTML.nativeElement["value"] = elemento["valor"];
+                });
+              }
+
+              //Si el campo es numérico, se divide en entero y decimal.
+              switch (campos.filter(function (item) {
+                return item["id"] === campoId;
+              })[0]["tipo_campo"]) {
+                //Si el campo es numérico.
+                case 'ENTERO': {                  
+                  this.utilidadesService.inputNumerico(campoHTML);
+                  break;
+                }
+                //Si el campo es decimal.
+                case 'DECIMAL': {                  
+                  this.utilidadesService.inputNumerico(campoHTML, true);
+                  break;
+                }
+              }
 
             });
           });
@@ -524,7 +580,7 @@ export class AltaConsultaComponent implements OnInit {
           let fecha = new Date(this.formAltaConsultas.controls["control" + campo["id"]].value);
           //Si no es una fecha válida.
           if (!fecha.getDate()) {
-            this.utilidadesService.alerta("Fecha inválida","Introduzca una fecha válida.").subscribe(() => {
+            this.utilidadesService.alerta("Fecha inválida", "Introduzca una fecha válida.").subscribe(() => {
               //Se hace focus en el campo.
               this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campo["id"]).nativeElement.focus();
             });
@@ -578,16 +634,16 @@ export class AltaConsultaComponent implements OnInit {
             let archivo: string = "";
             //Si el campo es un archivo o imagen.
             if (campo["tipo_campo"] == "IMAGEN") {
-              
+
               //Se obtiene el archivo.
-              archivo = this.formAltaConsultas.controls["control" + campo["id"]].value;              
+              archivo = this.formAltaConsultas.controls["control" + campo["id"]].value;
               //Si el archivo es nulo, se le establece una cadena vacía.
               archivo = archivo == null ? "" : archivo;
               //Si el archivo no es nulo o vacío.
               if (archivo.length > 0) {
                 for (let i = 0; i < this.imagenes.length; i++) {
-                  if (this.imagenes[i]["campoId"] ==  campo["id"]) {
-                    archivo = JSON.stringify(this.imagenes[i]["json"]);                    
+                  if (this.imagenes[i]["campoId"] == campo["id"]) {
+                    archivo = JSON.stringify(this.imagenes[i]["json"]);
                     break;
                   }
                 }
@@ -702,14 +758,14 @@ export class AltaConsultaComponent implements OnInit {
 
         //Si el tamaño del archivo es muy grande. Se usan bytes.
         if (archivo.size > 16000000) {
-          this.utilidadesService.alerta("Imagen inválida","El tamaño de la imagen debe ser menor a 16 megas.");
+          this.utilidadesService.alerta("Imagen inválida", "El tamaño de la imagen debe ser menor a 16 megas.");
         }
         else {
 
           //Obtiene el campo de la imagen.
           let campoId: string = event.target["id"].replace("campoHTML", "");
           //Se elimina la imagen del arreglo para ser substituida por la nueva.
-          this.limpiarImagen(campoId , false);
+          this.limpiarImagen(campoId, false);
 
           //Inica la espera de subida de la imagen.
           this.esperarService.esperar();
@@ -719,15 +775,14 @@ export class AltaConsultaComponent implements OnInit {
             this.esperarService.noEsperar();
             //Arma el JSON de la información de la imageny la almacena en el arreglo de imágenes.
             this.imagenes.push({
-               campoId: campoId, "json": {
+              campoId: campoId, "json": {
                 nombre: archivo.name,
                 extension: archivo.type,
                 tamano: archivo.size,
                 //decodifica la imagen para que todos los carácteres se almacenen.
-                valor: btoa(event.target["result"])                
+                valor: btoa(event.target["result"])
               }
             });
-
 
           }
 
@@ -752,12 +807,12 @@ export class AltaConsultaComponent implements OnInit {
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
   limpiarImagen(campoId, limpiarTexto: boolean = true) {
-    
+
     //Se resetea o limpia el campo.
-    limpiarTexto ? this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement.value = "" : null;    
+    limpiarTexto ? this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement.value = "" : null;
     //Se elimina la imagen del arreglo de imagenes.
-    for (let i = 0; i < this.imagenes.length; i++){         
-      if(this.imagenes[i].campoId ==  campoId){
+    for (let i = 0; i < this.imagenes.length; i++) {
+      if (this.imagenes[i].campoId == campoId) {
         this.imagenes.splice(i);
         break;
       }
@@ -777,15 +832,15 @@ export class AltaConsultaComponent implements OnInit {
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
   verImagen(campoId) {
-        
-    for (let i = 0; i < this.imagenes.length; i++){      
-      if(this.imagenes[i].campoId == campoId){          
+
+    for (let i = 0; i < this.imagenes.length; i++) {
+      if (this.imagenes[i].campoId == campoId) {
         this.utilidadesService.desplegarImagen(atob(this.imagenes[i].json.valor));
         break;
       }
-    }    
+    }
 
-  }  
+  }
 
 
 }

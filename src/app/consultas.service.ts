@@ -217,6 +217,43 @@ export class ConsultasService {
         { headers: headers });
   }  
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarConsulta.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una consulta.                      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  consultaId = identificador de la consulta.                           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarConsulta(consultaId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      consultaId: consultaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-consulta',
+        params,
+        { headers: headers });
+  }    
+
+
 }
 
 

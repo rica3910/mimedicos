@@ -25,6 +25,7 @@ import { AltaCitaComponent } from './alta-cita/alta-cita.component';
 import { EditarCitaComponent } from './editar-cita/editar-cita.component';
 import { UsuarioPuedeModificarCitaGuard } from './usuario-puede-modificar-cita.guard';
 import { AltaDetCitaComponent } from './alta-det-cita/alta-det-cita.component';
+import { VerCitaComponent } from './ver-cita/ver-cita.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -32,7 +33,8 @@ export const rutas: Routes = [
   { path: 'lista-citas', component: ListaCitasComponent, canActivate: [UsuarioTieneMenuGuard]}, 
   { path: 'alta-cita', component: AltaCitaComponent, canActivate: [UsuarioTieneMenuGuard]}, 
   { path: 'editar-cita/:id', component: EditarCitaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarCitaGuard]}, 
-  { path: 'alta-det-cita/:id', component: AltaDetCitaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarCitaGuard]}  
+  { path: 'alta-det-cita/:id', component: AltaDetCitaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarCitaGuard]},  
+  { path: 'ver-cita/:id/:soloVer', component: VerCitaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarCitaGuard]}  
 ];
 
 @NgModule({
@@ -42,7 +44,7 @@ export const rutas: Routes = [
     NgbModule.forRoot(),
     ReactiveFormsModule
   ],
-  declarations: [CitasComponent, ListaCitasComponent, AltaCitaComponent, EditarCitaComponent, AltaDetCitaComponent],
+  declarations: [CitasComponent, ListaCitasComponent, AltaCitaComponent, EditarCitaComponent, AltaDetCitaComponent, VerCitaComponent],
   exports: [CitasComponent],
   providers: [
     UsuarioTieneMenuGuard, UsuarioPuedeModificarCitaGuard    

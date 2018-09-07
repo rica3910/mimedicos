@@ -102,13 +102,13 @@ se ejecute el método buscar usuario.*/
   //Propiedad que indica si el usuario puede eliminar eventos de la cita.
   eliminarDetCitas: boolean = false;
 
-  /*----------------------------------------------------------------------|
+   /*----------------------------------------------------------------------|
    |  NOMBRE: constructor.                                                 |
    |-----------------------------------------------------------------------|
    |  DESCRIPCIÓN: Método constructor del componente.                      | 
    |-----------------------------------------------------------------------|
    |  PARÁMETROS DE ENTRADA:                                               |
-   |  rutaActual   = para navegar a otras url's,                           |
+   |  rutaNavegacion   = para navegar a otras url's,                       |
    |  usuariosService = contiene los métodos de la bd de los usuarios,     | 
    |  pacientesService = Contiene los métodos de mto. de pacientes,        |
    |  modalService = contiene los métodos para manipular modals,           |
