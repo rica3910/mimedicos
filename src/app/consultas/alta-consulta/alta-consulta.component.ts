@@ -122,6 +122,8 @@ export class AltaConsultaComponent implements OnInit {
     private clinicasService: ClinicasService,
     private consultaService: ConsultasService) {
 
+      this.utilidadesService.desplegarAreaDibujo();
+
     //Al calendario se le establece la fecha actual.
     let fechaActual = new Date();
 
@@ -138,7 +140,7 @@ export class AltaConsultaComponent implements OnInit {
     this.clinicaControl = this.formAltaConsultas.controls['clinica'];
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
-    this.esperarService.esperar()
+    //this.esperarService.esperar()
 
     //Se cargan los pacientes en su filtro.
     this.filtroPacientes();
@@ -150,7 +152,7 @@ export class AltaConsultaComponent implements OnInit {
     this.obtenerCampos();
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
-    this.cargaInicialLista$.subscribe((valor: boolean) => {
+    /*this.cargaInicialLista$.subscribe((valor: boolean) => {
 
       //Si todos los filtros e información están listos.
       if (this.usuariosListos &&
@@ -162,7 +164,7 @@ export class AltaConsultaComponent implements OnInit {
 
       }
 
-    });
+    });*/
 
   }
 
@@ -396,8 +398,8 @@ export class AltaConsultaComponent implements OnInit {
       .subscribe((respuesta) => {
 
         //Indica que los campos del usuario ya se cargaron.
-        this.camposListos = true;
-        this.cargaInicialLista$.next(this.camposListos);
+        /*this.camposListos = true;
+        this.cargaInicialLista$.next(this.camposListos);*/
 
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
@@ -427,7 +429,8 @@ export class AltaConsultaComponent implements OnInit {
                 "tipo_campo": campo["tipo_campo"],
                 "etiqueta": campo["etiqueta"],
                 "indicio": campo["indicio"],
-                "id": campo["id"]
+                "id": campo["id"],
+                "valor": campo["valor"]
               });
 
               //Se agrega el campo al arreglo.
@@ -454,17 +457,18 @@ export class AltaConsultaComponent implements OnInit {
             campo["tipo_campo"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
             //Se agrega el campo control al formulario.
-            control = new FormControl("", validaciones);
+            control = new FormControl(campo["valor"], validaciones);
             this.formAltaConsultas.addControl('control' + campo["id"], control);
 
           });
 
           //Se obtienen los campos HTML creados dinámicamente.
           this.campoHTML.changes.subscribe(() => {
+
             this.campoHTML.forEach((campoHTML: ElementRef) => {
 
               //Se obtiene solo el identificador del campo.
-              let campoId: string = campoHTML.nativeElement["id"];              
+              let campoId: string = campoHTML.nativeElement["id"];
               campoId = campoId.replace("campoHTML", "");
 
               //Se obtiene el identificador del campo (no del detalle del campo).
@@ -477,34 +481,32 @@ export class AltaConsultaComponent implements OnInit {
               let elementosPorCampo: any[] = campos.filter(function (item) {
                 return item["usuario_campo_expediente_id"] === usuarioCampoExpedienteId;
               });
-              
+
               //Si hay más de un elemento o es un Select o lista.
-              if (elementosPorCampo.length > 1 || campoHTML.nativeElement["type"].includes("select")) {                
+              if (elementosPorCampo.length > 1 || campoHTML.nativeElement["type"].includes("select")) {
+                //Si el elemento del formulario tiene un valor por default, se almacena.
+                let valorDefault: string;
                 //Se agregan a la lista los elementos.
                 elementosPorCampo.forEach(elemento => {
                   let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
                   campoHTML.nativeElement.add(opcion);
+                  elemento["valor_default"] == "1" ? valorDefault = elemento["id"] : null;
                 });
-
-              } 
-              //Si no es una lista o select.
-              else {
-                elementosPorCampo.forEach(elemento => {
-                  campoHTML.nativeElement["value"] = elemento["valor"];
-                });
+                //Si el valor default no es nulo, se le asigna el valor al campo.
+                valorDefault ? this.formAltaConsultas.controls["control" + campoId].setValue(valorDefault) : null;
               }
-
+  
               //Si el campo es numérico, se divide en entero y decimal.
               switch (campos.filter(function (item) {
                 return item["id"] === campoId;
               })[0]["tipo_campo"]) {
                 //Si el campo es numérico.
-                case 'ENTERO': {                  
+                case 'ENTERO': {
                   this.utilidadesService.inputNumerico(campoHTML);
                   break;
                 }
                 //Si el campo es decimal.
-                case 'DECIMAL': {                  
+                case 'DECIMAL': {
                   this.utilidadesService.inputNumerico(campoHTML, true);
                   break;
                 }

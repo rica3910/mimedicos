@@ -47,6 +47,9 @@ import { USUARIOS_PROVIDERS } from './usuarios.service';
 import { CONSULTAS_PROVIDERS } from './consultas.service';
 import { ConsultasComponent } from './consultas/consultas.component';
 import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.component';
+import { DibujoComponent } from './dibujo/dibujo.component';
+import { SignaturePadModule } from 'angular2-signaturepad';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -70,13 +73,16 @@ const rutas: Routes = [
     DialogoAlertaComponent,
     DialogoEsperaComponent,
     CambiarPasswordOlvidadoComponent,    
-    PaginaInvalidaComponent, DesplegarImagenComponent
+    PaginaInvalidaComponent, 
+    DesplegarImagenComponent, 
+    DibujoComponent
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
     DialogoAlertaComponent, 
     DialogoEsperaComponent,
-    DesplegarImagenComponent],
+    DesplegarImagenComponent,
+    DibujoComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -86,7 +92,9 @@ const rutas: Routes = [
     HttpClientModule,
     PacientesModule,
     CitasModule,
-    ConsultasModule
+    ConsultasModule,
+    SignaturePadModule,
+    ColorPickerModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,

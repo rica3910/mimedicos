@@ -1,0 +1,34 @@
+<!------------------------------------------------------------------
+|NOMBRE: dibujo.                                                   |  
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente HTML que contiene el modal para mostrar   |
+|              la herramienta de dibujo.                           |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 08/09/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="modal-header">
+  <div class="input-group input-group-lg">
+    <div class="input-group-prepend">
+      <span class="input-group-text"> <i class="material-icons" style="font-size: 30px">format_color_fill</i></span>
+    </div>
+    <input [cpOKButton]="true" (colorPickerSelect)="cambiarColor()"  [(colorPicker)]="color1" readonly [style.background]="color1" ngbTooltip="Seleccione el color del pincel." />
+  </div>
+  <button type="button" class="close" aria-label="Close" (click)="cerrar()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body" #modalBody>
+  <div class="row">
+    <p class="text-center">
+      <strong style="color:transparent">Área de dibujo</strong>
+      <signature-pad></signature-pad>
+    </p>
+  </div>
+</div>

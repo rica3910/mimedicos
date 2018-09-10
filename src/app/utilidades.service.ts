@@ -20,6 +20,7 @@ import { map, debounceTime } from "rxjs/operators";
 import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
 import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.component';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
+import { DibujoComponent } from './dibujo/dibujo.component';
 
 @Injectable()
 export class UtilidadesService {
@@ -382,6 +383,32 @@ export class UtilidadesService {
     const modalRef = this.modalService.open(DesplegarImagenComponent, modalOption);
     //Define el título del modal.
     modalRef.componentInstance.imagen = imagen;
+  }  
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desplegarAreaDibujo.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal y despliega la herramienta para dibujar.   | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: imagen  = imagen que se desplegará.           |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 08/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  desplegarAreaDibujo(){
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+    //Modal centrado.
+    modalOption.centered = true;
+    //Modal granded.
+    modalOption.size = "lg";
+    modalOption.windowClass = "dark-modal";
+    //Abre el modal de tamaño chico.
+    const modalRef = this.modalService.open(DibujoComponent, modalOption);
   }  
 
 
