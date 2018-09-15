@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-desplegar-imagen',
   templateUrl: './desplegar-imagen.component.html',
+  encapsulation: ViewEncapsulation.None,
   styleUrls: ['./desplegar-imagen.component.css']
 })
 export class DesplegarImagenComponent implements OnInit {
@@ -23,7 +24,9 @@ export class DesplegarImagenComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 31/05/2018.                                                   |    
   |----------------------------------------------------------------------*/ 
-  constructor(public activeModal: NgbActiveModal) { }
+  constructor(public activeModal: NgbActiveModal) {
+
+  }
 
   ngOnInit() {
   }

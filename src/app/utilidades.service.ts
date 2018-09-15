@@ -17,10 +17,11 @@ import { Observable, of, Subject } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime } from "rxjs/operators";
-import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal, NgbModalRef } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
 import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.component';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { DibujoComponent } from './dibujo/dibujo.component';
+import { EventEmitter } from 'events';
 
 @Injectable()
 export class UtilidadesService {
@@ -371,19 +372,20 @@ export class UtilidadesService {
   |  FECHA: 03/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
 
-  desplegarImagen(imagen: string){
+  desplegarImagen(imagen: string) {
 
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-    //Modal centrado.
-    modalOption.centered = true;
-    //Modal granded.
-    modalOption.size = "lg";
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DesplegarImagenComponent, modalOption);
-    //Define el título del modal.
+    //Arreglo de opciones para personalizar el modal.    
+    const modalOption: NgbModalOptions = {
+      centered: true,
+      size: "lg",      
+    };
+
+    //Abre el modal.    
+    let modalRef = this.modalService.open(DesplegarImagenComponent, modalOption);
+    //Define el título del modal.    
     modalRef.componentInstance.imagen = imagen;
-  }  
+
+  }
 
 
   /*----------------------------------------------------------------------|
@@ -398,18 +400,51 @@ export class UtilidadesService {
   |  FECHA: 08/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
 
-  desplegarAreaDibujo(){
+  desplegarAreaDibujo(imagen: string): Observable<string> {
 
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-    //Modal centrado.
-    modalOption.centered = true;
-    //Modal granded.
-    modalOption.size = "lg";
-    modalOption.windowClass = "dark-modal";
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DibujoComponent, modalOption);
-  }  
+    //Se utiliza para saber cuando se cierra el modal.
+    let subject: Subject<string> = new Subject<string>();
+
+    //Arreglo de opciones para personalizar el modal.    
+    const modalOption: NgbModalOptions = {
+      centered: true,
+      size: "lg",
+      windowClass: "dark-modal",
+      backdrop: false,
+      keyboard: false
+    };
+
+    //Abre el modal.
+    let modalRef = this.modalService.open(DibujoComponent, modalOption);
+    //Define la imagen de fondo.    
+    modalRef.componentInstance.imagen = imagen;
+
+    //Si se cierra el modal.
+    modalRef.result.then((imagen: string) => {
+      subject.next(imagen);
+    });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: existeElementoArreglo.                                       |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para averiguar si un elemento existe en el       |
+  |  arreglo de elementos.                                                |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campo = campo del arreglo en donde se buscará,| 
+  |  valor = valor que se buscará,                                        |
+  |  arreglo = arreglo donde se buscará el elemento.                      |  
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 13/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  existeElementoArreglo(campo: string, valor: any, arreglo: Array<any>): boolean {
+    return arreglo.find(item => item[campo] === valor);
+  }
 
 
   /*----------------------------------------------------------------------|

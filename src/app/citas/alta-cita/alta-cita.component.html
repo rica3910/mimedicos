@@ -47,7 +47,7 @@
             (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Seleccionar usuario."
             [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
               <i class="material-icons">backspace</i>
             </button>
           </div>
@@ -63,7 +63,7 @@
             (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Seleccionar paciente."
             [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
               <i class="material-icons">backspace</i>
             </button>
           </div>

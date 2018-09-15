@@ -78,10 +78,10 @@
         <input #calendarioDesdeHTML="ngbDatepicker" [startDate]="fechaDesdeInicial" #fechaDesdeHTML (dateSelect)="fechaDesdeSeleccion($event)"
           ngbDatepicker class="form-control" readonly ngbTooltip="Fecha desde donde inicia la búsqueda." [formControl]="fechaDesdeControl">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" (click)="mostrarPopUpFechaDesde()" type="button" ngbTooltip="Abrir calendario.">
+          <button class="btn btn-outline-secondary btn-sm" (click)="mostrarPopUpFechaDesde()" type="button" ngbTooltip="Abrir calendario.">
             <i class="material-icons">date_range</i>
           </button>
-          <button class="btn btn-outline-secondary" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaDesde()">
+          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaDesde()">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -95,10 +95,10 @@
         <input #calendarioHastaHTML="ngbDatepicker" [startDate]="fechaHastaMinima" [minDate]="fechaHastaMinima" #fechaHastaHTML (dateSelect)="fechaHastaSeleccion($event)"
           ngbDatepicker class="form-control" readonly ngbTooltip="Fecha hasta donde inicia la búsqueda." [formControl]="fechaHastaControl">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" (click)="calendarioHastaHTML.toggle()" type="button" ngbTooltip="Abrir calendario.">
+          <button class="btn btn-outline-secondary btn-sm" (click)="calendarioHastaHTML.toggle()" type="button" ngbTooltip="Abrir calendario.">
             <i class="material-icons">date_range</i>
           </button>
-          <button class="btn btn-outline-secondary" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaHasta()">
+          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaHasta()">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -115,7 +115,7 @@
           (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
           [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
+          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -130,7 +130,7 @@
           (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Buscar por usuario."
           [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
+          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
         </div>

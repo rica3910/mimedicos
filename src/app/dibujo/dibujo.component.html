@@ -12,23 +12,35 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
-
 <div class="modal-header">
   <div class="input-group input-group-lg">
     <div class="input-group-prepend">
-      <span class="input-group-text"> <i class="material-icons" style="font-size: 30px">format_color_fill</i></span>
+      <span class="input-group-text"><i class="material-icons" style="font-size: 30px">color_lens</i></span>
     </div>
-    <input [cpOKButton]="true" (colorPickerSelect)="cambiarColor()"  [(colorPicker)]="color1" readonly [style.background]="color1" ngbTooltip="Seleccione el color del pincel." />
+    <input class="form-control col-sm-1" (colorPickerChange)="cambiarColor($event)" [(colorPicker)]="color" readonly
+      [style.background]="color" placement="bottom" ngbTooltip="Seleccione el color del pincel." />
+    <div class="input-group-prepend">
+      <span class="input-group-text"> <i class="material-icons" style="font-size: 30px">brush</i></span>
+    </div>
+    <mat-slider [thumbLabel]="true" min="1" max="10" step="0.5" value="1" (change)="cambiarTamanoPincel($event)"
+      placement="bottom" ngbTooltip="Seleccione el tamaño del pincel."></mat-slider>
+    <button type="button" (click)="refrescarDibujo()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Refrescar dibujo."><i
+        class="material-icons">sync</i></button>
+    <button type="button" (click)="deshacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Deshacer cambio."><i
+        class="material-icons">undo</i></button>
+    <button type="button" (click)="rehacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Rehacer cambio."><i
+        class="material-icons">redo</i></button>
+    <button type="button" class="btn btn-lg btn-success" placement="bottom" ngbTooltip="Finalizar dibujo." (click)="activeModal.close(signaturePad.toDataURL())"><i
+        class="material-icons">check</i></button>
   </div>
-  <button type="button" class="close" aria-label="Close" (click)="cerrar()">
+  <button type="button" class="close" (click)="activeModal.close('')" placement="bottom" ngbTooltip="Cerrar">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <div class="modal-body" #modalBody>
   <div class="row">
-    <p class="text-center">
-      <strong style="color:transparent">Área de dibujo</strong>
-      <signature-pad></signature-pad>
-    </p>
+    <div class="col-lg-12 text-center">
+      <signature-pad (onEndEvent)="dibujoCompleto()"></signature-pad>
+    </div>
   </div>
 </div>

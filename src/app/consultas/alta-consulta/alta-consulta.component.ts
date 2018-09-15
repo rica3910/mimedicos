@@ -12,13 +12,12 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbTypeahead, NgbModalOptions, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, of } from 'rxjs';
+import { NgbTypeahead, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, Observable, merge, of, Subscription } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
-import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from '../../esperar.service';
 import { FormGroup, FormBuilder, AbstractControl, Validators, FormControl, FormControlName } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
@@ -31,7 +30,7 @@ import { ConsultasService } from '../../consultas.service';
   templateUrl: './alta-consulta.component.html',
   styleUrls: ['./alta-consulta.component.css']
 })
-export class AltaConsultaComponent implements OnInit {
+export class AltaConsultaComponent implements OnInit, OnDestroy {
 
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
@@ -53,8 +52,9 @@ export class AltaConsultaComponent implements OnInit {
   //Variable que almacena el control del formulario de la clínica.
   @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable que almacena los campos dinámicos del formulario.
-  @ViewChildren('campoHTML') campoHTML: QueryList<any>;
-
+  @ViewChildren('campoHTML') public campoHTML: QueryList<any>;
+  //Variable que almacena la subscripción a la creación de campos dinámicos.
+  subscripcionCamposDinamicos: Subscription;
   //Variable que reacciona al focus del campo buscar usuario.
   focusBuscarUsuario$ = new Subject<string>();
   //Variable que reacciona al darle clic al campo buscar usuario.
@@ -122,8 +122,6 @@ export class AltaConsultaComponent implements OnInit {
     private clinicasService: ClinicasService,
     private consultaService: ConsultasService) {
 
-      this.utilidadesService.desplegarAreaDibujo();
-
     //Al calendario se le establece la fecha actual.
     let fechaActual = new Date();
 
@@ -140,7 +138,7 @@ export class AltaConsultaComponent implements OnInit {
     this.clinicaControl = this.formAltaConsultas.controls['clinica'];
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
-    //this.esperarService.esperar()
+    this.esperarService.esperar()
 
     //Se cargan los pacientes en su filtro.
     this.filtroPacientes();
@@ -152,7 +150,7 @@ export class AltaConsultaComponent implements OnInit {
     this.obtenerCampos();
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
-    /*this.cargaInicialLista$.subscribe((valor: boolean) => {
+    this.cargaInicialLista$.subscribe((valor: boolean) => {
 
       //Si todos los filtros e información están listos.
       if (this.usuariosListos &&
@@ -161,10 +159,12 @@ export class AltaConsultaComponent implements OnInit {
         this.camposListos) {
         //Se detiene la espera.
         this.esperarService.noEsperar();
+        //Se cancela la subscripción de la escucha de cambios en los campos HTML.
+        this.subscripcionCamposDinamicos.unsubscribe();
+    }
 
-      }
+    });
 
-    });*/
 
   }
 
@@ -237,6 +237,7 @@ export class AltaConsultaComponent implements OnInit {
 
         }
       });
+
 
   }
 
@@ -397,10 +398,6 @@ export class AltaConsultaComponent implements OnInit {
     this.consultaService.camposConsultaUsuario("1")
       .subscribe((respuesta) => {
 
-        //Indica que los campos del usuario ya se cargaron.
-        /*this.camposListos = true;
-        this.cargaInicialLista$.next(this.camposListos);*/
-
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
@@ -430,7 +427,9 @@ export class AltaConsultaComponent implements OnInit {
                 "etiqueta": campo["etiqueta"],
                 "indicio": campo["indicio"],
                 "id": campo["id"],
-                "valor": campo["valor"]
+                "valor": campo["valor"],
+                'usuario_campo_expediente_id': campo["usuario_campo_expediente_id"],
+                'archivo': campo["archivo"]
               });
 
               //Se agrega el campo al arreglo.
@@ -463,7 +462,11 @@ export class AltaConsultaComponent implements OnInit {
           });
 
           //Se obtienen los campos HTML creados dinámicamente.
-          this.campoHTML.changes.subscribe(() => {
+          this.subscripcionCamposDinamicos =  this.campoHTML.changes.subscribe(() => {
+
+            //Indica que los campos  ya se cargaron junto con su información inicial.
+            this.camposListos = true;
+            this.cargaInicialLista$.next(this.camposListos);
 
             this.campoHTML.forEach((campoHTML: ElementRef) => {
 
@@ -495,7 +498,7 @@ export class AltaConsultaComponent implements OnInit {
                 //Si el valor default no es nulo, se le asigna el valor al campo.
                 valorDefault ? this.formAltaConsultas.controls["control" + campoId].setValue(valorDefault) : null;
               }
-  
+
               //Si el campo es numérico, se divide en entero y decimal.
               switch (campos.filter(function (item) {
                 return item["id"] === campoId;
@@ -515,11 +518,19 @@ export class AltaConsultaComponent implements OnInit {
             });
           });
 
+
         }
       });
 
   }
 
+
+  ngOnDestroy(): void {
+    //Called once, before the instance is destroyed.
+    //Add 'implements OnDestroy' to the class.
+    this.subscripcionCamposDinamicos.unsubscribe();
+    console.log("holas");
+  }
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsulta.                                               |
   |-----------------------------------------------------------------------|
@@ -809,16 +820,16 @@ export class AltaConsultaComponent implements OnInit {
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
   limpiarImagen(campoId, limpiarTexto: boolean = true) {
-
     //Se resetea o limpia el campo.
     limpiarTexto ? this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement.value = "" : null;
-    //Se elimina la imagen del arreglo de imagenes.
+    //Se busca la imagen para eliminarla del arreglo.
     for (let i = 0; i < this.imagenes.length; i++) {
       if (this.imagenes[i].campoId == campoId) {
-        this.imagenes.splice(i);
+        this.imagenes.splice(i, 1);
         break;
       }
     }
+
   }
 
 
@@ -827,22 +838,63 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para ver o desplegar la imagen en un modal.      |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: campoId  = identificador del campo.           |
+  |  PARÁMETROS DE ENTRADA: campoId  = identificador del campo,           |
+  |  codificar = parámetro para saber si se codificará la imagen o no.    |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  verImagen(campoId) {
+  verImagen(campoId, codificar: boolean) {
 
     for (let i = 0; i < this.imagenes.length; i++) {
       if (this.imagenes[i].campoId == campoId) {
-        this.utilidadesService.desplegarImagen(atob(this.imagenes[i].json.valor));
+        codificar ? this.utilidadesService.desplegarImagen(atob(this.imagenes[i].json.valor)) : this.utilidadesService.desplegarImagen(this.imagenes[i].json.valor);
         break;
       }
     }
 
   }
+
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desplegarAreaDibujo.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para desplegar la herramienta de dibujo.         |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campoId  = identificador del campo,           |
+  |  imagen = imagen de fondo.                                            |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 03/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  desplegarAreaDibujo(campoId: string, imagen: string) {
+
+
+    this.utilidadesService.desplegarAreaDibujo(imagen).subscribe((imagen: string) => {
+
+      //Si se hizo un dibujo.
+      if (imagen.length > 0) {
+
+        //Si ya se había creado un dibujo anteriormente, se elimina para que el nuevo lo reemplace.      
+        this.limpiarImagen(campoId, false);
+
+        //Arma el JSON de la información de la imagen y la almacena en el arreglo de imágenes.
+        this.imagenes.push({
+          campoId: campoId, "json": {
+            'valor': imagen
+          }
+        });
+
+      }
+
+    });
+
+
+  }
+
 
 
 }
