@@ -12,10 +12,10 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTypeahead, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, of, Subscription } from 'rxjs';
+import { Subject, Observable, merge, Subscription } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -30,7 +30,7 @@ import { ConsultasService } from '../../consultas.service';
   templateUrl: './alta-consulta.component.html',
   styleUrls: ['./alta-consulta.component.css']
 })
-export class AltaConsultaComponent implements OnInit, OnDestroy {
+export class AltaConsultaComponent implements OnInit {
 
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
@@ -287,8 +287,10 @@ export class AltaConsultaComponent implements OnInit, OnDestroy {
 
     //Realiza la búsqueda dentro del arreglo.  
     return merge(debouncedText$, this.focusBuscarPaciente$, clicksWithClosedPopup$).pipe(
-      map(term => (term === '' ? this.pacientes
-        : this.pacientes.filter(paciente => paciente.nombres_paciente.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
+      map(term =>       
+        (term === '' ? this.pacientes
+        : this.pacientes.filter(paciente => 
+          paciente.nombres_paciente.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
     );
 
   }
@@ -525,12 +527,6 @@ export class AltaConsultaComponent implements OnInit, OnDestroy {
   }
 
 
-  ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.
-    //Add 'implements OnDestroy' to the class.
-    this.subscripcionCamposDinamicos.unsubscribe();
-    console.log("holas");
-  }
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsulta.                                               |
   |-----------------------------------------------------------------------|

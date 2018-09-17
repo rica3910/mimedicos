@@ -51,6 +51,7 @@ import { DibujoComponent } from './dibujo/dibujo.component';
 import { SignaturePadModule } from 'angular2-signaturepad';
 import { ColorPickerModule } from 'ngx-color-picker';
 import {MatSliderModule} from '@angular/material/slider';
+import { FullCalendarModule } from 'ng-fullcalendar';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -96,7 +97,8 @@ const rutas: Routes = [
     ConsultasModule,
     SignaturePadModule,
     ColorPickerModule,
-    MatSliderModule
+    MatSliderModule,
+    FullCalendarModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,

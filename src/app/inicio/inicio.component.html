@@ -1,3 +1,8 @@
+<p>Display event : {{displayEvent | json}}</p>
+<div *ngIf="calendarOptions">
+    <ng-fullcalendar #ucCalendar [options]="calendarOptions" (eventClick)="eventClick($event.detail)" (eventDrop)="updateEvent($event.detail)"
+       (dayClick)="dayClick($event.detail)" (eventResize)="updateEvent($event.detail)" (clickButton)="clickButton($event.detail)"></ng-fullcalendar>
+</div>
 <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0, ngb-panel-1">
   <ngb-panel>
     <ng-template ngbPanelTitle>
