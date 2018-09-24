@@ -50,7 +50,8 @@ export class ConsultasService {
   |  desde = fecha inicial,                                               |
   |  hasta = fecha final,                                                 |
   |  paciente= id. del paciente,                                          |
-  |  usuario = id. del usuario.                                           |
+  |  usuario = id. del usuario,                                           |
+  |  estadoConsulta = id. del estado de la consulta.                      |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
@@ -68,7 +69,8 @@ export class ConsultasService {
     desde: string,
     hasta: string,
     paciente: string,
-    usuario: string): Observable<any> {
+    usuario: string,
+    estadoConsulta: string): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -79,7 +81,7 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener las consultas.
-      return this.http.get(this.urlApi + `lista-consultas/${organizacion}/${clinica}/${desde}/${hasta}/${paciente}/${usuario}`, { headers: headers });
+      return this.http.get(this.urlApi + `lista-consultas/${organizacion}/${clinica}/${desde}/${hasta}/${paciente}/${usuario}/${estadoConsulta}`, { headers: headers });
 
     }
     //No está conectado.
@@ -252,6 +254,40 @@ export class ConsultasService {
         params,
         { headers: headers });
   }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroEstadosConsultas.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los estados de las consultas        |
+  |  activos del usuario logueado.                                        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroEstadosConsultas(): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los estados de las consultas.
+      return this.http.get(this.urlApi + 'filtro-estados-consultas', { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
 
 
 }

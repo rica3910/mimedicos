@@ -55,15 +55,15 @@ export class ListaConsultasComponent implements OnInit {
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
-  pacientes: { id: string, nombres_paciente: string }[];
+  pacientes: { id: string, nombres_paciente: string }[]; 
+  //Registros de estados de las consultas que se verán en la vista en el campo de búsqueda de estados consultas.
+  estadosConsultas: Array<JSON>;
   //Objeto que contendrá el formulario de búsqueda de las consultas.
   formBusquedaConsultas: FormGroup;
   //Objeto del formulario que contendrá a la organización.
   organizacionControl: AbstractControl;
   //Objeto del formulario que contendrá a la clínica.
   clinicaControl: AbstractControl;
-  //Objeto del formulario que contendrá al estatus.
-  estatusControl: AbstractControl;
   //Objeto del formulario que contendrá a la actividad.
   actividadControl: AbstractControl;
   //Objeto del formulario que contendrá a la fecha desde.
@@ -74,6 +74,8 @@ export class ListaConsultasComponent implements OnInit {
   pacienteControl: AbstractControl;
   //Objeto del formulario que contendrá al usuario.
   usuarioControl: AbstractControl;
+  //Objeto del formulario que contendrá al estatus de la consulta.
+  estadoConsultaControl: AbstractControl;  
 
   /*Variable que sirve para cuando se le de clic o focus al usuario
   se ejecute el método buscar usuario.*/
@@ -118,6 +120,8 @@ export class ListaConsultasComponent implements OnInit {
   usuariosListos: boolean = false;
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
+  //Indica si el filtro de estados consultas ya se cargó.
+  estadosConsultasInicioListos: boolean = false;  
   //Indica si la información de consultas ya se obtuvo.
   consultaslistas: boolean = false;
   //Fecha inicial del campo fecha desde.  
@@ -177,7 +181,8 @@ export class ListaConsultasComponent implements OnInit {
       'fechaDesde': [''],
       'fechaHasta': [''],
       'paciente': [''],
-      'usuario': ['']
+      'usuario': [''],
+      'estadoConsulta': ['0']
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -187,6 +192,7 @@ export class ListaConsultasComponent implements OnInit {
     this.fechaHastaControl = this.formBusquedaConsultas.controls['fechaHasta'];
     this.pacienteControl = this.formBusquedaConsultas.controls['paciente'];
     this.usuarioControl = this.formBusquedaConsultas.controls['usuario'];
+    this.estadoConsultaControl = this.formBusquedaConsultas.controls['estadoConsulta'];
 
     //Al calendario del campo fecha desde y hasta se les establece la fecha actual.
     let fechaActual = new Date();
@@ -208,6 +214,8 @@ export class ListaConsultasComponent implements OnInit {
     this.filtroPacientes();
     //Se cargan los usuarios en su filtro.
     this.filtroUsuarios();
+    //Se cargan los estados de las consultas.
+    this.filtroEstadosConsultas(); 
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
@@ -216,7 +224,9 @@ export class ListaConsultasComponent implements OnInit {
       if (this.organizacionesInicioListas &&
         this.clinicasInicioListas &&
         this.usuariosListos &&
-        this.pacientesInicioListo) {
+        this.pacientesInicioListo &&
+        this.estadosConsultasInicioListos) {
+
         //Se detiene la espera.
         this.esperarService.noEsperar();
         //Se busca la información según los filtros iniciales.
@@ -476,6 +486,42 @@ export class ListaConsultasComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroEstadosConsultas.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de estados consultas.      | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroEstadosConsultas() {
+
+    //Intenta obtener los registros.
+    this.consultasService.filtroEstadosConsultas()
+      .subscribe((respuesta) => {
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los estados de las consultas en el arreglo de estados consultas.
+          this.estadosConsultas = respuesta["datos"];
+          //Deja por default las consultas pendientes.
+          this.estadoConsultaControl.setValue(this.estadosConsultas.filter(estadoConsulta => estadoConsulta["nombre"] == "PENDIENTE")[0]["id"]);
+              //Indica que el filtro ya se cargó.
+        this.estadosConsultasInicioListos = true;
+        this.cargaInicialLista$.next(this.estadosConsultasInicioListos);
+
+        }
+      });
+
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: fechaDesdeSeleccion.                                         |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Cuando la fecha desde es seleccionada, la fecha hasta   |
@@ -686,7 +732,8 @@ export class ListaConsultasComponent implements OnInit {
       fechaDesde ? this.utilidadesService.formatearFecha(fechaDesde, false) : " ",
       fechaHasta ? this.utilidadesService.formatearFecha(fechaHasta, false) : " ",
       paciente ? paciente.id : "0",
-      usuario ? usuario.id : "0").subscribe((respuesta) => {
+      usuario ? usuario.id : "0",
+      this.estadoConsultaControl.value,).subscribe((respuesta) => {
 
         //Detiene la espera, signo de que ya se obtuvo la información.
         this.esperarService.noEsperar();
