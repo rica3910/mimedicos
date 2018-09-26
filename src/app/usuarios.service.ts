@@ -45,6 +45,9 @@ export class UsuariosService {
   |  DESCRIPCIÓN: Método para obtener los usuarios activos                |
   |  del usuario logueado.                                                |
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |    
+  |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
   |                         en caso de que todo esté correcto o no        | 
@@ -54,7 +57,7 @@ export class UsuariosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 06/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroUsuarios(): Observable<any> {
+  filtroUsuarios(estatus: string = "ACTIVO"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -65,7 +68,7 @@ export class UsuariosService {
       });
 
       //Envía la petición al servidor backend para obtener los registros.
-      return this.http.get(this.urlApi + 'filtro-usuarios', { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-usuarios/' + estatus, { headers: headers });
     }
     //No está conectado.
     return of(false);

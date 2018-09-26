@@ -328,6 +328,9 @@ export class PacientesService {
   |  DESCRIPCIÓN: Método para obtener los pacientes activos del usuario   |
   |  logueado.                                                            |
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |    
+  |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
   |                         en caso de que todo esté correcto o no        | 
@@ -337,7 +340,7 @@ export class PacientesService {
   |-----------------------------------------------------------------------|
   |  FECHA: 03/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroPacientes(): Observable<any> {
+  filtroPacientes(estatus: string = "ACTIVO"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -348,7 +351,7 @@ export class PacientesService {
       });
 
       //Envía la petición al servidor backend para obtener los pacientes.
-      return this.http.get(this.urlApi + 'filtro-pacientes', { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-pacientes/' + estatus, { headers: headers });
     }
     //No está conectado.
     return of(false);

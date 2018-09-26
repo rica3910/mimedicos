@@ -15,7 +15,8 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-4">
-      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de consultas." (click)="regresar()">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de consultas."
+        (click)="regresar()">
         <i class="material-icons">arrow_back</i>
       </button>
     </div>
@@ -24,41 +25,62 @@
     </div>
   </div>
   <div class="row">
-    <hr>
+    <br>
   </div>
-  <form [formGroup]="formAltaConsultas" (ngSubmit)="altaConsulta()">    
+  <form [formGroup]="formAltaConsultas" (ngSubmit)="altaConsulta()">
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-3">
+        <ngb-datepicker [formControl]="fechaControl" (navigate)="date = $event.next" [minDate]='fechaActual'></ngb-datepicker>
+      </div>
+      <div class="col-lg-2">
+        <h4 class="fuente-azul">&nbsp;&nbsp;&nbsp;Comienzo</h4>
+        <ngb-timepicker [formControl]="horaInicioControl"></ngb-timepicker>
+      </div>
+      <div class="col-lg-2">
+        <h4 class="fuente-azul">&nbsp;&nbsp;Finalización</h4>
+        <ngb-timepicker [formControl]="horaFinControl"></ngb-timepicker>
+      </div>
+      <div class="col-lg-3"></div>
+    </div>
+    <br>
     <div class="row">
       <div class="col-lg-6">
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text">Usuario*</span>
+            <span class="input-group-text">Médico*</span>
           </div>
           <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
-            (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Seleccionar usuario de atención."
+            (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Seleccionar médico de atención."
             [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom" ngbTooltip="Borrar contenido.">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom"
+              ngbTooltip="Borrar contenido.">
               <i class="material-icons">backspace</i>
             </button>
           </div>
         </div>
-        <div  *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El Usuario es Requerido.</div>
+        <div *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Usuario es Requerido.</div>
       </div>
       <div class="col-lg-6">
         <div class="input-group">
           <div class="input-group-prepend">
             <span class="input-group-text">Paciente*</span>
           </div>
-          <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
-            (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Seleccionar paciente."
-            [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
+          <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente"
+            (focus)="focusBuscarPaciente$.next($event.target.value)" (click)="clickBuscarPaciente$.next($event.target.value)"
+            #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Seleccionar paciente." [resultFormatter]="formatoPacientes"
+            [inputFormatter]="formatoPacientes" />
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom" ngbTooltip="Borrar contenido.">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom"
+              ngbTooltip="Borrar contenido.">
               <i class="material-icons">backspace</i>
             </button>
           </div>
         </div>
-        <div  *ngIf="pulsarCrear && !pacienteControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El Paciente es Requerido.</div>
+        <div *ngIf="pulsarCrear && !pacienteControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Paciente es Requerido.</div>
       </div>
     </div>
     <div class="row">
@@ -73,45 +95,58 @@
             </option>
           </select>
         </div>
-        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La clínica es Requerida.</div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+          clínica es Requerida.</div>
       </div>
-    </div>
-    <hr>
-    <div *ngFor="let campo of campos" class="row">
-      <div class="col-lg-3"></div>      
       <div class="col-lg-6">
         <div class="input-group">
           <div class="input-group-prepend">
-            <span class="input-group-text">{{campo.etiqueta}}{{campo.requerido == "1" ? "*": ""}} </span>
-          </div>        
-          <input *ngIf="campo.tipo_campo.includes('ENTERO') || 
-                        campo.tipo_campo.includes('DECIMAL')|| 
-                        campo.tipo_campo.includes('TEXTO')" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}" type="text" class="form-control" ngbTooltip="{{campo.indicio}}">                                        
-          <textarea  *ngIf="campo.tipo_campo == 'COMENTARIO'" #campoHTML [formControlName]="'control' + campo.id"  id="campoHTML{{campo.id}}"  class="form-control" ngbTooltip="{{campo.indicio}}"></textarea>
-          <input *ngIf="campo.tipo_campo == 'FECHA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"   type="date" class="form-control" ngbTooltip="{{campo.indicio}}">          
-          <input *ngIf="campo.tipo_campo == 'HORA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"   type="time" class="form-control" ngbTooltip="{{campo.indicio}}">          
-          <button  *ngIf="campo.tipo_campo == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)" type="button" class="btn btn-link" ngbTooltip="Ver imagen." (click)="verImagen(campo.id, true)">
-            <i class="material-icons">visibility</i>
-          </button>
-          <button  *ngIf="campo.tipo_campo == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)" type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen(campo.id)">
-            <i class="material-icons">clear</i>
-          </button>
-          <input *ngIf="campo.tipo_campo == 'IMAGEN'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"   type="file" class="form-control" ngbTooltip="{{campo.indicio}}" accept="image/*" (change)="seleccionarImagen($event)">           
-          <select *ngIf="campo.tipo_campo == 'LISTA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}" class="form-control" ngbTooltip="{{campo.indicio}}"></select>
-          <button  *ngIf="campo.tipo_campo == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)" type="button" class="btn btn-link" ngbTooltip="Ver imagen." (click)="verImagen(campo.id, false)">
-            <i class="material-icons">visibility</i>
-          </button>
-          <button  *ngIf="campo.tipo_campo == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)" type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen(campo.id)">
-            <i class="material-icons">clear</i>
-          </button>
-          <button *ngIf="campo.tipo_campo == 'DIBUJO'" class="form-control" #campoHTML id="campoHTML{{campo.id}}" ngbTooltip="{{campo.indicio}}" type="button" (click)="desplegarAreaDibujo(campo.id, campo.archivo)">
-            <i class="material-icons">insert_photo</i></button>
-          <div *ngIf="pulsarCrear && !formAltaConsultas.controls['control' + campo.id].valid" class="col-lg-12 alert-danger text-center campo-invalido">El campo {{campo.etiqueta}} es requerido.</div>               
-          <div *ngIf="pulsarCrear && campo.tipo_campo == 'DIBUJO' && campo.requerido =='1' && !utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)" class="col-lg-12 alert-danger text-center campo-invalido">El campo {{campo.etiqueta}} es requerido.</div>         
+            <span class="input-group-text">Tipo Consulta</span>
+          </div>
+          <select class="form-control" [formControl]="tipoConsultaControl" #tipoConsultaHTML ngbTooltip="Seleccionar un tipo de consulta.">
+            <option *ngFor="let tipoConsulta of tiposConsultas" value={{tipoConsulta.id}}>
+              {{tipoConsulta.nombre}}
+            </option>
+          </select>
         </div>
-      </div>        
-      <div class="col-lg-3"></div>
+      </div>
     </div>
+    <br>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Estudio</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="estudioControl" [ngbTypeahead]="buscarEstudio" (focus)="focusBuscarEstudio$.next($event.target.value)"
+            (click)="clickBuscarEstudio$.next($event.target.value)" #estudioHTML #estudioNG="ngbTypeahead" ngbTooltip="Seleccionar estudio."
+            [resultFormatter]="formatoEstudios" [inputFormatter]="formatoEstudios">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoEstudio()" placement="bottom"
+              ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+            <button class="btn btn-azul btn-sm" type="button" (click)="agregarEstudio()" placement="bottom"
+              ngbTooltip="Agregar estudio.">
+              <i class="material-icons">add</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <table class="table table-bordered">
+      <tr>
+        <th class="text-center" colspan="4">Estudios</th>
+      </tr>
+      <tr>
+        <th class="text-center">#</th>
+        <th class="text-center">Descripción</th>
+        <th class="text-center">Precio</th>
+        <th class="text-center">Eliminar</th>
+      </tr>
+    </table>
     <hr>
     <div class="row">
       <div class="col-lg-12">

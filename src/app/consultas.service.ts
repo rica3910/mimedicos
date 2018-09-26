@@ -70,7 +70,8 @@ export class ConsultasService {
     hasta: string,
     paciente: string,
     usuario: string,
-    estadoConsulta: string): Observable<any> {
+    estadoConsulta: string,
+    tipoConsulta: string): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -81,7 +82,7 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener las consultas.
-      return this.http.get(this.urlApi + `lista-consultas/${organizacion}/${clinica}/${desde}/${hasta}/${paciente}/${usuario}/${estadoConsulta}`, { headers: headers });
+      return this.http.get(this.urlApi + `lista-consultas/${organizacion}/${clinica}/${desde}/${hasta}/${paciente}/${usuario}/${estadoConsulta}/${tipoConsulta}`, { headers: headers });
 
     }
     //No está conectado.
@@ -261,6 +262,9 @@ export class ConsultasService {
   |  DESCRIPCIÓN: Método para obtener los estados de las consultas        |
   |  activos del usuario logueado.                                        |
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |   
+  |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
   |                         en caso de que todo esté correcto o no        | 
@@ -270,7 +274,7 @@ export class ConsultasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 23/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstadosConsultas(): Observable<any> {
+  filtroEstadosConsultas(estatus: string = "ACTIVO"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -281,15 +285,49 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener los estados de las consultas.
-      return this.http.get(this.urlApi + 'filtro-estados-consultas', { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-estados-consultas/' + estatus, { headers: headers });
     }
     //No está conectado.
     return of(false);
 
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroTiposConsultas.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los tipos de consultas              |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroTiposConsultas(estatus: string = "ACTIVO"): Observable<any> {
 
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
 
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los estados de las consultas.
+      return this.http.get(this.urlApi + 'filtro-tipos-consultas/' + estatus, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+    
 }
 
 

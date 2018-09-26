@@ -124,6 +124,19 @@
             </select>
           </div>
         </div>
+        <div class="col-lg-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Tipo Consulta</span>
+            </div>
+            <select class="form-control" [formControl]="tipoConsultaControl" ngbTooltip="Seleccionar un tipo de consulta.">
+              <option value="0">TODOS</option>
+              <option *ngFor="let tipoConsulta of tiposConsultas" value={{tipoConsulta.id}}>
+                {{tipoConsulta.nombre}}
+              </option>
+            </select>
+          </div>
+        </div>        
   </div>
   <br>
   <div class="row">
@@ -161,7 +174,8 @@
               <th class="text-center">Clínica</th>              
               <th class="text-center">Fecha</th>     
               <th class="text-center">Hora</th>     
-              <th class="text-center">Estatus</th>          
+              <th class="text-center">Estatus</th>        
+              <th class="text-center">Tipo</th>        
               <th class="text-center">Opciones</th>
             </tr>
           </thead>
@@ -174,6 +188,7 @@
               <td>{{consulta.fecha_cita}}</td>     
               <td>{{consulta.hora_inicio_cita}} a {{consulta.hora_fin_cita}} </td>  
               <td>{{consulta.nombre_estado_consulta}}</td>           
+              <td>{{consulta.nombre_tipo_consulta}}</td>  
               <td>
                 <div class="btn-group btn-group-sm" role="group">
                     <button *ngIf="editarConsultas" type="button" class="btn" ngbTooltip="Editar información de la consulta." (click)='editarConsulta(consulta.id)'>

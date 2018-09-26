@@ -55,9 +55,11 @@ export class ListaConsultasComponent implements OnInit {
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
-  pacientes: { id: string, nombres_paciente: string }[]; 
+  pacientes: { id: string, nombres_paciente: string }[];
   //Registros de estados de las consultas que se verán en la vista en el campo de búsqueda de estados consultas.
   estadosConsultas: Array<JSON>;
+  //Registros de tipos de las consultas que se verán en la vista en el campo de búsqueda de tipos consultas.
+  tiposConsultas: Array<JSON>;
   //Objeto que contendrá el formulario de búsqueda de las consultas.
   formBusquedaConsultas: FormGroup;
   //Objeto del formulario que contendrá a la organización.
@@ -75,7 +77,9 @@ export class ListaConsultasComponent implements OnInit {
   //Objeto del formulario que contendrá al usuario.
   usuarioControl: AbstractControl;
   //Objeto del formulario que contendrá al estatus de la consulta.
-  estadoConsultaControl: AbstractControl;  
+  estadoConsultaControl: AbstractControl;
+  //Objeto del formulario que contendrá el tipo de consulta.
+  tipoConsultaControl: AbstractControl;
 
   /*Variable que sirve para cuando se le de clic o focus al usuario
   se ejecute el método buscar usuario.*/
@@ -121,7 +125,9 @@ export class ListaConsultasComponent implements OnInit {
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
   //Indica si el filtro de estados consultas ya se cargó.
-  estadosConsultasInicioListos: boolean = false;  
+  estadosConsultasInicioListos: boolean = false;
+  //Indica si el filtro de tipos de consultas ya se cargó.
+  tiposConsultasInicioListos: boolean = false;
   //Indica si la información de consultas ya se obtuvo.
   consultaslistas: boolean = false;
   //Fecha inicial del campo fecha desde.  
@@ -182,7 +188,8 @@ export class ListaConsultasComponent implements OnInit {
       'fechaHasta': [''],
       'paciente': [''],
       'usuario': [''],
-      'estadoConsulta': ['0']
+      'estadoConsulta': ['0'],
+      'tipoConsulta': ['0']
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -193,6 +200,7 @@ export class ListaConsultasComponent implements OnInit {
     this.pacienteControl = this.formBusquedaConsultas.controls['paciente'];
     this.usuarioControl = this.formBusquedaConsultas.controls['usuario'];
     this.estadoConsultaControl = this.formBusquedaConsultas.controls['estadoConsulta'];
+    this.tipoConsultaControl = this.formBusquedaConsultas.controls['tipoConsulta'];
 
     //Al calendario del campo fecha desde y hasta se les establece la fecha actual.
     let fechaActual = new Date();
@@ -215,7 +223,9 @@ export class ListaConsultasComponent implements OnInit {
     //Se cargan los usuarios en su filtro.
     this.filtroUsuarios();
     //Se cargan los estados de las consultas.
-    this.filtroEstadosConsultas(); 
+    this.filtroEstadosConsultas();    
+    //Se cargan los tipos de consultas.
+    this.filtroTiposConsultas();
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
@@ -225,7 +235,8 @@ export class ListaConsultasComponent implements OnInit {
         this.clinicasInicioListas &&
         this.usuariosListos &&
         this.pacientesInicioListo &&
-        this.estadosConsultasInicioListos) {
+        this.estadosConsultasInicioListos &&
+        this.tiposConsultasInicioListos) {
 
         //Se detiene la espera.
         this.esperarService.noEsperar();
@@ -284,7 +295,7 @@ export class ListaConsultasComponent implements OnInit {
       this.eliminarConsultas = respuesta["value"];
     });
 
-  }  
+  }
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: buscarUsuario.                                               |
@@ -350,7 +361,7 @@ export class ListaConsultasComponent implements OnInit {
   |----------------------------------------------------------------------*/
   filtroOrganizaciones() {
 
-    this.organizacionesService.filtroOrganizaciones().subscribe((respuesta) => {
+    this.organizacionesService.filtroOrganizaciones("TODOS").subscribe((respuesta) => {
 
       this.organizacionesInicioListas = true;
       this.cargaInicialLista$.next(this.organizacionesInicioListas);
@@ -427,7 +438,7 @@ export class ListaConsultasComponent implements OnInit {
   filtroUsuarios() {
 
     //Intenta obtener los usuarios del usuario ingresado.
-    this.usuariosService.filtroUsuarios()
+    this.usuariosService.filtroUsuarios("TODOS")
       .subscribe((respuesta) => {
 
         //Indica que el filtro de usuarios ya se cargó.
@@ -463,7 +474,7 @@ export class ListaConsultasComponent implements OnInit {
   filtroPacientes() {
 
     //Intenta obtener los pacientes del usuario ingresado.
-    this.pacientesService.filtroPacientes()
+    this.pacientesService.filtroPacientes("TODOS")
       .subscribe((respuesta) => {
 
         this.pacientesInicioListo = true;
@@ -497,7 +508,7 @@ export class ListaConsultasComponent implements OnInit {
   filtroEstadosConsultas() {
 
     //Intenta obtener los registros.
-    this.consultasService.filtroEstadosConsultas()
+    this.consultasService.filtroEstadosConsultas("TODOS")
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -512,10 +523,44 @@ export class ListaConsultasComponent implements OnInit {
           this.estadosConsultas = respuesta["datos"];
           //Deja por default las consultas pendientes.
           this.estadoConsultaControl.setValue(this.estadosConsultas.filter(estadoConsulta => estadoConsulta["nombre"] == "PENDIENTE")[0]["id"]);
-              //Indica que el filtro ya se cargó.
-        this.estadosConsultasInicioListos = true;
-        this.cargaInicialLista$.next(this.estadosConsultasInicioListos);
+          //Indica que el filtro ya se cargó.
+          this.estadosConsultasInicioListos = true;
+          this.cargaInicialLista$.next(this.estadosConsultasInicioListos);
 
+        }
+      });
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroTiposConsultas.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de tipos consultas.        | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroTiposConsultas() {
+
+    //Intenta obtener los registros.
+    this.consultasService.filtroTiposConsultas("TODOS")
+      .subscribe((respuesta) => {
+
+        //Indica que el filtro ya se cargó.
+        this.tiposConsultasInicioListos = true;
+        this.cargaInicialLista$.next(this.tiposConsultasInicioListos);
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los tipos de las consultas en el arreglo de tipos consultas.
+          this.tiposConsultas = respuesta["datos"];
         }
       });
 
@@ -675,7 +720,6 @@ export class ListaConsultasComponent implements OnInit {
   |----------------------------------------------------------------------*/
   buscar() {
 
-
     //Si algunas de las fechas está seleccionada, la otra también debe de estarlo.
     let fechaDesde: NgbDateStruct = this.fechaDesdeControl.value;
     let fechaHasta: NgbDateStruct = this.fechaHastaControl.value;
@@ -698,7 +742,7 @@ export class ListaConsultasComponent implements OnInit {
       (fechaDesde.year >= fechaHasta.year &&
         fechaDesde.month >= fechaHasta.month &&
         fechaDesde.day > fechaHasta.day)) {
-      this.utilidadesService.alerta("Fecha inválida","La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
+      this.utilidadesService.alerta("Fecha inválida", "La fecha inicial debe ser menor o igual a la fecha final.").subscribe(() => {
         this.fechaDesdeHTML.nativeElement.focus();
       });
       return;
@@ -716,7 +760,7 @@ export class ListaConsultasComponent implements OnInit {
     let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
     //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
     if (paciente && !paciente.id) {
-      this.utilidadesService.alerta("Paciente inválido","Seleccione un paciente válido.").subscribe(() => {
+      this.utilidadesService.alerta("Paciente inválido", "Seleccione un paciente válido.").subscribe(() => {
         this.pacienteHTML.nativeElement.focus();
       });
       return
@@ -733,7 +777,8 @@ export class ListaConsultasComponent implements OnInit {
       fechaHasta ? this.utilidadesService.formatearFecha(fechaHasta, false) : " ",
       paciente ? paciente.id : "0",
       usuario ? usuario.id : "0",
-      this.estadoConsultaControl.value,).subscribe((respuesta) => {
+      this.estadoConsultaControl.value,
+      this.tipoConsultaControl.value).subscribe((respuesta) => {
 
         //Detiene la espera, signo de que ya se obtuvo la información.
         this.esperarService.noEsperar();
@@ -742,7 +787,7 @@ export class ListaConsultasComponent implements OnInit {
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
           this.utilidadesService.alerta("Error", respuesta["mensaje"]);
-          
+
         }
         //Si todo salió bien.
         else {
@@ -824,7 +869,7 @@ export class ListaConsultasComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Eliminación exitosa","La cita se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa", "La cita se eliminó permanentemente.");
             this.buscar();
           }
         });
