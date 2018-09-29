@@ -25,6 +25,7 @@ import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
 import { ConsultasService } from '../../consultas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
+import { ProductosService } from '../../productos.service';
 
 @Component({
   selector: 'app-alta-consulta',
@@ -44,17 +45,29 @@ export class AltaConsultaComponent implements OnInit {
   usuarios: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
   pacientes: { id: string, nombres_paciente: string }[];
+  //Registros de estudios que se verán en la vista en el campo de búsqueda de estudios.
+  estudios: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string }[];
+  //Registros de los estudios que se programarán al paciente.
+  estudiosAProgramar: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string }[] = new Array();
+  //Precio total de los estudios.
+  totalEstudios: number = 0;
 
   /*Variable que sirve para cuando se le de clic o focus al usuario
   se ejecute el método buscar usuario.*/
   @ViewChild('usuarioNG') usuarioNG: NgbTypeahead;
-  //Variable que almacena el control del formulario de la búsqueda del paciente.
+  //Variable que almacena el control del formulario de la búsqueda del usuario.
   @ViewChild('usuarioHTML') usuarioHTML: ElementRef;
   /*Variable que sirve para cuando se le de clic o focus al paciente
   se ejecute el método buscar paciente.*/
   @ViewChild('pacienteNG') pacienteNG: NgbTypeahead;
   //Variable que almacena el control del formulario de la búsqueda del paciente.
   @ViewChild('pacienteHTML') pacienteHTML: ElementRef;
+  /*Variable que sirve para cuando se le de clic o focus al estudio
+  se ejecute el método buscar estudio.*/
+  @ViewChild('estudioNG') estudioNG: NgbTypeahead;
+  //Variable que almacena el control del formulario de la búsqueda del estudio.
+  @ViewChild('estudioHTML') estudioHTML: ElementRef;
+
   //Variable que almacena el control del formulario de la clínica.
   @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable que almacena el control del formulario del tipo de consulta.
@@ -67,14 +80,22 @@ export class AltaConsultaComponent implements OnInit {
   focusBuscarPaciente$ = new Subject<string>();
   //Variable que reacciona al darle clic al campo buscar paciente.
   clickBuscarPaciente$ = new Subject<string>();
+  //Variable que reacciona al focus del campo buscar estudio.
+  focusBuscarEstudio$ = new Subject<string>();
+  //Variable que reacciona al darle clic al campo buscar estudio.
+  clickBuscarEstudio$ = new Subject<string>();
   //Formato que se utilizará para presentar la información en el cuadro de texto de usuarios.
   formatoUsuarios = (value: any) => value.nombres_usuario;
   //Formato que se utilizará para presentar la información en el cuadro de texto de pacientes.
   formatoPacientes = (value: any) => value.nombres_paciente;
+  //Formato que se utilizará para presentar la información en el cuadro de texto de estudios.
+  formatoEstudios = (value: any) => value.nombre_estudio ? value.nombre_estudio + " - " + value.precio_neto_formato : "";
   //Indica si el filtro de usuarios ya se cargó.
   usuariosListos: boolean = false;
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
+  //Indica si el filtro de estudios ya se cargó.
+  estudiosInicioListos: boolean = false;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
   //Objeto que contendrá el formulario de alta de las consultas.
@@ -83,6 +104,8 @@ export class AltaConsultaComponent implements OnInit {
   pacienteControl: AbstractControl;
   //Objeto del formulario que contendrá al usuario.
   usuarioControl: AbstractControl;
+  //Objeto del formulario que contendrá al estudio.
+  estudioControl: AbstractControl;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
   clinicas: Array<JSON>;
   //Objeto del formulario que contendrá a la clínica.
@@ -118,7 +141,8 @@ export class AltaConsultaComponent implements OnInit {
     |  fb = contiene los métodos para manipular formularios HTML,           |
     |  utilidadesService = Contiene métodos genéricos y útiles,             |
     |  clinicasService = contiene los métodos de la bd de las clínicas,     |
-    |  consultasService = contiene los métodos de la bd de las consultas.   |                                
+    |  consultasService = contiene los métodos de la bd de las consultas,   |
+    |  productosService = contiene los métodos de la bd de los productos.   |                                
     |-----------------------------------------------------------------------|
     |  AUTOR: Ricardo Luna.                                                 |
     |-----------------------------------------------------------------------|
@@ -132,11 +156,12 @@ export class AltaConsultaComponent implements OnInit {
     private fb: FormBuilder,
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
-    private consultasService: ConsultasService) {
+    private consultasService: ConsultasService,
+    private productosService: ProductosService) {
 
     //Al calendario se le establece la fecha actual.
-    let fechaActual = new Date();  
-    this.fechaActual = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };  
+    let fechaActual = new Date();
+    this.fechaActual = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };
 
     //Se agregan las validaciones al formulario de alta de consultas.
     this.formAltaConsultas = fb.group({
@@ -146,7 +171,8 @@ export class AltaConsultaComponent implements OnInit {
       'tipoConsulta': ['', [Validators.required]],
       'fecha': [{ year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() }],
       'horaInicio': [{ hour: fechaActual.getHours(), minute: 0 }],
-      'horaFin': [{ hour: fechaActual.getHours(), minute: 0 }]
+      'horaFin': [{ hour: fechaActual.getHours(), minute: 0 }],
+      'estudio': ['', Validators.required]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -157,6 +183,7 @@ export class AltaConsultaComponent implements OnInit {
     this.horaInicioControl = this.formAltaConsultas.controls['horaInicio'];
     this.horaFinControl = this.formAltaConsultas.controls['horaFin'];
     this.tipoConsultaControl = this.formAltaConsultas.controls['tipoConsulta'];
+    this.estudioControl = this.formAltaConsultas.controls['estudio'];
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
@@ -169,6 +196,8 @@ export class AltaConsultaComponent implements OnInit {
     this.filtroClinicas(0);
     //Se cargan los tipos de consultas.
     this.filtroTiposConsultas();
+    //Se cargan los estudios.
+    this.filtroEstudios();
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
@@ -177,7 +206,8 @@ export class AltaConsultaComponent implements OnInit {
       if (this.usuariosListos &&
         this.pacientesInicioListo &&
         this.clinicasInicioListas &&
-        this.tiposConsultasInicioListos) {
+        this.tiposConsultasInicioListos &&
+        this.estudiosInicioListos) {
         //Se detiene la espera.
         this.esperarService.noEsperar();
       }
@@ -255,6 +285,40 @@ export class AltaConsultaComponent implements OnInit {
 
           //Se almacenan los pacientes en el arreglo de pacientes.
           this.pacientes = respuesta["datos"];
+
+        }
+      });
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroEstudios.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de estudios.               | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroEstudios() {
+
+    //Intenta obtener los servicios/estudios del usuario ingresado.
+    this.productosService.filtroServicios()
+      .subscribe((respuesta) => {
+
+        this.estudiosInicioListos = true;
+        this.cargaInicialLista$.next(this.estudiosInicioListos);
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los pacientes en el arreglo de estudios.
+          this.estudios = respuesta["datos"];
 
         }
       });
@@ -354,6 +418,50 @@ export class AltaConsultaComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: buscarEstudio.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para buscar un estudio.                          |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: text = texto que se buscará.                  |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  buscarEstudio = (text$: Observable<string>) => {
+
+    //Tiempo que durará en buscar en el arreglo mientras se teclea.
+    const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+    //Se abre o se cierra el popup con la lista según sea el caso.
+    const clicksWithClosedPopup$ = this.clickBuscarEstudio$.pipe(filter(() => !this.estudioNG.isPopupOpen()));
+
+    //Realiza la búsqueda dentro del arreglo.  
+    return merge(debouncedText$, this.focusBuscarEstudio$, clicksWithClosedPopup$).pipe(
+      map(term =>
+        (term === '' ? this.estudios
+          : this.estudios.filter(estudio =>
+            estudio.nombre_estudio.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
+    );
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: limpiarCampoEstudio.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Limpia el campo estudio.                                |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  limpiarCampoEstudio() {
+
+    //Se limpia la caja de texto y su valor.
+    this.utilidadesService.limpiarCampoTexto(this.estudioHTML.nativeElement);
+    this.estudioControl.setValue("");
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: limpiarCampoPaciente.                                        |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Limpia el campo paciente.                               |
@@ -442,6 +550,74 @@ export class AltaConsultaComponent implements OnInit {
     this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: agregarEstudio.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para agregar un estudio al arreglo de estudios   |
+  |  a realizar.                                                          | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  agregarEstudio() {
+
+    //Se obtiene el estudio seleccionado.
+    let estudio: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string } = this.estudioControl.value;
+
+    //Si viene algo escrito en el estudio pero no es un registro de  base de datos.
+    if (!estudio.id) {
+      this.utilidadesService.alerta("Estudio inválido", "Seleccione un estudio válido.").subscribe(() => {
+        this.estudioHTML.nativeElement.focus();
+      });
+      return;
+    }
+
+    if (this.estudiosAProgramar.filter(estudioAProgramar => estudioAProgramar.id == estudio.id).length > 0) {
+      this.utilidadesService.confirmacion("Estudio existente.", "El estudio ya existe. ¿Desea agregarlo de nuevo?").subscribe(respuesta => {
+        if (respuesta == "Aceptar") {
+          //Se almacena el registro en el arreglo de estudios a programar.
+          this.estudiosAProgramar.push(estudio);
+          //Se limpia el campo.
+          this.estudioControl.setValue("");
+          //Se le suma el precio del estudio al total.
+          this.totalEstudios = this.totalEstudios + Number(estudio.precio_neto);
+        }
+      });
+    } else {
+      //Se almacena el registro en el arreglo de estudios a programar.
+      this.estudiosAProgramar.push(estudio);
+      //Se limpia el campo.
+      this.estudioControl.setValue("");
+      //Se le suma el precio del estudio al total.
+      this.totalEstudios = this.totalEstudios + Number(estudio.precio_neto);
+    }
+
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: quitarEstudio.                                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: index = posición de arreglo a quitar,         |
+  |  precioBurto = precio que se le quitará al total.                     |    
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para quitar un estudio al arreglo de estudios    |
+  |  a realizar.                                                          | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  quitarEstudio(index, precioneto) {
+
+    //Se elimina  el estudio seleccionado.
+    this.estudiosAProgramar.splice(index, 1);
+    //Se le quita el precio del estudio al total.
+    this.totalEstudios = this.totalEstudios - Number(precioneto);
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsulta.                                               |
@@ -469,16 +645,16 @@ export class AltaConsultaComponent implements OnInit {
       fechaActual.getFullYear() >= fechaConsulta.year &&
       fechaActual.getMonth() >= fechaConsulta.month &&
       fechaActual.getDay() > fechaConsulta.day) {
-      this.utilidadesService.alerta("Fecha inválida","La fecha debe ser mayor o igual a la fecha de hoy.");
+      this.utilidadesService.alerta("Fecha inválida", "La fecha debe ser mayor o igual a la fecha de hoy.");
       return;
     }
-    else if (!horaInicio) {      
+    else if (!horaInicio) {
       this.utilidadesService.alerta("Hora de comienzo inválida", "Seleccione una hora de comienzo válida.");
       return
-    }else if(!horaFin){
+    } else if (!horaFin) {
       this.utilidadesService.alerta("Hora de finalización inválida", "Seleccione una hora de finalización válida.");
       return
-    }else if(horaInicio.hour > horaFin.hour || (horaInicio.hour == horaFin.hour && horaInicio.minute > horaFin.minute)){
+    } else if (horaInicio.hour > horaFin.hour || (horaInicio.hour == horaFin.hour && horaInicio.minute > horaFin.minute)) {
       this.utilidadesService.alerta("Horas inválidas", "La hora de comienzo debe ser menor o igual a la hora de finalización.");
       return;
     }
@@ -517,11 +693,22 @@ export class AltaConsultaComponent implements OnInit {
       return
     }
 
-    /*Si los elementos del formulario dinámicos requeridos no están llenos, 
-    se hace un focus para que se ingrese texto.*/
-    if (this.formAltaConsultas.invalid) {
-      return;
+    //Si no se agregó ningún estudio.
+    if (this.estudiosAProgramar.length == 0) {
+      this.utilidadesService.alerta("Sin estudios", "Agregue por lo menos un estudio.").subscribe(() => {
+        this.estudioHTML.nativeElement.focus();
+      });
+      return
     }
+
+    console.log(fechaConsulta);
+    console.log(horaInicio);
+    console.log(horaFin);
+    console.log(this.usuarioControl.value);
+    console.log(this.pacienteControl.value);
+    console.log(this.clinicaControl.value);
+    console.log(this.tipoConsultaControl.value);
+    console.log(this.estudiosAProgramar);
 
     //Se abre el modal de espera.
     this.esperarService.esperar();

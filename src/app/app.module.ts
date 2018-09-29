@@ -52,6 +52,7 @@ import { SignaturePadModule } from 'angular2-signaturepad';
 import { ColorPickerModule } from 'ngx-color-picker';
 import {MatSliderModule} from '@angular/material/slider';
 import { FullCalendarModule } from 'ng-fullcalendar';
+import { PRODUCTOS_PROVIDERS } from './productos.service';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -112,7 +113,8 @@ const rutas: Routes = [
     CLINICAS_PROVIDERS,
     CITAS_PROVIDERS,
     USUARIOS_PROVIDERS,
-    CONSULTAS_PROVIDERS
+    CONSULTAS_PROVIDERS,
+    PRODUCTOS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

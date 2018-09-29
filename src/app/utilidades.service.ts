@@ -22,6 +22,7 @@ import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.co
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { DibujoComponent } from './dibujo/dibujo.component';
 import { EventEmitter } from 'events';
+import { DialogoConfirmacionComponent } from './dialogo-confirmacion/dialogo-confirmacion.component';
 
 @Injectable()
 export class UtilidadesService {
@@ -377,7 +378,7 @@ export class UtilidadesService {
     //Arreglo de opciones para personalizar el modal.    
     const modalOption: NgbModalOptions = {
       centered: true,
-      size: "lg",      
+      size: "lg",
     };
 
     //Abre el modal.    
@@ -484,6 +485,51 @@ export class UtilidadesService {
     modalRef.result.then(() => {
       //Se retorna un nulo, ya que no se espera un resultado.         
       subject.next(null);
+    });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: confirmacion.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal cuando con un mensaje de confirmación.    |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  confirmacion(titulo: string, mensaje: string): Observable<string> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<string> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+
+    //No se cierra cuando se pulsa esc.
+    modalOption.keyboard = false;
+    //No se cierra cuando pulsamos fuera del cuadro de diálogo.
+    modalOption.backdrop = 'static';
+    //Modal centrado.
+    modalOption.centered = true;
+    //Abre el modal de tamaño chico.
+    const modalRef = this.modalService.open(DialogoConfirmacionComponent, modalOption);
+    //Define el título del modal.
+    modalRef.componentInstance.titulo = titulo;
+    //Define el mensaje del modal.
+    modalRef.componentInstance.mensaje = mensaje;
+    //Define la etiqueta del botón de Aceptar.
+    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
+    //Define la etiqueta del botón de Cancelar.
+    modalRef.componentInstance.etiquetaBotonCancelar = "Cancelar";
+    //Se retorna el botón pulsado.
+    modalRef.result.then((resultado) => {
+      //Se retorna un nulo, ya que no se espera un resultado.         
+      subject.next(resultado);
     });
 
     //Se retorna el observable.
