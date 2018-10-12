@@ -616,7 +616,7 @@ export class AltaConsultaComponent implements OnInit {
     this.esperarService.esperar();
 
     //Se intenta dar de alta la consulta.
-    this.consultaService.altaConsulta(this.pacienteControl.value.id, this.clinicaControl.value, this.usuarioControl.value.id)
+    /*this.consultaService.altaConsulta(this.pacienteControl.value.id, this.clinicaControl.value, this.usuarioControl.value.id)
       .subscribe(respuesta => {
 
         //Si hubo un error en la obtención de información.
@@ -633,7 +633,7 @@ export class AltaConsultaComponent implements OnInit {
 
           /*Se recorren los campos obtenidos de la BD
           para obtener los valores introducidos en los campos del formulario.*/
-          for (let iteracion: number = 0; iteracion < this.campos.length; iteracion++) {
+          /*for (let iteracion: number = 0; iteracion < this.campos.length; iteracion++) {
 
             let campo = this.campos[iteracion];
 
@@ -676,7 +676,7 @@ export class AltaConsultaComponent implements OnInit {
           this.altaDetConsulta(camposAlta, 0);
         }
 
-      });
+      });*/
 
   }
 

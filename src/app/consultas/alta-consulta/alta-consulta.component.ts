@@ -701,19 +701,153 @@ export class AltaConsultaComponent implements OnInit {
       return
     }
 
-    console.log(fechaConsulta);
-    console.log(horaInicio);
-    console.log(horaFin);
-    console.log(this.usuarioControl.value);
-    console.log(this.pacienteControl.value);
-    console.log(this.clinicaControl.value);
-    console.log(this.tipoConsultaControl.value);
-    console.log(this.estudiosAProgramar);
-
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
+    this.consultasService.usuarioConsultaFechaOcupada(this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
+
+      //Se cierra el  modal de espera.
+      this.esperarService.noEsperar();
+
+      //Si hubo un error en la obtención de información.
+      if (respuesta["estado"] === "ERROR") {
+        //Muestra una alerta con el porqué del error.
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+      }
+      //Si todo salió bien.
+      else {
+
+        //Si tiene una o más consultas a esa misma hora.
+        if (respuesta["mensaje"] !== "OK") {
+          this.utilidadesService.confirmacion("Agenda ocupada.", respuesta["mensaje"]).subscribe(respuesta => {
+
+            //Si desea continuar.
+            if (respuesta == "Aceptar") {
+
+              //Se abre el modal de espera.
+              this.esperarService.esperar();
+
+              //Se da de alta la consulta.
+              this.consultasService.altaConsulta(
+                this.utilidadesService.formatearFecha(fechaConsulta, false),
+                this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
+                this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
+                this.usuarioControl.value.id,
+                this.pacienteControl.value.id,
+                this.clinicaControl.value,
+                this.tipoConsultaControl.value).
+                subscribe(respuesta => {
+
+                  //Si hubo un error en la obtención de información.
+                  if (respuesta["estado"] === "ERROR") {
+                    //Muestra una alerta con el porqué del error.
+                    this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                  }
+                  else {
+
+                    //Se obtiene el identificador de la consulta recién creado.
+                    let consultaId: string = respuesta["mensaje"];
+
+                    //Se dan de alta los estudios.
+                    this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
+
+                  }
+
+                });
+
+            }
+          });
+
+        }
+        else {
+
+          //Se abre el modal de espera.
+          this.esperarService.esperar();
+
+          //Se da de alta la consulta.
+          this.consultasService.altaConsulta(
+            this.utilidadesService.formatearFecha(fechaConsulta, false),
+            this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
+            this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
+            this.usuarioControl.value.id,
+            this.pacienteControl.value.id,
+            this.clinicaControl.value,
+            this.tipoConsultaControl.value).
+            subscribe(respuesta => {
+
+              //Si hubo un error en la obtención de información.
+              if (respuesta["estado"] === "ERROR") {
+                //Muestra una alerta con el porqué del error.
+                this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+              }
+              else {
+
+                //Se obtiene el identificador de la consulta recién creado.
+                let consultaId: string = respuesta["mensaje"];
+
+                //Se dan de alta los estudios.
+                this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
+
+              }
+
+            });
+        }
+
+      }
+
+    });
+
+
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: _altaEstudioConsulta.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un estudio en una consulta.     |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  campos = campos que se insertarán,                                   |
+  |  iteracion = iteración o registro que sigue para insertar.            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  private _altaEstudioConsulta(consultaId: string, campos: any[], iteracion: number) {
+
+    let detProductoId: string = campos[iteracion].id;
+
+    //Se intenta dar de alta el detalle de la consulta.
+    this.consultasService.altaConsultaEstudio(consultaId, detProductoId)
+      .subscribe(respuesta => {
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
+          this.esperarService.noEsperar();
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
+            //Se retorna a la lista de consultas.
+            this.regresar();
+            return;
+          });
+        }
+        //Si la inserción fue correcta.
+        else {
+          //Si no es el último registro.
+          if (iteracion < campos.length - 1) {
+            this._altaEstudioConsulta(consultaId, campos, iteracion + 1);
+          }
+          //Si ya es el último registro, se despliega alerta de éxito.
+          else {
+            this.esperarService.noEsperar();
+            this.utilidadesService.alerta("Consulta creada", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
+              //Se retorna a la lista de consultas.
+              this.regresar();
+            });
+          }
+        }
+      });
+  }
 
 }

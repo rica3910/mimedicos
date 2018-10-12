@@ -135,26 +135,39 @@ export class ConsultasService {
   |  DESCRIPCIÓN: Método para dar de alta una consulta.                   | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
+  |  fecha = fecha de la consulta,                                        |
+  |  horaInicio = hora a la que comienza la consulta,                     |
+  |  horaFin = hora de finalización de la consulta,                       |
+  |  usuarioAtencionId = identificador del usuario de atención,           |
   |  pacienteId = identificador del paciente,                             | 
-  |  clinicaId = identificador de la clínica,                             |                            
-  |  usuarioAtencionId = identificador del usuario de atención.           |
+  |  clinicaId = identificador de la clínica,                             |
+  |  tipoConsultaId = identificador del tipo de consulta.                 |                              
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 01/09/2018.                                                   |    
+  |  FECHA: 01/10/2018.                                                   |    
   |----------------------------------------------------------------------*/
   altaConsulta(
+    fecha: string,
+    horaInicio: string,
+    horaFin: string,
+    usuarioAtencionId:string,
     pacienteId: string,
     clinicaId:string,
-    usuarioAtencionId:string): Observable<any> {
+    tipoConsultaId: string
+    ): Observable<any> {
    
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
+      fecha: fecha,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      usuarioAtencionId: usuarioAtencionId,
       pacienteId: pacienteId,
       clinicaId: clinicaId,      
-      usuarioAtencionId: usuarioAtencionId
+      tipoConsultaId: tipoConsultaId
     });
 
     //Le concatena la palabra "json=" al json armado.
@@ -172,6 +185,95 @@ export class ConsultasService {
         params,
         { headers: headers });
   }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaConsultaEstudio.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un estudio en una consulta.     | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  deProductoId = identificador del producto.                           |                           
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaConsultaEstudio(
+    consultaId: string,
+    detProductoId: string
+    ): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      detProductoId: detProductoId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-consulta-estudio',
+        params,
+        { headers: headers });
+  }      
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioConsultaFechaOcupada.                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Sirve para ver el número de consultas que tiene         |
+  | el usuario de atención en una fecha y horas dadas.                    |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               | 
+  |  usuarioAtencionId = id. del usuario de atención de consultas,        |
+  |  fecha = fecha y hora de la consulta,                                 |
+  |  horaInicio = hora inicial de la consulta,                            |
+  |  horaFin = hora de finalización de la consulta.                       |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 02/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  usuarioConsultaFechaOcupada(
+    usuarioAtencionId: string,
+    fecha: string,
+    horaInicio: string,
+    horaFin: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener el número de con sultas.
+      return this.http.get(this.urlApi + `usuario-consulta-fecha-ocupada/${usuarioAtencionId}/${fecha}/${horaInicio}/${horaFin}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaDetConsulta.                                             |
