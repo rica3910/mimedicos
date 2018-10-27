@@ -1,0 +1,169 @@
+<!------------------------------------------------------------------
+|NOMBRE: editar-consulta.                                          | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para editar consultas.                        |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 26/10/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+    <div class="row">
+      <div class="col-lg-3">
+        <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de consultas."
+          (click)="regresar()">
+          <i class="material-icons">arrow_back</i>
+        </button>
+      </div>
+      <div class="col-lg-8">
+        <h1 class="display-4">Modificación de consultas</h1>
+      </div>
+    </div>
+    <div class="row">
+      <br>
+    </div>
+    <form [formGroup]="formEditarConsultas" (ngSubmit)="editarConsulta()">
+      <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-3">
+          <ngb-datepicker [formControl]="fechaControl" (navigate)="date = $event.next" [minDate]='fechaActual'></ngb-datepicker>
+        </div>
+        <div class="col-lg-2">
+          <h4 class="fuente-azul">&nbsp;&nbsp;&nbsp;Comienzo</h4>
+          <ngb-timepicker [formControl]="horaInicioControl"></ngb-timepicker>
+        </div>
+        <div class="col-lg-2">
+          <h4 class="fuente-azul">&nbsp;&nbsp;Finalización</h4>
+          <ngb-timepicker [formControl]="horaFinControl"></ngb-timepicker>
+        </div>
+        <div class="col-lg-3"></div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Médico*</span>
+            </div>
+            <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
+              (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Seleccionar médico de atención."
+              [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom"
+                ngbTooltip="Borrar contenido.">
+                <i class="material-icons">backspace</i>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+            Usuario es Requerido.</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Paciente*</span>
+            </div>
+            <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente"
+              (focus)="focusBuscarPaciente$.next($event.target.value)" (click)="clickBuscarPaciente$.next($event.target.value)"
+              #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Seleccionar paciente." [resultFormatter]="formatoPacientes"
+              [inputFormatter]="formatoPacientes" />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom"
+                ngbTooltip="Borrar contenido.">
+                <i class="material-icons">backspace</i>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="pulsarCrear && !pacienteControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+            Paciente es Requerido.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Clínica*</span>
+            </div>
+            <select class="form-control" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica.">
+              <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+                {{clinica.nombre}}
+              </option>
+            </select>
+          </div>
+          <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+            clínica es Requerida.</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Tipo Consulta</span>
+            </div>
+            <select class="form-control" [formControl]="tipoConsultaControl" #tipoConsultaHTML ngbTooltip="Seleccionar un tipo de consulta.">
+              <option *ngFor="let tipoConsulta of tiposConsultas" value={{tipoConsulta.id}}>
+                {{tipoConsulta.nombre}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8">
+          <div class="input-group input-group-lg">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Estudio</span>
+            </div>
+            <input type="text" class="form-control" [formControl]="estudioControl" [ngbTypeahead]="buscarEstudio" (focus)="focusBuscarEstudio$.next($event.target.value)"
+              (click)="clickBuscarEstudio$.next($event.target.value)" #estudioHTML #estudioNG="ngbTypeahead" ngbTooltip="Seleccionar estudio."
+              [resultFormatter]="formatoEstudios" [inputFormatter]="formatoEstudios">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoEstudio()" placement="bottom"
+                ngbTooltip="Borrar contenido.">
+                <i class="material-icons">backspace</i>
+              </button>
+              <button class="btn btn-azul btn-sm" type="button" (click)="agregarEstudio()" placement="bottom" ngbTooltip="Agregar estudio.">
+                <i class="material-icons">add</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <table class="table table-bordered">
+        <tr>
+          <th class="text-center" colspan="4">Estudios</th>
+        </tr>
+        <tr>
+          <th class="text-center">#</th>
+          <th class="text-center">Descripción</th>
+          <th class="text-center">Precio neto</th>
+          <th class="text-center">Eliminar</th>
+        </tr>
+        <tr *ngFor="let estudioAProgramar of estudiosAProgramar; let i = index" [attr.data-index]="i">
+          <td class="text-center">{{i + 1}}</td>
+          <td class="text-center">{{estudioAProgramar.nombre_estudio}}</td>
+          <td class="text-center">{{estudioAProgramar.precio_neto_formato}}</td>
+          <td class="text-center">
+              <button type="button" class="btn btn-danger btn-sm" (click)="quitarEstudio(i, estudioAProgramar.precio_neto)" ngbTooltip="Quitar estudio.">Quitar</button>
+          </td>
+        </tr>
+        <tr *ngIf="estudiosAProgramar.length > 0">
+          <th class="text-center" colspan="4">
+            <h4>{{totalEstudios | currency}}</h4>
+          </th>
+        </tr>
+      </table>
+      <hr>
+      <div class="row">
+        <div class="col-lg-12">
+          <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Editar o modificar una consulta.">Modificar</button>
+        </div>
+      </div>
+    </form>
+  </div>

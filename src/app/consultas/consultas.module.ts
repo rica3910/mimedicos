@@ -21,12 +21,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConsultasComponent } from './consultas.component';
 import { AltaConsultaComponent } from './alta-consulta/alta-consulta.component';
+import { EditarConsultaComponent } from './editar-consulta/editar-consulta.component';
+import { UsuarioPuedeModificarConsultaGuard } from './usuario-puede-modificar-consulta.guard';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', component: ListaConsultasComponent },
   { path: 'lista-consultas', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]},   
   { path: 'alta-consulta', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
+  { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]}  
 ];
 
 @NgModule({
@@ -36,10 +39,15 @@ export const rutas: Routes = [
     NgbModule.forRoot(),
     ReactiveFormsModule
   ],
-  declarations: [ListaConsultasComponent, ConsultasComponent, AltaConsultaComponent],
+  declarations: [
+    ListaConsultasComponent, 
+    ConsultasComponent, 
+    AltaConsultaComponent, 
+    EditarConsultaComponent],
   exports: [ConsultasComponent],
   providers: [
-    UsuarioTieneMenuGuard    
+    UsuarioTieneMenuGuard,
+    UsuarioPuedeModificarConsultaGuard    
   ]
 })
 export class ConsultasModule { }

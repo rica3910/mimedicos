@@ -829,25 +829,24 @@ export class ListaConsultasComponent implements OnInit {
 
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: eliminarConsulta.                                            |
+  |  NOMBRE: iniciarConsulta.                                             |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para eliminar una consulta.                      |   
+  |  DESCRIPCIÓN: Método para iniciar una consulta.                       |   
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 28/08/2018.                                                   |    
+  |  FECHA: 24/10/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  eliminarConsulta(consultaId: string) {
+  iniciarConsulta(consultaId: string) {
 
     //Abre el modal.
     const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
     //Define el título del modal.
     modalRef.componentInstance.titulo = "Confirmación";
     //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = "Se eliminará permanentemente toda la información de la consulta. "
-      + "¿Está seguro de eliminar la consulta?";
+    modalRef.componentInstance.mensaje = "¿Está seguro de iniciar la consulta?";
     //Define la etiqueta del botón de Aceptar.
     modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
     //Define la etiqueta del botón de Cancelar.
