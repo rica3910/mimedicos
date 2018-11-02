@@ -13,9 +13,9 @@
 */
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, Subscription, fromEvent } from 'rxjs';
+import { Subject, Observable, merge } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -26,6 +26,7 @@ import { ClinicasService } from '../../clinicas.service';
 import { ConsultasService } from '../../consultas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
 import { ProductosService } from '../../productos.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'app-editar-consulta',
@@ -38,9 +39,8 @@ import { ProductosService } from '../../productos.service';
 })
 export class EditarConsultaComponent implements OnInit {
 
-  //Fecha actual. Se uitilizará para establecer como fecha mínima la fecha de consultas.
-  fechaActual: NgbDateStruct;
-
+  //Fecha de la consulta.
+  fechaConsulta: NgbDateStruct;
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
@@ -126,6 +126,8 @@ export class EditarConsultaComponent implements OnInit {
   tiposConsultasInicioListos: boolean = false;
   //Registros de tipos de las consultas que se verán en la vista en el campo de búsqueda de tipos consultas.
   tiposConsultas: Array<JSON>;
+  //Identificador de la consulta tomada de la url.
+  consultaId: string;
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: constructor.                                                 |
@@ -142,7 +144,8 @@ export class EditarConsultaComponent implements OnInit {
     |  utilidadesService = Contiene métodos genéricos y útiles,             |
     |  clinicasService = contiene los métodos de la bd de las clínicas,     |
     |  consultasService = contiene los métodos de la bd de las consultas,   |
-    |  productosService = contiene los métodos de la bd de los productos.   |                                
+    |  productosService = contiene los métodos de la bd de los productos,   |
+    |  rutaActual: Para obtener los parámetros de la url.                   |                                
     |-----------------------------------------------------------------------|
     |  AUTOR: Ricardo Luna.                                                 |
     |-----------------------------------------------------------------------|
@@ -157,11 +160,12 @@ export class EditarConsultaComponent implements OnInit {
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
     private consultasService: ConsultasService,
-    private productosService: ProductosService) {
+    private productosService: ProductosService,
+    private rutaActual: ActivatedRoute) {
 
     //Al calendario se le establece la fecha actual.
     let fechaActual = new Date();
-    this.fechaActual = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };
+    this.fechaConsulta = { year: fechaActual.getFullYear(), month: fechaActual.getMonth() + 1, day: fechaActual.getDate() };
 
     //Se agregan las validaciones al formulario de edición de consultas.
     this.formEditarConsultas = fb.group({
@@ -208,11 +212,80 @@ export class EditarConsultaComponent implements OnInit {
         this.clinicasInicioListas &&
         this.tiposConsultasInicioListos &&
         this.estudiosInicioListos) {
-        //Se detiene la espera.
-        this.esperarService.noEsperar();
+
+        //Obtiene el identificador de la consulta de la url.
+        this.rutaActual.paramMap.subscribe(params => {
+
+          this.consultaId = params.get("id");
+          this.consultasService.verConsulta(this.consultaId).subscribe(respuesta => {
+
+            //Si hubo un error en la obtención de información.
+            if (respuesta["estado"] === "ERROR") {
+              //Muestra una alerta con el porqué del error.
+              this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
+                //Se retorna al listado de consultas.
+                this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
+              });
+            }
+            //Si todo salió bien.
+            else {
+
+              //Se convierte a fecha la fecha de la consulta.
+              let fechaConsulta: Date = new Date(respuesta["datos"][0]["fecha_cita"] + " " + respuesta["datos"][0]["hora_inicio_cita"]);
+              //Se utiliza para almacenar la fecha de finalización de la consulta.
+              let fechaFinConsulta: Date = new Date(respuesta["datos"][0]["fecha_cita"] + " " + respuesta["datos"][0]["hora_fin_cita"]);
+
+              //Se establece en el calendario la fecha de la consulta.
+              this.fechaConsulta = { year: fechaConsulta.getFullYear(), month: fechaConsulta.getMonth() + 1, day: fechaConsulta.getDate() };
+              this.fechaControl.setValue(this.fechaConsulta);
+
+              //Se establecen las horas.
+              this.horaInicioControl.setValue({ hour: fechaConsulta.getHours(), minute: fechaConsulta.getMinutes() });
+              this.horaFinControl.setValue({ hour: fechaFinConsulta.getHours(), minute: fechaFinConsulta.getMinutes() });
+
+              //Se establece el valor del usuario de atención de la cita.
+              this.usuarioControl.setValue(this.usuarios.filter(usuario =>
+                usuario.id.indexOf(respuesta["datos"][0]["usuario_atencion_id"]) > -1)[0]);
+
+              //Se establece el valor del paciente de la cita.
+              this.pacienteControl.setValue(this.pacientes.filter(paciente =>
+                paciente.id.indexOf(respuesta["datos"][0]["paciente_id"]) > -1)[0]);
+
+              //Se establece el valor de la clínica de la cita.             
+              this.clinicaControl.setValue(respuesta["datos"][0]["clinica_id"]);
+
+              //Se establece el valor de la clínica de la cita.             
+              this.tipoConsultaControl.setValue(respuesta["datos"][0]["tipo_consulta_id"]);
+
+              this.consultasService.verEstudiosConsulta(this.consultaId).subscribe(respuesta => {
+
+                //Se detiene la espera.
+                this.esperarService.noEsperar();
+
+                respuesta["datos"].forEach(estudio => {
+
+                  estudio = { id: estudio["det_producto_id"], nombre_estudio: estudio["nombre"], precio_neto: estudio["precio_neto"], precio_neto_formato: estudio["precio_neto_formato"] };
+
+                  //Se almacena el registro en el arreglo de estudios a programar.
+                  this.estudiosAProgramar.push(estudio);
+                  //Se le suma el precio del estudio al total.
+                  this.totalEstudios = this.totalEstudios + Number(estudio.precio_neto);
+
+                });
+
+              });
+
+            }
+
+          });
+
+        });
+
       }
 
     });
+
+
 
   }
 
@@ -231,7 +304,7 @@ export class EditarConsultaComponent implements OnInit {
   filtroUsuarios() {
 
     //Intenta obtener los usuarios del usuario ingresado.
-    this.usuariosService.filtroUsuarios()
+    this.usuariosService.filtroUsuarios("TODOS")
       .subscribe((respuesta) => {
 
         //Indica que el filtro de usuarios ya se cargó.
@@ -266,7 +339,7 @@ export class EditarConsultaComponent implements OnInit {
   filtroPacientes() {
 
     //Intenta obtener los pacientes del usuario ingresado.
-    this.pacientesService.filtroPacientes()
+    this.pacientesService.filtroPacientes("TODOS")
       .subscribe((respuesta) => {
 
         this.pacientesInicioListo = true;
@@ -300,7 +373,7 @@ export class EditarConsultaComponent implements OnInit {
   filtroEstudios() {
 
     //Intenta obtener los servicios/estudios del usuario ingresado.
-    this.productosService.filtroServicios()
+    this.productosService.filtroServicios("TODOS")
       .subscribe((respuesta) => {
 
         this.estudiosInicioListos = true;
@@ -336,7 +409,7 @@ export class EditarConsultaComponent implements OnInit {
   filtroTiposConsultas() {
 
     //Intenta obtener los registros.
-    this.consultasService.filtroTiposConsultas()
+    this.consultasService.filtroTiposConsultas("TODOS")
       .subscribe((respuesta) => {
 
         //Indica que el filtro ya se cargó.
@@ -701,15 +774,19 @@ export class EditarConsultaComponent implements OnInit {
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
-    this.consultasService.usuarioConsultaFechaOcupada(this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
+    this.consultasService.usuarioConsultaFechaOcupada(this.consultaId, this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
 
       //Se cierra el  modal de espera.
       this.esperarService.noEsperar();
 
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
+
+        //Se cierra el  modal de espera.
+        this.esperarService.noEsperar();
         //Muestra una alerta con el porqué del error.
         this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+
       }
       //Si todo salió bien.
       else {
@@ -725,7 +802,8 @@ export class EditarConsultaComponent implements OnInit {
               this.esperarService.esperar();
 
               //Se modifica la consulta.
-              /*this.consultasService.altaConsulta(
+              this.consultasService.editarConsulta(
+                this.consultaId,
                 this.utilidadesService.formatearFecha(fechaConsulta, false),
                 this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
                 this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
@@ -737,20 +815,35 @@ export class EditarConsultaComponent implements OnInit {
 
                   //Si hubo un error en la obtención de información.
                   if (respuesta["estado"] === "ERROR") {
+                    //Se cierra el  modal de espera.
+                    this.esperarService.noEsperar();
                     //Muestra una alerta con el porqué del error.
                     this.utilidadesService.alerta("Error", respuesta["mensaje"]);
                   }
                   else {
 
-                    //Se obtiene el identificador de la consulta recién creado.
-                    let consultaId: string = respuesta["mensaje"];
+                    //Se eliminan los estudios para crear los nuevos.
+                    this.consultasService.eliminarEstudiosConsulta(this.consultaId).subscribe(respuesta => {
 
-                    //Se dan de alta los estudios.
-                    this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
+                      if (respuesta["estado"] === "ERROR") {
+                        //Se cierra el  modal de espera.
+                        this.esperarService.noEsperar();
+                        //Muestra una alerta con el porqué del error.
+                        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                      } else {
+
+                        //Se dan de alta los estudios.
+                        this._altaEstudioConsulta(this.consultaId, this.estudiosAProgramar, 0);
+
+                      }
+
+                    });
+
+
 
                   }
 
-                });*/
+                });
 
             }
           });
@@ -761,8 +854,9 @@ export class EditarConsultaComponent implements OnInit {
           //Se abre el modal de espera.
           this.esperarService.esperar();
 
-          //Se da de alta la consulta.
-          /*this.consultasService.altaConsulta(
+          //Se modifica la consulta.
+          this.consultasService.editarConsulta(
+            this.consultaId,
             this.utilidadesService.formatearFecha(fechaConsulta, false),
             this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
             this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
@@ -774,20 +868,33 @@ export class EditarConsultaComponent implements OnInit {
 
               //Si hubo un error en la obtención de información.
               if (respuesta["estado"] === "ERROR") {
+                //Se cierra el  modal de espera.
+                this.esperarService.noEsperar();
                 //Muestra una alerta con el porqué del error.
                 this.utilidadesService.alerta("Error", respuesta["mensaje"]);
               }
               else {
 
-                //Se obtiene el identificador de la consulta recién creado.
-                let consultaId: string = respuesta["mensaje"];
+                //Se eliminan los estudios para crear los nuevos.
+                this.consultasService.eliminarEstudiosConsulta(this.consultaId).subscribe(respuesta => {
 
-                //Se dan de alta los estudios.
-                this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
+                  if (respuesta["estado"] === "ERROR") {
+                    //Se cierra el  modal de espera.
+                    this.esperarService.noEsperar();
+                    //Muestra una alerta con el porqué del error.
+                    this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                  } else {
+
+                    //Se dan de alta los estudios.
+                    this._altaEstudioConsulta(this.consultaId, this.estudiosAProgramar, 0);
+
+                  }
+
+                });
 
               }
 
-            });*/
+            });
         }
 
       }
@@ -838,7 +945,7 @@ export class EditarConsultaComponent implements OnInit {
           //Si ya es el último registro, se despliega alerta de éxito.
           else {
             this.esperarService.noEsperar();
-            this.utilidadesService.alerta("Consulta creada", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
+            this.utilidadesService.alerta("Consulta creada", "La consulta se modificó satisfactoriamente.").subscribe(() => {
               //Se retorna a la lista de consultas.
               this.regresar();
             });

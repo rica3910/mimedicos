@@ -187,6 +187,108 @@ export class ConsultasService {
   }    
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: editarConsulta.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para editar una consulta.                        | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  fecha = fecha de la consulta,                                        |
+  |  horaInicio = hora a la que comienza la consulta,                     |
+  |  horaFin = hora de finalización de la consulta,                       |
+  |  usuarioAtencionId = identificador del usuario de atención,           |
+  |  pacienteId = identificador del paciente,                             | 
+  |  clinicaId = identificador de la clínica,                             |
+  |  tipoConsultaId = identificador del tipo de consulta.                 |                              
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 30/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarConsulta(
+    consultaId: string,
+    fecha: string,
+    horaInicio: string,
+    horaFin: string,
+    usuarioAtencionId:string,
+    pacienteId: string,
+    clinicaId:string,
+    tipoConsultaId: string
+    ): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      fecha: fecha,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      usuarioAtencionId: usuarioAtencionId,
+      pacienteId: pacienteId,
+      clinicaId: clinicaId,      
+      tipoConsultaId: tipoConsultaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'editar-consulta',
+        params,
+        { headers: headers });
+  }      
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cancelarConsulta.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cancelar una consulta.                      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  nombreEstadoConsulta = nombre del estado de la consulta.            |                           
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 01/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  cambiarEstadoConsulta(
+    consultaId: string,
+    nombreEstadoConsulta: string
+    ): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      nombreEstadoConsulta: nombreEstadoConsulta
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'cambiar-estado-consulta',
+        params,
+        { headers: headers });
+  }      
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsultaEstudio.                                         |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para dar de alta un estudio en una consulta.     | 
@@ -235,7 +337,8 @@ export class ConsultasService {
   |  DESCRIPCIÓN: Sirve para ver el número de consultas que tiene         |
   | el usuario de atención en una fecha y horas dadas.                    |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:                                               | 
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta (en caso de edición).      | 
   |  usuarioAtencionId = id. del usuario de atención de consultas,        |
   |  fecha = fecha y hora de la consulta,                                 |
   |  horaInicio = hora inicial de la consulta,                            |
@@ -252,6 +355,7 @@ export class ConsultasService {
   |----------------------------------------------------------------------*/
 
   usuarioConsultaFechaOcupada(
+    consultaId: string,
     usuarioAtencionId: string,
     fecha: string,
     horaInicio: string,
@@ -266,7 +370,7 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener el número de con sultas.
-      return this.http.get(this.urlApi + `usuario-consulta-fecha-ocupada/${usuarioAtencionId}/${fecha}/${horaInicio}/${horaFin}`, { headers: headers });
+      return this.http.get(this.urlApi + `usuario-consulta-fecha-ocupada/${consultaId}/${usuarioAtencionId}/${fecha}/${horaInicio}/${horaFin}`, { headers: headers });
 
     }
     //No está conectado.
@@ -428,6 +532,112 @@ export class ConsultasService {
     return of(false);
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verConsulta.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver la información de la consulta.          |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  consultaId = identificador de la consulta.                           |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verConsulta(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información de la consulta.
+      return this.http.get(this.urlApi + 'ver-consulta/' + consultaId, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verEstudiosConsulta.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver los estudios de una consulta.           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  consultaId = identificador de la consulta.                           |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verEstudiosConsulta(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información de la consulta.
+      return this.http.get(this.urlApi + 'ver-estudios-consulta/' + consultaId, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarEstudiosConsulta.                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar los estudios de una consulta.      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  consultaId = identificador de la consulta.                           |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/09/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarEstudiosConsulta(consultaId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      consultaId: consultaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-estudios-consulta',
+        params,
+        { headers: headers });
+  }    
 
     
 }

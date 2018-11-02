@@ -704,7 +704,7 @@ export class AltaConsultaComponent implements OnInit {
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
-    this.consultasService.usuarioConsultaFechaOcupada(this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
+    this.consultasService.usuarioConsultaFechaOcupada("0", this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
 
       //Se cierra el  modal de espera.
       this.esperarService.noEsperar();

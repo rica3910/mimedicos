@@ -48,6 +48,8 @@ export class ListaConsultasComponent implements OnInit {
   editarConsultas: boolean = false;
   //Propiedad que indica si el usuario puede eliminar consultas.
   eliminarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede cancelar consultas.
+  cancelarConsultas: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -223,7 +225,7 @@ export class ListaConsultasComponent implements OnInit {
     //Se cargan los usuarios en su filtro.
     this.filtroUsuarios();
     //Se cargan los estados de las consultas.
-    this.filtroEstadosConsultas();    
+    this.filtroEstadosConsultas();
     //Se cargan los tipos de consultas.
     this.filtroTiposConsultas();
 
@@ -281,7 +283,7 @@ export class ListaConsultasComponent implements OnInit {
   ngAfterViewInit() {
 
     //El botón de dar de alta consultas se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('alta-consulta').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('ALTA CONSULTA').subscribe((respuesta: boolean) => {
       this.altaConsultas = respuesta["value"];
     });
 
@@ -293,6 +295,11 @@ export class ListaConsultasComponent implements OnInit {
     //El botón de eliminar consultas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ELIMINAR CONSULTA').subscribe((respuesta: boolean) => {
       this.eliminarConsultas = respuesta["value"];
+    });
+
+    //El botón de cancelar consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('CANCELAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.cancelarConsultas = respuesta["value"];
     });
 
   }
@@ -826,35 +833,60 @@ export class ListaConsultasComponent implements OnInit {
     this.buscarInfoHTML.nativeElement.focus();
   }
 
-
-
   /*----------------------------------------------------------------------|
-  |  NOMBRE: iniciarConsulta.                                             |
+  |  NOMBRE: eliminarConsulta.                                            |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para iniciar una consulta.                       |   
+  |  DESCRIPCIÓN: Método para cancelar una consulta.                      |   
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/10/2018.                                                   |    
+  |  FECHA: 01/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  iniciarConsulta(consultaId: string) {
+  cancelarConsulta(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Cancelar consulta.", "¿Está seguro de cancelar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'CANCELADA').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Cancelación exitosa", "La consulta se canceló satisfactoriamente.");
+            this.buscar();
+          }
+
+        });
+      }
+    });   
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarConsulta.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una consulta.                      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 31/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarConsulta(consultaId: string) {
 
     //Abre el modal.
-    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Confirmación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = "¿Está seguro de iniciar la consulta?";
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
-    //Define la etiqueta del botón de Cancelar.
-    modalRef.componentInstance.etiquetaBotonCancelar = "No";
-    //Se retorna el botón pulsado.
-    modalRef.result.then((result) => {
-      //Si la respuesta es eliminar al paciente.
-      if (result === "Sí") {
+    this.utilidadesService.confirmacion("Eliminar consulta.", "¿Está seguro de eliminar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
         this.consultasService.eliminarConsulta(consultaId).subscribe(respuesta => {
@@ -868,7 +900,7 @@ export class ListaConsultasComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Eliminación exitosa", "La cita se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa", "La consulta se eliminó permanentemente.");
             this.buscar();
           }
         });

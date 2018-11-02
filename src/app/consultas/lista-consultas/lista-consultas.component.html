@@ -197,13 +197,15 @@
           <td>{{consulta.nombre_tipo_consulta}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Editar consulta."
+              <button *ngIf="editarConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA')" type="button" class="btn" ngbTooltip="Editar consulta."
                 (click)='editarConsulta(consulta.id)'>
                 <i class="material-icons">edit</i>
               </button>
-              <button *ngIf="consulta.nombre_estado_consulta ==  'PENDIENTE'" type="button" class="btn" ngbTooltip="Pasar a consulta."
-                (click)='iniciarConsulta(consulta.id)'>
-                <i class="material-icons">assignment_turned_in</i>
+              <button *ngIf="cancelarConsultas && consulta.nombre_estado_consulta != 'CANCELADA'" type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
+                <i class="material-icons">cancel</i>
+              </button>
+              <button *ngIf="eliminarConsultas && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')" type="button" class="btn" ngbTooltip="Eliminar consulta permanentemente." (click)='eliminarConsulta(consulta.id)'>
+                <i class="material-icons">delete_forever</i>
               </button>
             </div>
           </td>
