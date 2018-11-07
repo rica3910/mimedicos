@@ -26,7 +26,7 @@ import { UsuarioPuedeModificarConsultaGuard } from './usuario-puede-modificar-co
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
-  { path: '', component: ListaConsultasComponent },
+  { path: '', redirectTo: 'lista-consultas', pathMatch: 'full' },
   { path: 'lista-consultas', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]},   
   { path: 'alta-consulta', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
   { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]}  

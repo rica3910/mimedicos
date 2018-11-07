@@ -201,7 +201,19 @@
                 (click)='editarConsulta(consulta.id)'>
                 <i class="material-icons">edit</i>
               </button>
-              <button *ngIf="cancelarConsultas && consulta.nombre_estado_consulta != 'CANCELADA'" type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
+              <button *ngIf="pasarAConsultas && consulta.nombre_estado_consulta == 'PENDIENTE'" type="button" class="btn" ngbTooltip="Pasar a consulta." (click)='pasarAConsulta(consulta.id)'>
+                <i class="material-icons">assignment_ind</i>
+              </button>
+              <button *ngIf="pasarADiagnosticos && consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Pasar a diagnóstico." (click)='pasarADiagnostico(consulta.id)'>
+                <i class="material-icons">assignment</i>
+              </button>                   
+              <button *ngIf="pasarAPendientes && consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Regresar a estado pendiente la consulta." (click)='pasarAPendiente(consulta.id)'>
+                <i class="material-icons">assignment_return</i>
+              </button>          
+              <button *ngIf="finalizarConsultas && consulta.nombre_estado_consulta == 'DIAGNOSTICO'" type="button" class="btn" ngbTooltip="Finalizar la consulta." (click)='finalizarConsulta(consulta.id)'>
+                <i class="material-icons">assignment_turned_in</i>
+              </button>                         
+              <button *ngIf="cancelarConsultas && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')" type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
                 <i class="material-icons">cancel</i>
               </button>
               <button *ngIf="eliminarConsultas && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')" type="button" class="btn" ngbTooltip="Eliminar consulta permanentemente." (click)='eliminarConsulta(consulta.id)'>

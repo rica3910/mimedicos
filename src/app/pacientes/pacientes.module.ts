@@ -28,12 +28,12 @@ import { EditarPacienteComponent } from './editar-paciente/editar-paciente.compo
 
 //Constante que contiene las rutas que tendrá el sistema.
 export const rutas: Routes = [    
-    { path: '', component: ListaPacientesComponent},      
+    { path: '', redirectTo: 'lista-pacientes', pathMatch: 'full'},      
     { path: 'lista-pacientes', component: ListaPacientesComponent, canActivate: [UsuarioTieneMenuGuard]},        
     { path: 'alta-paciente', component: AltaPacienteComponent,canActivate: [UsuarioTieneMenuGuard]},        
     { path: 'ver-paciente/:id', component: VerPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
     { path: 'editar-paciente/:id', component:EditarPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
-    { path: '**', redirectTo: 'pacientes'}    
+    { path: '**', redirectTo: 'lista-pacientes'}    
   ];
 
   @NgModule({
