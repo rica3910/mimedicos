@@ -201,7 +201,7 @@
                 (click)='editarConsulta(consulta.id)'>
                 <i class="material-icons">edit</i>
               </button>
-              <button *ngIf="pasarAConsultas && consulta.nombre_estado_consulta == 'PENDIENTE'" type="button" class="btn" ngbTooltip="Pasar a consulta." (click)='pasarAConsulta(consulta.id)'>
+              <button *ngIf="pasarAConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'DIAGNOSTICO' )" type="button" class="btn" ngbTooltip="Pasar a consulta." (click)='pasarAConsulta(consulta.id)'>
                 <i class="material-icons">assignment_ind</i>
               </button>
               <button *ngIf="pasarADiagnosticos && consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Pasar a diagnóstico." (click)='pasarADiagnostico(consulta.id)'>

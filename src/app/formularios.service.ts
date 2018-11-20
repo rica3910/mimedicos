@@ -1,49 +1,48 @@
 /******************************************************************|
-|NOMBRE: Productos.                                                | 
+|NOMBRE: formularios.                                              | 
 |------------------------------------------------------------------|
 |DESCRIPCIÓN: Servicio que contiene los métodos para el mto. de    |
-|servicios.                                                        |
+|formularios.                                                      |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 26/09/2018.                                                |
+|FECHA: 09/11/2018.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
-
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
 
 @Injectable()
-export class ProductosService {
 
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: constructor.                                                 |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método constructor del componente.                      |          
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: http  = para hacer peticiones http al backend,|
-  |                         urlApi= url de la aplicación backend,         |
-  |                         autorizacion = contiene los métodos para saber|
-  |                                        si un usuario está conectado   |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 26/08/2018.                                                   |    
-  |----------------------------------------------------------------------*/
+export class FormulariosService {
+
+/*----------------------------------------------------------------------|
+|  NOMBRE: constructor.                                                 |
+|-----------------------------------------------------------------------|
+|  DESCRIPCIÓN: Método constructor del componente.                      |          
+|-----------------------------------------------------------------------|
+|  PARÁMETROS DE ENTRADA: http  = para hacer peticiones http al backend,|
+|                         urlApi= url de la aplicación backend,         |
+|                         autorizacion = contiene los métodos para saber|
+|                                        si un usuario está conectado   |
+|-----------------------------------------------------------------------|
+|  AUTOR: Ricardo Luna.                                                 |
+|-----------------------------------------------------------------------|
+|  FECHA: 26/08/2018.                                                   |    
+|----------------------------------------------------------------------*/
   constructor(private http: HttpClient,
     @Inject('URL_API_BACKEND') private urlApi: string,
     private autorizacion: AutenticarService) { }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: filtroServicios.                                             |
+  |  NOMBRE: filtroFormularios.                                           |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para obtener los servicios y/o estudios          |
-  |  activos del usuario logueado.                                        |
+  |  DESCRIPCIÓN: Método para obtener los formularios de un usuario       |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |  
   |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |   
@@ -55,9 +54,9 @@ export class ProductosService {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 23/09/2018.                                                   |    
+  |  FECHA: 09/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroServicios(estatus: string = "ACTIVO"): Observable<any> {
+  filtroFormularios(estatus: string = "ACTIVO"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -68,16 +67,15 @@ export class ProductosService {
       });
 
       //Envía la petición al servidor backend para obtener los servicios.
-      return this.http.get(this.urlApi + 'filtro-servicios/' + estatus, { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-formularios/' + estatus, { headers: headers });
     }
     //No está conectado.
     return of(false);
 
   }
-
 }
 
 //Constante que se utilizará para inyectar el servicio.
-export const PRODUCTOS_PROVIDERS: Array<any> = [
-  { provide: ProductosService, useClass: ProductosService }
+export const FORMULARIOS_PROVIDERS: Array<any> = [
+  { provide: FormulariosService, useClass: FormulariosService }
 ];

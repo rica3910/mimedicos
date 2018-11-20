@@ -1,0 +1,31 @@
+<!------------------------------------------------------------------
+|NOMBRE: editar-diagnostico.                                       | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para editar un diagnóstico.                   |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 12/11/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-1">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de diagnósticos."
+        (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-11 text-center">
+      <h1>{{nombreFormulario}}</h1>
+      <h3><small class="text-muted">{{descripcionFormulario}}</small></h3>
+    </div>
+  </div>
+  <div class="row">
+    <br>
+  </div>
+</div>

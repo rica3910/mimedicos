@@ -23,31 +23,48 @@ import { ConsultasComponent } from './consultas.component';
 import { AltaConsultaComponent } from './alta-consulta/alta-consulta.component';
 import { EditarConsultaComponent } from './editar-consulta/editar-consulta.component';
 import { UsuarioPuedeModificarConsultaGuard } from './usuario-puede-modificar-consulta.guard';
+import { UsuarioPuedeVerDiagnosticosGuard } from './usuario-puede-ver-diagnosticos.guard';
+import { ListaDiagnosticosComponent } from './lista-diagnosticos/lista-diagnosticos.component';
+import { AltaDiagnosticoComponent } from './alta-diagnostico/alta-diagnostico.component';
+import { UsuarioPuedeCrearDiagnosticosGuard } from './usuario-puede-crear-diagnosticos.guard';
+import { EditarDiagnosticoComponent } from './editar-diagnostico/editar-diagnostico.component';
+import { UsuarioPuedeEditarDiagnosticosGuard } from './usuario-puede-editar-diagnosticos.guard';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', redirectTo: 'lista-consultas', pathMatch: 'full' },
   { path: 'lista-consultas', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]},   
   { path: 'alta-consulta', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
-  { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]}  
+  { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]},
+  { path: 'lista-diagnosticos/:id', component: ListaDiagnosticosComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticosGuard]},
+  { path: 'alta-diagnostico/:id', component: AltaDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard]},
+  { path: 'editar-diagnostico/:id/:diagnosticoId', component: EditarDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard, UsuarioPuedeEditarDiagnosticosGuard]},  
+  { path: '**', redirectTo: 'lista-consultas', pathMatch: 'full'  }  
 ];
 
 @NgModule({
   imports: [
     CommonModule,
     RouterModule,
-    NgbModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule.forRoot()
   ],
   declarations: [
     ListaConsultasComponent, 
     ConsultasComponent, 
     AltaConsultaComponent, 
-    EditarConsultaComponent],
+    EditarConsultaComponent, 
+    ListaDiagnosticosComponent,
+    AltaDiagnosticoComponent,
+    EditarDiagnosticoComponent
+  ],
   exports: [ConsultasComponent],
   providers: [
     UsuarioTieneMenuGuard,
-    UsuarioPuedeModificarConsultaGuard    
+    UsuarioPuedeModificarConsultaGuard,
+    UsuarioPuedeVerDiagnosticosGuard,
+    UsuarioPuedeCrearDiagnosticosGuard,
+    UsuarioPuedeEditarDiagnosticosGuard    
   ]
 })
 export class ConsultasModule { }

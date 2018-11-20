@@ -13,21 +13,19 @@
 */
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker} from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, switchAll } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 import { AutenticarService } from '../../autenticar.service';
-import { DialogoAlertaComponent } from '../../dialogo-alerta/dialogo-alerta.component';
 import { NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
 import { OrganizacionesService } from '../../organizaciones.service';
 import { ClinicasService } from '../../clinicas.service';
 import { UsuariosService } from '../../usuarios.service';
 import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
-import { DialogoConfirmacionComponent } from './../../dialogo-confirmacion/dialogo-confirmacion.component';
 import { Router } from '@angular/router';
 import { ConsultasService } from '../../consultas.service';
 
@@ -163,7 +161,6 @@ export class ListaConsultasComponent implements OnInit {
   |  utilidadesService = Contiene métodos genéricos y útiles,             |
   |  pacientesService = Contiene los métodos de mto. de pacientes,        |
   |  esperarService = contiene los métodos para mostrar o no la espera,   |
-  |  modalService = contiene los métodos para manipular modals,           |
   |  autenticarService = contiene los métodos de autenticación,           |
   |  organizacionesService = contiene los métodos de base de datos de las |
   |  organizaciones,                                                      |
@@ -180,7 +177,6 @@ export class ListaConsultasComponent implements OnInit {
   constructor(private utilidadesService: UtilidadesService,
     private pacientesService: PacientesService,
     private esperarService: EsperarService,
-    private modalService: NgbModal,
     private autenticarService: AutenticarService,
     private organizacionesService: OrganizacionesService,
     private clinicasService: ClinicasService,
@@ -999,9 +995,8 @@ export class ListaConsultasComponent implements OnInit {
           }
           //Si todo salió bien.
           else {
-            //Se actualizan los datos.            
-            /*this.utilidadesService.alerta("Consulta pendiente", "La consulta se cambió a estado pendiente satisfactoriamente.");
-            this.buscar();*/
+            //Se abre la pantalla del listado de diagnósticos de la consulta.
+            this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + consultaId);
           }
 
         });

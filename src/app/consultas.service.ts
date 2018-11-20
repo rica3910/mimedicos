@@ -639,6 +639,159 @@ export class ConsultasService {
         { headers: headers });
   }    
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaDiagnosticos.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los diagnósticos de una consulta.   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  listaDiagnosticos(
+    consulta: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener las consultas.
+      return this.http.get(this.urlApi + `lista-diagnosticos/${consulta}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDiagnostico.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un diagnóstico a la consulta.   | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  formularioId = identificador del formulario.                         |                            
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDiagnostico(
+    consultaId: string,
+    formularioId: string
+    ): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      formularioId: formularioId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-diagnostico',
+        params,
+        { headers: headers });
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarDiagnostico.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar un diagnóstico.                    | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  diagnosticoId = identificador del diagnóstico.                       |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarDiagnostico(diagnosticoId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      diagnosticoId: diagnosticoId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-diagnostico',
+        params,
+        { headers: headers });
+  }     
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: infoFormularioDiagnostico.                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener la info de un formulario de un      |
+  |   diagnóstico dado.                                                   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: diagnosticoId = identificador del diagnóstico.|
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  infoFormularioDiagnostico(
+    diagnosticoId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información.
+      return this.http.get(this.urlApi + `info-formulario-diagnostico/${diagnosticoId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
     
 }
 

@@ -127,13 +127,13 @@ export class AltaConsultaComponent implements OnInit {
   //Registros de tipos de las consultas que se verán en la vista en el campo de búsqueda de tipos consultas.
   tiposConsultas: Array<JSON>;
 
-  /*----------------------------------------------------------------------|
+    /*----------------------------------------------------------------------|
     |  NOMBRE: constructor.                                                 |
     |-----------------------------------------------------------------------|
     |  DESCRIPCIÓN: Método constructor del componente.                      | 
     |-----------------------------------------------------------------------|
     |  PARÁMETROS DE ENTRADA:                                               |
-    |  rutaActual   = para navegar a otras url's,                           |
+    |  rutaNavegacion   = para navegar a otras url's,                       |
     |  usuariosService = contiene los métodos de la bd de los usuarios,     | 
     |  pacientesService = Contiene los métodos de mto. de pacientes,        |
     |  modalService = contiene los métodos para manipular modals,           |

@@ -1,0 +1,45 @@
+/******************************************************************|
+|NOMBRE: alta-diagnostico.                                         | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Se muestran lo estilos del alta de diagnósticos.     |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 09/11/2018.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+/*Color de fuente azul.*/
+.fuente-azul{
+    color:  rgb(0, 162, 232);
+  }
+  
+  /*Clase para el color de los botones y color de fuente.*/
+  .btn-azul{
+      background-color: rgb(0, 162, 232);
+      color: white;    
+    }
+  
+  /*Clase para el color de los botones y color de fuente.*/
+  .btn-gris{
+    background-color:#e9ecef;
+    border-color: #ced4da;   
+  }
+  
+  
+    /*Clase para la alerta de campo inválido en el formulario.*/
+    .campo-invalido {
+      position: relative;
+      height: 45px;    
+      padding: 10px;
+      font-size: 16px;
+    }  
+  
+     /*Clase para que se pinte de rojo el input cuando esté inválido.*/
+    .input-borde-rojo{
+      background-color: rgb(252, 224, 224);
+    }
+    

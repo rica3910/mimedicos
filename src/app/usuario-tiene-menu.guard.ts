@@ -80,7 +80,7 @@ export class UsuarioTieneMenuGuard implements CanActivate {
       else if(menus.length >= 3){
         //Solo obtiene la segunda ruta de la url.
         url = menus[2];
-      }                  
+      }            
       
       //Retorna verdadero o falso en caso de que el usuario tenga o no el menú.
       return this.autorizacion.usuarioTieneMenu(url).pipe(map((resultado) => {    

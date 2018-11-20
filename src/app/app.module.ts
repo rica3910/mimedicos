@@ -53,7 +53,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import {MatSliderModule} from '@angular/material/slider';
 import { FullCalendarModule } from 'ng-fullcalendar';
 import { PRODUCTOS_PROVIDERS } from './productos.service';
-import { DiagnosticosModule } from './diagnosticos/diagnosticos.module';
+import { FORMULARIOS_PROVIDERS } from './formularios.service';
+
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -100,8 +101,7 @@ const rutas: Routes = [
     SignaturePadModule,
     ColorPickerModule,
     MatSliderModule,
-    FullCalendarModule,
-    DiagnosticosModule
+    FullCalendarModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
@@ -116,7 +116,8 @@ const rutas: Routes = [
     CITAS_PROVIDERS,
     USUARIOS_PROVIDERS,
     CONSULTAS_PROVIDERS,
-    PRODUCTOS_PROVIDERS
+    PRODUCTOS_PROVIDERS,
+    FORMULARIOS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

@@ -801,6 +801,92 @@ export class AutenticarService {
     return of(false);
   }    
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeCrearDiagnosticos.                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda crear       |
+  |  diagnósticos.                                                        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId: identificador de la consulta.     |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda modificar la consulta respectivamente|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeCrearDiagnosticos(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-crear-diagnosticos/${consultaId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede acceder o editar la cita.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí puede acceder o modificar la cita.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }   
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeEditarDiagnosticos.                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda editar      |
+  |  diagnósticos.                                                        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: diagnosticoId: identificador del diagnóstico. |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda modificar la consulta respectivamente|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeEditarDiagnosticos(diagnosticoId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-editar-diagnosticos/${diagnosticoId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede acceder o editar la cita.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí puede acceder o modificar la cita.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }   
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

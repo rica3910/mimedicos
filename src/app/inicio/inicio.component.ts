@@ -121,7 +121,7 @@ export class InicioComponent implements OnInit {
     //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
     //Add 'implements AfterViewInit' to the class.
 
-    setTimeout(() => {
+    /*setTimeout(() => {
 
       let el = {
         title: 'New event',
@@ -130,7 +130,7 @@ export class InicioComponent implements OnInit {
       this.ucCalendar.fullCalendar('renderEvent', el);
       this.ucCalendar.fullCalendar('rerenderEvents');
       
-    }, 5000);
+    }, 5000);*/
 
 
     

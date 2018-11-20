@@ -1,12 +1,12 @@
 /******************************************************************|
-|NOMBRE: UsuarioPuedeVerDiagnosticos.                              | 
+|NOMBRE: UsuarioPuedeCrearDiagnosticos.                            | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Guarda para garantizar que el usuario pueda ver      |
-| los mdiagnósticos de una consulta.                               |
+|DESCRIPCIÓN: Guarda para garantizar que el usuario pueda crear    |
+| los diagnósticos de una consulta.                                |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 07/11/2018.                                                |
+|FECHA: 09/11/2018.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -21,8 +21,8 @@ import { map } from "rxjs/operators";
 
 @Injectable()
 
-export class UsuarioPuedeVerDiagnosticosGuard implements CanActivate {
- /*----------------------------------------------------------------------|
+export class UsuarioPuedeCrearDiagnosticosGuard implements CanActivate {
+  /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método constructor del componente.                      | 
@@ -34,31 +34,26 @@ export class UsuarioPuedeVerDiagnosticosGuard implements CanActivate {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 07/11/2018.                                                   |    
+  |  FECHA: 09/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
-    private rutaNavegacion: Router) {
-
-      console.log("nene");
-     }
+    private rutaNavegacion: Router) {}
 
     canActivate(
       next: ActivatedRouteSnapshot,
       state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-
-        console.log("nene");
-        
+                
       //Obtiene el identificador de la consulta de la url.
       let consultaId: string = next.paramMap.get("id");
         
-      //Retorna verdadero o falso en caso de que el usuario pueda ver los diagnósticos o no respectivamente.
-      return this.autorizacion.usuarioPuedeVerDiagnosticos(consultaId).pipe(map((resultado) => {                  
+      //Retorna verdadero o falso en caso de que el usuario pueda crear los diagnósticos o no respectivamente.
+      return this.autorizacion.usuarioPuedeCrearDiagnosticos(consultaId).pipe(map((resultado) => { 
         
-        //Si el usuario no puede acceder a la consulta.
+        //Si el usuario no puede crear diagnósticos.
         if(!resultado["value"]){
           
          this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
-        } 
+        }       
         
         return resultado["value"];             
       })).toPromise();
