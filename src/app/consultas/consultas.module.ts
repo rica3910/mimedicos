@@ -18,7 +18,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListaConsultasComponent } from './lista-consultas/lista-consultas.component';
 import { UsuarioTieneMenuGuard } from '../usuario-tiene-menu.guard';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ConsultasComponent } from './consultas.component';
 import { AltaConsultaComponent } from './alta-consulta/alta-consulta.component';
 import { EditarConsultaComponent } from './editar-consulta/editar-consulta.component';
@@ -29,6 +29,8 @@ import { AltaDiagnosticoComponent } from './alta-diagnostico/alta-diagnostico.co
 import { UsuarioPuedeCrearDiagnosticosGuard } from './usuario-puede-crear-diagnosticos.guard';
 import { EditarDiagnosticoComponent } from './editar-diagnostico/editar-diagnostico.component';
 import { UsuarioPuedeEditarDiagnosticosGuard } from './usuario-puede-editar-diagnosticos.guard';
+import { InfoConsultaComponent } from './info-consulta/info-consulta.component';
+import { NgxEditorModule } from 'ngx-editor';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -44,10 +46,12 @@ export const rutas: Routes = [
 
 @NgModule({
   imports: [
+    FormsModule,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    NgbModule.forRoot()
+    NgbModule.forRoot(),
+    NgxEditorModule
   ],
   declarations: [
     ListaConsultasComponent, 
@@ -56,7 +60,8 @@ export const rutas: Routes = [
     EditarConsultaComponent, 
     ListaDiagnosticosComponent,
     AltaDiagnosticoComponent,
-    EditarDiagnosticoComponent
+    EditarDiagnosticoComponent,
+    InfoConsultaComponent
   ],
   exports: [ConsultasComponent],
   providers: [

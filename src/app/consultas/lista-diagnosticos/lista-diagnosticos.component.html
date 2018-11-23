@@ -24,6 +24,7 @@
       <h1 class="display-4 text-center">Diagnósticos</h1>
     </div>
   </div>
+  <app-info-consulta [consultaId]="consultaId" (informacionLista)="infoConsultaLista($event)"></app-info-consulta>
   <br>
   <div class="row">
     <div class="col-lg-1">
@@ -68,7 +69,8 @@
                 <button *ngIf="editarDiagnosticos" type="button" class="btn" ngbTooltip="Editar diagnóstico." (click)='editarDiagnostico(diagnostico.id)'>
                   <i class="material-icons">edit</i>
                 </button>
-                <button *ngIf="eliminarDiagnosticos"  type="button" class="btn" ngbTooltip="Eliminar diagnóstico." (click)='eliminarDiagnostico(diagnostico.id)'>
+                <button *ngIf="eliminarDiagnosticos" type="button" class="btn" ngbTooltip="Eliminar diagnóstico."
+                  (click)='eliminarDiagnostico(diagnostico.id)'>
                   <i class="material-icons">delete_forever</i>
                 </button>
               </div>

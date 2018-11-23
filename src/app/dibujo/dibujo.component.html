@@ -14,9 +14,11 @@
 -------------------------------------------------------------------->
 <div class="modal-header">
   <div class="input-group input-group-lg">
+      <button type="button" class="btn btn-lg btn-success" placement="bottom" ngbTooltip="Finalizar dibujo." (click)="activeModal.close(signaturePad.toDataURL())"><i
+        class="material-icons">check</i></button>
     <div class="input-group-prepend">
       <span class="input-group-text"><i class="material-icons" style="font-size: 30px">color_lens</i></span>
-    </div>
+    </div>    
     <input class="form-control col-sm-1" (colorPickerChange)="cambiarColor($event)" [(colorPicker)]="color" readonly
       [style.background]="color" placement="bottom" ngbTooltip="Seleccione el color del pincel." />
     <div class="input-group-prepend">
@@ -26,12 +28,10 @@
       placement="bottom" ngbTooltip="Seleccione el tamaño del pincel."></mat-slider>
     <button type="button" (click)="refrescarDibujo()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Refrescar dibujo."><i
         class="material-icons">sync</i></button>
-    <button type="button" (click)="deshacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Deshacer cambio."><i
+    <button *ngIf="imagenes.length > 1" type="button" (click)="deshacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Deshacer cambio."><i
         class="material-icons">undo</i></button>
-    <button type="button" (click)="rehacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Rehacer cambio."><i
+    <button *ngIf="indiceActualImagenes > 0" type="button" (click)="rehacerCambio()" class="btn btn-lg btn-secondary" placement="bottom" ngbTooltip="Rehacer cambio."><i
         class="material-icons">redo</i></button>
-    <button type="button" class="btn btn-lg btn-success" placement="bottom" ngbTooltip="Finalizar dibujo." (click)="activeModal.close(signaturePad.toDataURL())"><i
-        class="material-icons">check</i></button>
   </div>
   <button type="button" class="close" (click)="activeModal.close('')" placement="bottom" ngbTooltip="Cerrar">
     <span aria-hidden="true">&times;</span>

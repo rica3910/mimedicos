@@ -52,6 +52,8 @@ export class ListaDiagnosticosComponent implements OnInit {
   verificarAltaDiagnosticos: boolean = false;
   //Indica que ya se verificó que se pueda editar diagnósticos.
   verificarEditarDiagnosticos: boolean = false;
+  //Indica que ya se verificó que la información de la consulta está lista.
+  verificarInfoConsulta: boolean = false;
 
   /*----------------------------------------------------------------------|
    |  NOMBRE: constructor.                                                 |
@@ -84,6 +86,7 @@ export class ListaDiagnosticosComponent implements OnInit {
       this.verificarAltaDiagnosticos = false;
       this.verificarEliminarDiagnosticos = false;
       this.verificarEditarDiagnosticos = false;
+      this.verificarInfoConsulta = false;
 
       //Obtiene el identificador de la consulta de la url.
       this.consultaId = params.get("id");
@@ -150,7 +153,8 @@ export class ListaDiagnosticosComponent implements OnInit {
       //Si todos los filtros e información están listos.
       if (this.verificarAltaDiagnosticos &&
         this.verificarEliminarDiagnosticos &&
-        this.verificarEditarDiagnosticos) {
+        this.verificarEditarDiagnosticos &&
+        this.verificarInfoConsulta) {
         //Inicia la búsqueda de información.
         this.buscar();
       }
@@ -326,8 +330,23 @@ export class ListaDiagnosticosComponent implements OnInit {
   |----------------------------------------------------------------------*/
   editarDiagnostico(diagnosticoId: string) {
     //Se abre la pantalla de alta de diagnósticos
-    this.rutaNavegacion.navigateByUrl('consultas/editar-diagnostico/' + this.consultaId + "/" +  diagnosticoId);
+    this.rutaNavegacion.navigateByUrl('consultas/editar-diagnostico/' + this.consultaId + "/" + diagnosticoId);
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: infoConsultaLista.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que avisa que ya se obtuvo la info de la consulta|   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: infoLista = indica que la info está lista.    |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  infoConsultaLista(infoLista: boolean) {
+    this.verificarInfoConsulta = infoLista;
+    this.cargaInicialLista$.next(this.verificarInfoConsulta);
+  }
 
 }

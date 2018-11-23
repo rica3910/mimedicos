@@ -397,7 +397,7 @@ export class AltaConsultaComponent implements OnInit {
   obtenerCampos() {
 
     //Intenta obtener los campos del usuario logueado.
-    this.consultaService.camposConsultaUsuario("1")
+    this.consultaService.camposFormulario("1","1")
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.

@@ -44,7 +44,7 @@ export class DibujoComponent implements OnInit {
   //Variable que establece el color del pincel, por default es negro.
   private color: string = "black";
   //Variable que establece el tamaño del pincel, por default es 2.
-  private tamanoPincel: number = 1;  
+  private tamanoPincel: number = 1;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -75,8 +75,11 @@ export class DibujoComponent implements OnInit {
 
   ngAfterViewInit() {
 
+    //Si la imagen es nula, entonces se le establece una cadena vacía.
+    this.imagen == null ? this.imagen = "" : null;
+
     //Si no viene imagen de fondo. //Se obtiene lo que hay actualmente en pantalla.
-    this.imagen.length === 0 ? this.imagen = this.signaturePad.toDataURL() : null;    
+    this.imagen.length === 0 ? this.imagen = this.signaturePad.toDataURL() : null;
 
     //Se guarda la imagen por default por si se refresca el dibujo.
     this.imagenDefault = this.imagen;
@@ -90,7 +93,7 @@ export class DibujoComponent implements OnInit {
       //Extrae el texto del cuadro de texto.
       .pipe(debounceTime(200))
       //Se subscribe al evento.
-      .subscribe(() => {         
+      .subscribe(() => {
         //Almacena la imagen previamente para volver a cargarla con el nuevo tamaño de la ventana.
         this.imagen = this.signaturePad.toDataURL();
         this.actualizarAreaDibujo();
@@ -201,15 +204,19 @@ export class DibujoComponent implements OnInit {
   |----------------------------------------------------------------------*/
   private deshacerCambio() {
 
+    //Se incrementa el contador del número veces que se pulsa el botón deshacer.
+    this.indiceActualImagenes = this.indiceActualImagenes + 1;
     //Se deshace el último cambio.
     if (this.indiceActualImagenes < this.imagenes.length - 1) {
-      //Se incrementa el contador del número veces que se pulsa el botón deshacer.
-      this.indiceActualImagenes = this.indiceActualImagenes + 1;
+
       //Se obtiene el penúltimo cambio del dibujo.
       let indiceAnterior: number = this.imagenes.length - 1 - this.indiceActualImagenes;
+
       //Se actualiza la imagen.
       this.imagen = this.imagenes[indiceAnterior];
       this.actualizarAreaDibujo();
+    } else {
+      this.refrescarDibujo();      
     }
 
   }

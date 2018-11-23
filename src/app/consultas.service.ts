@@ -91,12 +91,14 @@ export class ConsultasService {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: camposConsultaUsuario.                                       |
+  |  NOMBRE: camposFormulario.                                            |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para obtener los campos para realizar, ver o     |
   |  editar una consulta del usuario logueado.                            |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: alta = 1 = indica que se dará de alta una     |
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  formularioId = identificador del formulario,                         |
+  |  alta = 1 = indica que se dará de alta una                            |
   |  consulta, 0 = indica que se verá o editará la consulta.              | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
@@ -108,7 +110,8 @@ export class ConsultasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 30/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  camposConsultaUsuario(
+  camposFormulario(
+    formularioId: string,
     alta: string): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
@@ -120,7 +123,7 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener la información..
-      return this.http.get(this.urlApi + `campos-consulta-usuario/${alta}`, { headers: headers });
+      return this.http.get(this.urlApi + `campos-formulario/${formularioId}/${alta}`, { headers: headers });
 
     }
     //No está conectado.
