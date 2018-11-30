@@ -54,6 +54,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import { FullCalendarModule } from 'ng-fullcalendar';
 import { PRODUCTOS_PROVIDERS } from './productos.service';
 import { FORMULARIOS_PROVIDERS } from './formularios.service';
+import * as $ from 'jquery';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    

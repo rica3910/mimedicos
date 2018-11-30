@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EsperarService } from './../../esperar.service';
 import { UtilidadesService } from './../../utilidades.service';
 import { ConsultasService } from './../../consultas.service';
-import { Subject, Subscription} from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { FormGroup, FormBuilder, FormControl, Validators, FormControlName } from '@angular/forms';
 
 
@@ -61,6 +61,29 @@ export class EditarDiagnosticoComponent implements OnInit {
   //Propiedad para almacenar las imágenes que pudiera tener el formulario.
   imagenes: any[] = new Array();
 
+  //Propiedad para la configuración del editor de textos.
+  editorConfig: any = {
+    "editable": true,
+    "spellcheck": true,
+    "height": "auto",
+    "minHeight": "150px",
+    "width": "auto",
+    "minWidth": "0",
+    "translate": "yes",
+    "enableToolbar": true,
+    "showToolbar": true,
+    "placeholder": "",
+    "imageEndPoint": "",
+    "toolbar": [
+        ["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"],
+        ["fontName", "fontSize", "color"],
+        ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "indent", "outdent"],
+        ["cut", "copy", "delete", "removeFormat", "undo", "redo"],
+        ["paragraph", "blockquote", "removeBlockquote", "horizontalLine", "orderedList", "unorderedList"],
+        ["link", "unlink"]
+    ]
+}
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -96,13 +119,7 @@ export class EditarDiagnosticoComponent implements OnInit {
       this.infoFormulario();
 
       //Se agregan las validaciones al formulario de alta de consultas.
-      this.formulario = fb.group({
-        'usuario': ['', Validators.required],
-        'paciente': ['', Validators.required],
-        'clinica': ['', [Validators.required]]
-      });
-
-
+      this.formulario = fb.group({});
     });
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
@@ -234,6 +251,7 @@ export class EditarDiagnosticoComponent implements OnInit {
           //Se recorren los campos de la base de datos.
           campos.forEach((campo: JSON) => {
 
+
             //Solo almacenará los campos que no estén repetidos.
             if (etiqueta != campo["etiqueta"]) {
 
@@ -269,83 +287,77 @@ export class EditarDiagnosticoComponent implements OnInit {
 
             //Si el campo es requerido.
             campo["requerido"] == "1" ? validaciones.push(Validators.required) : null;
-            campo["tipo_campo"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
-            campo["tipo_campo"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
+            campo["tipo_campo_formulario"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
+            campo["tipo_campo_formulario"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
-            //Se agrega el campo control al formulario.
-            control = new FormControl(campo["valor"], validaciones);
-            this.formulario.addControl('control' + campo["id"], control);
-
+            if (campo["tipo_campo_formulario"] != "DIBUJO") {
+              //Se agrega el campo control al formulario.
+              control = new FormControl(campo["valor"], validaciones);
+              this.formulario.addControl('control' + campo["id"], control);
+            }
           });
 
           //Se obtienen los campos HTML creados dinámicamente.
           this.subscripcionCamposDinamicos = this.campoHTML.changes.subscribe(() => {
-            
+
             //Indica que los campos  ya se cargaron junto con su información inicial.
             this.verificarCampos = true;
             this.cargaInicialLista$.next(this.verificarCampos);
 
             this.campoHTML.forEach((campoHTML: ElementRef) => {
 
-              let campoId: string = "";  
-              if(campoHTML.nativeElement){
-                campoId = campoHTML.nativeElement["id"];                
-              }else{                                
-                campoId = campoHTML["placeholder"];     
-                   
-                //this.formulario.controls["control" + campoId.replace("campoHTML", "")]
-                campoHTML["placeholder"] = "";
-                console.log(campoHTML["placeholder"]);
-              }
+              let campoId: string = "";
+              //Si el control de formulario es nativo HTML y no es un componente.
+              if (campoHTML.nativeElement) {
 
-              //Se obtiene solo el identificador del campo.              
-              campoId = campoId.replace("campoHTML", "");
+                campoId = campoHTML.nativeElement["id"];
 
-              //Se obtiene el identificador del campo (no del detalle del campo).
-              let campoFormularioId = campos.filter(function (item) {
-                return item["id"] === campoId;
-              })[0]["campo_formulario_id"];
+                //Se obtiene solo el identificador del campo.              
+                campoId = campoId.replace("campoHTML", "");
 
-              /*Se obtienen los elementos que tienen cada campo.
-              (Solo los selects o listas tendrán mas de 1 elemento.*/
-              let elementosPorCampo: any[] = campos.filter(function (item) {
-                return item["campo_formulario_id"] === campoFormularioId;
-              });
+                //Se obtiene el identificador del campo (no del detalle del campo).
+                let campoFormularioId = campos.filter(function (item) {
+                  return item["id"] === campoId;
+                })[0]["campo_formulario_id"];
 
-              //Si hay más de un elemento o es un Select o lista.
-              if (elementosPorCampo.length > 1 || (campoHTML.nativeElement &&  campoHTML.nativeElement["type"].includes("select")) {
-                //Si el elemento del formulario tiene un valor por default, se almacena.
-                let valorDefault: string;
-                //Se agregan a la lista los elementos.
-                elementosPorCampo.forEach(elemento => {
-                  let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
-                  campoHTML.nativeElement.add(opcion);
-                  elemento["valor_default"] == "1" ? valorDefault = elemento["id"] : null;
+                /*Se obtienen los elementos que tienen cada campo.
+                (Solo los selects o listas tendrán mas de 1 elemento.*/
+                let elementosPorCampo: any[] = campos.filter(function (item) {
+                  return item["campo_formulario_id"] === campoFormularioId;
                 });
-                //Si el valor default no es nulo, se le asigna el valor al campo.
-                valorDefault ? this.formulario.controls["control" + campoId].setValue(valorDefault) : null;
-              }
 
-              //Si el campo es numérico, se divide en entero y decimal.
-              switch (campos.filter(function (item) {
-                return item["id"] === campoId;
-              })[0]["tipo_campo_formulario"]) {
-                //Si el campo es numérico.
-                case 'ENTERO': {
-                  this.utilidadesService.inputNumerico(campoHTML);
-                  break;
+                //Si hay más de un elemento o es un Select o lista.
+                if (elementosPorCampo.length > 1 || (campoHTML.nativeElement && campoHTML.nativeElement["type"].includes("select"))) {
+                  //Si el elemento del formulario tiene un valor por default, se almacena.
+                  let valorDefault: string;
+                  //Se agregan a la lista los elementos.
+                  elementosPorCampo.forEach(elemento => {
+                    let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
+                    campoHTML.nativeElement.add(opcion);
+                    elemento["valor_default"] == "1" ? valorDefault = elemento["id"] : null;
+                  });
+                  //Si el valor default no es nulo, se le asigna el valor al campo.
+                  valorDefault ? this.formulario.controls["control" + campoId].setValue(valorDefault) : null;
                 }
-                //Si el campo es decimal.
-                case 'DECIMAL': {
-                  this.utilidadesService.inputNumerico(campoHTML, true);
-                  break;
+
+                //Si el campo es numérico, se divide en entero y decimal.
+                switch (campos.filter(function (item) {
+                  return item["id"] === campoId;
+                })[0]["tipo_campo_formulario"]) {
+                  //Si el campo es numérico.
+                  case 'ENTERO': {
+                    this.utilidadesService.inputNumerico(campoHTML);
+                    break;
+                  }
+                  //Si el campo es decimal.
+                  case 'DECIMAL': {
+                    this.utilidadesService.inputNumerico(campoHTML, true);
+                    break;
+                  }
                 }
               }
-
             });
           });
-
-
         }
       });
 
@@ -434,8 +446,20 @@ export class EditarDiagnosticoComponent implements OnInit {
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
   limpiarImagen(campoId, limpiarTexto: boolean = true) {
-    //Se resetea o limpia el campo.
-    limpiarTexto ? this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement.value = "" : null;
+
+    //Se resetea o limpia el texto etiqueta que viene enseguida de la imagen.
+    if (limpiarTexto) {
+
+      //Se obtiene el campo HTML con el identificador obtenido como parámetro.
+      let campoHTML = this.campoHTML.find(campoHTML =>
+        campoHTML.nativeElement && campoHTML.nativeElement["id"] === "campoHTML" + campoId).nativeElement;
+
+      //Si el campo es válido o es un elemento nativo HTML, se limpia la etiqueta de la imagen.
+      if (campoHTML) {
+        campoHTML.value = "";
+      }
+    }
+
     //Se busca la imagen para eliminarla del arreglo.
     for (let i = 0; i < this.imagenes.length; i++) {
       if (this.imagenes[i].campoId == campoId) {
@@ -489,7 +513,7 @@ export class EditarDiagnosticoComponent implements OnInit {
     //Se abre la imagen con el último cambio realizado.
     //Si no se encuentra, se abre la de default, en caso de que tenga.
     for (let i = 0; i < this.imagenes.length; i++) {
-      if (this.imagenes[i].campoId == campoId) {        
+      if (this.imagenes[i].campoId == campoId) {
         imagen = this.imagenes[i].json.valor;
         break;
       }
@@ -517,6 +541,140 @@ export class EditarDiagnosticoComponent implements OnInit {
 
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: guardar.                                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar guardar los cambios de la consulta.     | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 26/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  guardar() {
+
+    //Se pulsa el botón  de dar de guardar cambios.
+    this.pulsarCrear = true;
+
+    //Indica si el formulario está correcto.
+    let formularioValido: boolean = true;
+
+    /*Si los elementos del formulario dinámicos requeridos no están llenos, 
+    se hace un focus para que se ingrese texto.*/
+    if (this.formulario.invalid) {
+      return;
+    }
+
+    /*Se recorren los campos obtenidos de la BD
+    para verificar que los datos introducidos sean válidos.*/
+    this.campos.forEach(campo => {
+
+      switch (campo["tipo_campo_formulario"]) {
+        case "FECHA": {
+          //Se obtiene el valor escrito en el campo de fecha.
+          let fecha = new Date(this.formulario.controls["control" + campo["id"]].value);
+          //Si no es una fecha válida.
+          if (!fecha.getDate()) {
+            this.utilidadesService.alerta("Fecha inválida", "Introduzca una fecha válida.").subscribe(() => {
+              //Se hace focus en el campo.
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campo["id"]).nativeElement.focus();
+            });
+          }
+          break;
+        }
+        case "HORA": {
+          //Se obtiene el valor escrito en el campo de hora.
+          let hora = new Date('01/01/1910 ' + this.formulario.controls["control" + campo["id"]].value);
+          //Si no es una hora válida.;
+          if (!hora.getTime()) {
+            this.utilidadesService.alerta("Hora inválida", "Introduzca una hora válida.").subscribe(() => {
+              //Se hace focus en el campo.
+              this.campoHTML.find(campoHTML => campoHTML.nativeElement["id"] === "campoHTML" + campo["id"]).nativeElement.focus();
+            });
+          }
+          break;
+        }
+        case "DIBUJO": {
+          if (campo["requerido"] == "1" && 
+             !this.utilidadesService.existeElementoArreglo('campoId', campo["id"], this.imagenes)) {               
+              formularioValido = false;
+          }
+          break;
+        }
+
+      }
+
+    });
+
+    //Si el formulario es correcto.
+    if (formularioValido) {
+
+      //Se abre el modal de espera.
+      this.esperarService.esperar();
+
+      //Variable que almacenará los campos a guardar.
+      let camposInfo: any[] = new Array();
+
+      /*Se recorren los campos obtenidos de la BD
+      para obtener los valores introducidos en los campos del formulario.*/
+      for (let iteracion: number = 0; iteracion < this.campos.length; iteracion++) {
+
+        let campo = this.campos[iteracion];
+
+        //Almacena lo escrito en el campo.
+        let valor: string = "";
+        //Para los campos de tipo archivo.
+        let archivo: string = "";
+        //Si el campo es un archivo o imagen.
+        if (campo["tipo_campo_formulario"] == "IMAGEN") {
+
+          //Se obtiene el archivo.
+          archivo = this.formulario.controls["control" + campo["id"]].value;
+          //Si el archivo es nulo, se le establece una cadena vacía.
+          archivo = archivo == null ? "" : archivo;
+          //Si el archivo no es nulo o vacío.
+          if (archivo.length > 0) {
+            for (let i = 0; i < this.imagenes.length; i++) {
+              if (this.imagenes[i]["campoId"] == campo["id"]) {
+                archivo = JSON.stringify(this.imagenes[i]["json"]);
+                break;
+              }
+            }
+          }
+          else {
+            archivo = "";
+          }
+          //No puede tener archivo y valor juntos, o es uno u otro.              
+          valor = "";
+        }
+        //Si el campo es un dibujo.
+        else if (campo["tipo_campo_formulario"] == "DIBUJO") {
+          for (let i = 0; i < this.imagenes.length; i++) {
+            if (this.imagenes[i]["campoId"] == campo["id"]) {
+              archivo = JSON.stringify(this.imagenes[i]["json"]);
+              break;
+            }
+          }
+        }
+        else {
+          archivo = "";
+          valor = this.formulario.controls["control" + campo["id"]].value;
+          valor === null ? valor = "" : null;
+        }
+
+
+        //Se agregan al arreglo los campos que se van a insertar en el detalle de consulta.
+        camposInfo.push({ "consultaId": this.consultaId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
+      }
+
+      console.log(camposInfo);
+
+      //Se recoren los campos a insertar recursivamente.
+      //this.altaDetConsulta(camposAlta, 0);
+    }
+  }
 
 
 }
+
+
+

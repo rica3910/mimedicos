@@ -3,7 +3,8 @@ import { AutenticarService } from '../autenticar.service';
 import { EsperarService } from '../esperar.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarComponent } from 'ng-fullcalendar';
-import { Options } from 'fullcalendar';
+//import { Options } from 'fullcalendar';
+
 
 @Component({
   selector: 'app-inicio',
@@ -12,7 +13,7 @@ import { Options } from 'fullcalendar';
 })
 export class InicioComponent implements OnInit {
 
-  calendarOptions: Options;
+  calendarOptions: Object;
   @ViewChild(CalendarComponent) ucCalendar: CalendarComponent;
   displayEvent: any;
 

@@ -401,7 +401,7 @@ export class UtilidadesService {
   |  FECHA: 08/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
 
-  desplegarAreaDibujo(imagen: string): Observable<string> {
+  desplegarAreaDibujo(imagen: string): Observable<any> {
 
     //Se utiliza para saber cuando se cierra el modal.
     let subject: Subject<string> = new Subject<string>();
@@ -421,7 +421,7 @@ export class UtilidadesService {
     modalRef.componentInstance.imagen = imagen;
 
     //Si se cierra el modal.
-    modalRef.result.then((imagen: string) => {
+    modalRef.result.then((imagen: string) => {    
       subject.next(imagen);
     });
 
