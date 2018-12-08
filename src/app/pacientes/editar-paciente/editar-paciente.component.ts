@@ -130,8 +130,8 @@ export class EditarPacienteComponent implements OnInit {
 
 
     //El teléfono y celular solo aceptarán números.
-    this.utilidadesService.inputNumerico(this.telefonoHTML);
-    this.utilidadesService.inputNumerico(this.celularHTML);
+    this.utilidadesService.inputNumerico(this.telefonoHTML, false, this.telefono);
+    this.utilidadesService.inputNumerico(this.celularHTML, false, this.celular);
 
     //Inicia el modal de espera.
     this.esperarService.esperar();

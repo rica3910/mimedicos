@@ -14,7 +14,7 @@
 
 import { Injectable, ElementRef } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormControlName, AbstractControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime } from "rxjs/operators";
 import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal, NgbModalRef } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
@@ -209,7 +209,7 @@ export class UtilidadesService {
   |-----------------------------------------------------------------------|
   |  FECHA: 19/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  inputNumerico(input: ElementRef, decimal: boolean = false) {
+  inputNumerico(input: ElementRef, decimal: boolean = false, control: AbstractControl) {
 
     //Expresión regular.
     let regExp: RegExp;
@@ -235,12 +235,15 @@ export class UtilidadesService {
           //Se va formando la cadena final.
           cadenaFormada = cadenaFormada + caracter;
           //Si no se escriben números, se remueven.
-          if (!cadenaFormada.match(regExp)) {
+          if (!cadenaFormada.match(regExp)) { 
             cadenaFormada = cadenaFormada.substring(0, cadenaFormada.length - 1);
           }
         });
         //Se retorna la cadena formateada.
         input.nativeElement.value = cadenaFormada;
+        if(control){
+          control.setValue(cadenaFormada);
+        }        
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.

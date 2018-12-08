@@ -97,9 +97,7 @@ export class ConsultasService {
   |  editar una consulta del usuario logueado.                            |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  formularioId = identificador del formulario,                         |
-  |  alta = 1 = indica que se dará de alta una                            |
-  |  consulta, 0 = indica que se verá o editará la consulta.              | 
+  |  diagnosticoId = identificador del diagnóstico.                       |  
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
@@ -108,11 +106,10 @@ export class ConsultasService {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 30/08/2018.                                                   |    
+  |  FECHA: 05/12/2018.                                                   |    
   |----------------------------------------------------------------------*/
   camposFormulario(
-    formularioId: string,
-    alta: string): Observable<any> {
+    diagnosticoId: string): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -123,7 +120,7 @@ export class ConsultasService {
       });
 
       //Envía la petición al servidor backend para obtener la información..
-      return this.http.get(this.urlApi + `campos-formulario/${formularioId}/${alta}`, { headers: headers });
+      return this.http.get(this.urlApi + `campos-formulario/${diagnosticoId}`, { headers: headers });
 
     }
     //No está conectado.
@@ -131,6 +128,42 @@ export class ConsultasService {
 
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: informacionDiagnostico.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener la información del diagnóstico.     |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  diagnosticoId = identificador del diagnóstico.                       |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/12/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  informacionDiagnostico(
+    diagnosticoId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información..
+      return this.http.get(this.urlApi + `informacion-diagnostico/${diagnosticoId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsulta.                                                |
@@ -383,13 +416,13 @@ export class ConsultasService {
 
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaDetConsulta.                                             |
+  |  NOMBRE: altaDetDiagnostico.                                          |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para dar de alta el detalle de una consulta.     | 
+  |  DESCRIPCIÓN: Método para dar de alta el detalle de un diagnóstico.   | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  consultaId = identificador de la consulta,                           | 
-  |  detUsuarioCampoExpedienteId = identificador del campo,               |                            
+  |  diagnosticoId = identificador del diagnóstico,                       | 
+  |  detCampoFormularioId = identificador del campo,                      |                            
   |  valor = valor o contenido del campo,                                 |
   |  archivo = archivo seleccionado por el usuario.                       |
   |-----------------------------------------------------------------------|
@@ -397,18 +430,18 @@ export class ConsultasService {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 01/09/2018.                                                   |    
+  |  FECHA: 07/12/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  altaDetConsulta(
-    consultaId: string,
-    detUsuarioCampoExpedienteId:string,
+  altaDetDiagnostico(
+    diagnosticoId: string,
+    detCampoFormularioId:string,
     valor:string,
     archivo: string): Observable<any> {
    
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
-      consultaId: consultaId,
-      detUsuarioCampoExpedienteId: detUsuarioCampoExpedienteId,      
+      diagnosticoId: diagnosticoId,
+      detCampoFormularioId: detCampoFormularioId,      
       valor: valor,
       archivo: archivo
     });
@@ -424,7 +457,7 @@ export class ConsultasService {
 
     //Realiza la petición al servidor.
     return this.http
-      .post(this.urlApi + 'alta-det-consulta',
+      .post(this.urlApi + 'alta-det-diagnostico',
         params,
         { headers: headers });
   }  

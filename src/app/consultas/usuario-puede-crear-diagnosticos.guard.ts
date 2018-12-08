@@ -48,7 +48,7 @@ export class UsuarioPuedeCrearDiagnosticosGuard implements CanActivate {
         
       //Retorna verdadero o falso en caso de que el usuario pueda crear los diagnósticos o no respectivamente.
       return this.autorizacion.usuarioPuedeCrearDiagnosticos(consultaId).pipe(map((resultado) => { 
-        
+
         //Si el usuario no puede crear diagnósticos.
         if(!resultado["value"]){
           

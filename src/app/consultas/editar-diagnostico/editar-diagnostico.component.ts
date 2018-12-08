@@ -75,14 +75,14 @@ export class EditarDiagnosticoComponent implements OnInit {
     "placeholder": "",
     "imageEndPoint": "",
     "toolbar": [
-        ["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"],
-        ["fontName", "fontSize", "color"],
-        ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "indent", "outdent"],
-        ["cut", "copy", "delete", "removeFormat", "undo", "redo"],
-        ["paragraph", "blockquote", "removeBlockquote", "horizontalLine", "orderedList", "unorderedList"],
-        ["link", "unlink"]
+      ["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"],
+      ["fontName", "fontSize", "color"],
+      ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull", "indent", "outdent"],
+      ["cut", "copy", "delete", "removeFormat", "undo", "redo"],
+      ["paragraph", "blockquote", "removeBlockquote", "horizontalLine", "orderedList", "unorderedList"],
+      ["link", "unlink"]
     ]
-}
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -229,7 +229,7 @@ export class EditarDiagnosticoComponent implements OnInit {
   obtenerCampos() {
 
     //Intenta obtener los campos del formulario.
-    this.consultasService.camposFormulario(this.formularioId, "1")
+    this.consultasService.camposFormulario(this.diagnosticoId)
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -240,123 +240,146 @@ export class EditarDiagnosticoComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los campos en forma de JSON.                  
-          let campos: JSON[] = respuesta["datos"];
-          //Se utiliza para obtener los campos a utilizar.
-          let camposUnicos: any[] = new Array();
-          /*Si hay un campo con el mismo nombre, quiere decir que es una lista.
-          Esta variable ayudará a distinguir cuando sean iguales.*/
-          let etiqueta: string = "";
+          //Se obtiene la información del diagnóstico, si es que existe.
+          this.consultasService.informacionDiagnostico(this.diagnosticoId).subscribe(respuestaInfoDiagnostico => {
 
-          //Se recorren los campos de la base de datos.
-          campos.forEach((campo: JSON) => {
+            //Si hubo un error en la obtención de información.
+            if (respuestaInfoDiagnostico["estado"] === "ERROR") {
+              //Muestra una alerta con el porqué del error.
+              this.utilidadesService.alerta("Error", respuestaInfoDiagnostico["mensaje"]);
+            }
+            else {
+              //Se almacena la información del diagnóstico.
+              let infoDiagnostico: JSON[] = respuestaInfoDiagnostico["datos"];
+              //Se almacenan los campos en forma de JSON.                  
+              let campos: JSON[] = respuesta["datos"];
+              //Se utiliza para obtener los campos a utilizar.
+              let camposUnicos: any[] = new Array();
+              /*Si hay un campo con el mismo nombre, quiere decir que es una lista.
+              Esta variable ayudará a distinguir cuando sean iguales.*/
+              let etiqueta: string = "";
 
+              //Se recorren los campos de la base de datos.
+              campos.forEach((campo: JSON) => {
 
-            //Solo almacenará los campos que no estén repetidos.
-            if (etiqueta != campo["etiqueta"]) {
+                //Solo almacenará los campos que no estén repetidos.
+                if (etiqueta != campo["etiqueta"]) {
 
-              //Se arma el JSON.
-              let json: string = JSON.stringify({
-                "requerido": campo["requerido"],
-                "tipo_campo_formulario": campo["tipo_campo_formulario"],
-                "etiqueta": campo["etiqueta"],
-                "indicio": campo["indicio"],
-                "id": campo["id"],
-                "valor": campo["valor"],
-                'campo_formulario_id': campo["campo_formulario_id"],
-                'archivo': campo["archivo"]
+                  let valor: string = campo["valor"];
+                  let archivo: string = campo["archivo"];  
+
+                  //Si hay información en el diagnóstico, entonces se despliega en pantalla.
+                  infoDiagnostico.forEach(info => {
+                    if(info["id"] == campo["id"]){
+                      valor = infoDiagnostico["valor"];
+                      archivo = infoDiagnostico["archivo"];
+                    }
+                  });
+                  //Se arma el JSON.
+                  let json: string = JSON.stringify({
+                    "requerido": campo["requerido"],
+                    "tipo_campo_formulario": campo["tipo_campo_formulario"],
+                    "etiqueta": campo["etiqueta"],
+                    "indicio": campo["indicio"],
+                    "id": campo["id"],
+                    "valor": valor,
+                    'campo_formulario_id': campo["campo_formulario_id"],
+                    'archivo': archivo
+                  });
+
+                  //Se agrega el campo al arreglo.
+                  camposUnicos.push(JSON.parse(json));
+                }
+
+                etiqueta = campo["etiqueta"];
               });
 
-              //Se agrega el campo al arreglo.
-              camposUnicos.push(JSON.parse(json));
-            }
+              //Se almacenan los campos únicos.
+              this.campos = camposUnicos;
 
-            etiqueta = campo["etiqueta"];
-          });
+              //Se empiezan a crear los campos del formulario.
+              this.campos.forEach((campo: JSON) => {
 
-          //Se almacenan los campos únicos.
-          this.campos = camposUnicos;
+                //Se crea el control dinámico.
+                let control: FormControl;
+                //Se crean las validaciones que tendrá cada campo.
+                let validaciones: Array<any> = new Array();
 
-          //Se empiezan a crear los campos del formulario.
-          this.campos.forEach((campo: JSON) => {
+                //Si el campo es requerido.
+                campo["requerido"] == "1" ? validaciones.push(Validators.required) : null;
+                campo["tipo_campo_formulario"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
+                campo["tipo_campo_formulario"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
-            //Se crea el control dinámico.
-            let control: FormControl;
-            //Se crean las validaciones que tendrá cada campo.
-            let validaciones: Array<any> = new Array();
+                if (campo["tipo_campo_formulario"] != "DIBUJO") {
+                  //Se agrega el campo control al formulario.
+                  control = new FormControl(campo["valor"], validaciones);
+                  this.formulario.addControl('control' + campo["id"], control);
+                }
+              });
 
-            //Si el campo es requerido.
-            campo["requerido"] == "1" ? validaciones.push(Validators.required) : null;
-            campo["tipo_campo_formulario"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
-            campo["tipo_campo_formulario"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
+              //Se obtienen los campos HTML creados dinámicamente.
+              this.subscripcionCamposDinamicos = this.campoHTML.changes.subscribe(() => {
 
-            if (campo["tipo_campo_formulario"] != "DIBUJO") {
-              //Se agrega el campo control al formulario.
-              control = new FormControl(campo["valor"], validaciones);
-              this.formulario.addControl('control' + campo["id"], control);
-            }
-          });
+                //Indica que los campos  ya se cargaron junto con su información inicial.
+                this.verificarCampos = true;
+                this.cargaInicialLista$.next(this.verificarCampos);
 
-          //Se obtienen los campos HTML creados dinámicamente.
-          this.subscripcionCamposDinamicos = this.campoHTML.changes.subscribe(() => {
+                this.campoHTML.forEach((campoHTML: ElementRef) => {
 
-            //Indica que los campos  ya se cargaron junto con su información inicial.
-            this.verificarCampos = true;
-            this.cargaInicialLista$.next(this.verificarCampos);
+                  let campoId: string = "";
+                  //Si el control de formulario es nativo HTML y no es un componente.
+                  if (campoHTML.nativeElement) {
 
-            this.campoHTML.forEach((campoHTML: ElementRef) => {
+                    campoId = campoHTML.nativeElement["id"];
 
-              let campoId: string = "";
-              //Si el control de formulario es nativo HTML y no es un componente.
-              if (campoHTML.nativeElement) {
+                    //Se obtiene solo el identificador del campo.              
+                    campoId = campoId.replace("campoHTML", "");
 
-                campoId = campoHTML.nativeElement["id"];
+                    //Se obtiene el identificador del campo (no del detalle del campo).
+                    let campoFormularioId = campos.filter(function (item) {
+                      return item["id"] === campoId;
+                    })[0]["campo_formulario_id"];
 
-                //Se obtiene solo el identificador del campo.              
-                campoId = campoId.replace("campoHTML", "");
+                    /*Se obtienen los elementos que tienen cada campo.
+                    (Solo los selects o listas tendrán mas de 1 elemento.*/
+                    let elementosPorCampo: any[] = campos.filter(function (item) {
+                      return item["campo_formulario_id"] === campoFormularioId;
+                    });
 
-                //Se obtiene el identificador del campo (no del detalle del campo).
-                let campoFormularioId = campos.filter(function (item) {
-                  return item["id"] === campoId;
-                })[0]["campo_formulario_id"];
+                    //Si hay más de un elemento o es un Select o lista.
+                    if (elementosPorCampo.length > 1 || (campoHTML.nativeElement && campoHTML.nativeElement["type"].includes("select"))) {
+                      //Si el elemento del formulario tiene un valor por default, se almacena.
+                      let valorDefault: string;
+                      //Se agregan a la lista los elementos.
+                      elementosPorCampo.forEach(elemento => {
+                        let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
+                        campoHTML.nativeElement.add(opcion);
+                        elemento["valor_default"] == "1" ? valorDefault = elemento["id"] : null;
+                      });
+                      //Si no hay información en el diagnóstico y si el valor default no es nulo, se le asigna el valor al campo.
+                      infoDiagnostico.length == 0 && valorDefault ? this.formulario.controls["control" + campoId].setValue(valorDefault) : null;
+                    }
 
-                /*Se obtienen los elementos que tienen cada campo.
-                (Solo los selects o listas tendrán mas de 1 elemento.*/
-                let elementosPorCampo: any[] = campos.filter(function (item) {
-                  return item["campo_formulario_id"] === campoFormularioId;
+                    //Si el campo es numérico, se divide en entero y decimal.
+                    switch (campos.filter(function (item) {
+                      return item["id"] === campoId;
+                    })[0]["tipo_campo_formulario"]) {
+                      //Si el campo es numérico.
+                      case 'ENTERO': {                        
+                        this.utilidadesService.inputNumerico(campoHTML, false, this.formulario.controls["control" + campoId] );                        
+                        break;
+                      }
+                      //Si el campo es decimal.
+                      case 'DECIMAL': {
+                        this.utilidadesService.inputNumerico(campoHTML, true, this.formulario.controls["control" + campoId]);
+                        break;
+                      }
+                    }
+                  }
                 });
+              });
 
-                //Si hay más de un elemento o es un Select o lista.
-                if (elementosPorCampo.length > 1 || (campoHTML.nativeElement && campoHTML.nativeElement["type"].includes("select"))) {
-                  //Si el elemento del formulario tiene un valor por default, se almacena.
-                  let valorDefault: string;
-                  //Se agregan a la lista los elementos.
-                  elementosPorCampo.forEach(elemento => {
-                    let opcion: HTMLOptionElement = new Option(elemento["valor"], elemento["id"]);
-                    campoHTML.nativeElement.add(opcion);
-                    elemento["valor_default"] == "1" ? valorDefault = elemento["id"] : null;
-                  });
-                  //Si el valor default no es nulo, se le asigna el valor al campo.
-                  valorDefault ? this.formulario.controls["control" + campoId].setValue(valorDefault) : null;
-                }
-
-                //Si el campo es numérico, se divide en entero y decimal.
-                switch (campos.filter(function (item) {
-                  return item["id"] === campoId;
-                })[0]["tipo_campo_formulario"]) {
-                  //Si el campo es numérico.
-                  case 'ENTERO': {
-                    this.utilidadesService.inputNumerico(campoHTML);
-                    break;
-                  }
-                  //Si el campo es decimal.
-                  case 'DECIMAL': {
-                    this.utilidadesService.inputNumerico(campoHTML, true);
-                    break;
-                  }
-                }
-              }
-            });
+            }
           });
         }
       });
@@ -594,9 +617,9 @@ export class EditarDiagnosticoComponent implements OnInit {
           break;
         }
         case "DIBUJO": {
-          if (campo["requerido"] == "1" && 
-             !this.utilidadesService.existeElementoArreglo('campoId', campo["id"], this.imagenes)) {               
-              formularioValido = false;
+          if (campo["requerido"] == "1" &&
+            !this.utilidadesService.existeElementoArreglo('campoId', campo["id"], this.imagenes)) {
+            formularioValido = false;
           }
           break;
         }
@@ -663,16 +686,66 @@ export class EditarDiagnosticoComponent implements OnInit {
 
 
         //Se agregan al arreglo los campos que se van a insertar en el detalle de consulta.
-        camposInfo.push({ "consultaId": this.consultaId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
+        camposInfo.push({ "diagnosticoId": this.diagnosticoId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
       }
-
-      console.log(camposInfo);
-
+      
       //Se recoren los campos a insertar recursivamente.
-      //this.altaDetConsulta(camposAlta, 0);
+      this.altaDetDiagnostico(camposInfo, 0);
     }
   }
 
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetDiagnostico.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta los campos del diagnóstico.     |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: campos = campos que se insertarán,            |
+  |  iteracion = iteración o registro que sigue para insertar.            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 007/12/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetDiagnostico(campos: any[], iteracion: number) {
+
+    //Se almacenan los campos que se insertarán en el detalle.
+    let diagnosticoId: string = campos[iteracion].diagnosticoId;
+    let campoId: string = campos[iteracion].campoId;
+    let valor: string = campos[iteracion].valor;
+    let archivo: string = campos[iteracion].archivo;
+
+    //Se intenta dar de alta el detalle del diagnóstico.
+    this.consultasService.altaDetDiagnostico(diagnosticoId, campoId, valor, archivo)
+      .subscribe(respuesta => {
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
+          this.esperarService.noEsperar();
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
+            //Se retorna a la lista de consultas.
+            this.regresar();
+            return;
+          });
+        }
+        //Si la inserción fue correcta.
+        else {
+          //Si no es el último registro.
+          if (iteracion < campos.length - 1) {
+            this.altaDetDiagnostico(campos, iteracion + 1);
+          }
+          //Si ya es el último registro, se despliega alerta de éxito.
+          else {
+            this.esperarService.noEsperar();
+            this.utilidadesService.alerta("Alta exitosa", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
+              //Se retorna a la lista de consultas.
+              this.regresar();
+            });
+          }
+        }
+      });
+  }
 
 }
 

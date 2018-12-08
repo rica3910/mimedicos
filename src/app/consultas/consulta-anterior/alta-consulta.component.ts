@@ -397,7 +397,7 @@ export class AltaConsultaComponent implements OnInit {
   obtenerCampos() {
 
     //Intenta obtener los campos del usuario logueado.
-    this.consultaService.camposFormulario("1","1")
+    this.consultaService.camposFormulario("1")
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -507,12 +507,12 @@ export class AltaConsultaComponent implements OnInit {
               })[0]["tipo_campo"]) {
                 //Si el campo es numérico.
                 case 'ENTERO': {
-                  this.utilidadesService.inputNumerico(campoHTML);
+                  this.utilidadesService.inputNumerico(campoHTML, false, null);
                   break;
                 }
                 //Si el campo es decimal.
                 case 'DECIMAL': {
-                  this.utilidadesService.inputNumerico(campoHTML, true);
+                  this.utilidadesService.inputNumerico(campoHTML, true, null);
                   break;
                 }
               }
