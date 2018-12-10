@@ -1,3 +1,4 @@
+import { AbstractControl } from '@angular/forms';
 /******************************************************************|
 |NOMBRE: EditarDiagnosticoComponent.                               | 
 |------------------------------------------------------------------|
@@ -251,6 +252,7 @@ export class EditarDiagnosticoComponent implements OnInit {
             else {
               //Se almacena la información del diagnóstico.
               let infoDiagnostico: JSON[] = respuestaInfoDiagnostico["datos"];
+
               //Se almacenan los campos en forma de JSON.                  
               let campos: JSON[] = respuesta["datos"];
               //Se utiliza para obtener los campos a utilizar.
@@ -265,16 +267,51 @@ export class EditarDiagnosticoComponent implements OnInit {
                 //Solo almacenará los campos que no estén repetidos.
                 if (etiqueta != campo["etiqueta"]) {
 
+                  //Almacenará el valor del campo.
                   let valor: string = campo["valor"];
-                  let archivo: string = campo["archivo"];  
+                  //Si es un archivo, almacenará el archivo o imagen del campo.
+                  let archivo: string = campo["archivo"];
+                  //Indica si hay información en el diagnóstico.
+                  let hayInfo: boolean = false;
 
                   //Si hay información en el diagnóstico, entonces se despliega en pantalla.
                   infoDiagnostico.forEach(info => {
-                    if(info["id"] == campo["id"]){
-                      valor = infoDiagnostico["valor"];
-                      archivo = infoDiagnostico["archivo"];
+
+                    if (info["id"] == campo["id"]) {
+                      valor = info["valor"];
+                      archivo = info["archivo"];
+                      hayInfo = true;
                     }
                   });
+
+
+                  if (archivo && hayInfo) {
+
+                    archivo = JSON.parse(archivo);
+
+                    //Si el campo es dibujo, entonces se decodifica la imagen.
+                    if (campo["tipo_campo_formulario"] == "DIBUJO") {
+                      archivo = atob(archivo["valor"]);
+
+                      this.imagenes.push({
+                        campoId: campo["id"], "json": {
+                          'valor': archivo
+                        }
+                      });
+                      //Si el campo es imagen, ya viene decodificada.                    
+                    } else if (campo["tipo_campo_formulario"] == "IMAGEN") {
+
+                      archivo = archivo["valor"];
+
+                      this.imagenes.push({
+                        campoId: campo["id"], "json": {
+                          'valor': archivo
+                        }
+                      });
+                    }
+
+                  }
+
                   //Se arma el JSON.
                   let json: string = JSON.stringify({
                     "requerido": campo["requerido"],
@@ -310,10 +347,22 @@ export class EditarDiagnosticoComponent implements OnInit {
                 campo["tipo_campo_formulario"] == "ENTERO" ? validaciones.push(this.utilidadesService.numberValidator) : null;
                 campo["tipo_campo_formulario"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
+                //Si el campo no es un dibujo.
                 if (campo["tipo_campo_formulario"] != "DIBUJO") {
+                  //Si el campo es una imagen, se le asigna el valor default a cadena vacía para evitar un error.
+                  if (campo["tipo_campo_formulario"] == "IMAGEN") {
+                    
+                    control = new FormControl("", validaciones);                                   
+
+                  }
+                  //Si el campo es texto o número.
+                  else {                    
+                    control = new FormControl(campo["valor"], validaciones);
+
+                  }
                   //Se agrega el campo control al formulario.
-                  control = new FormControl(campo["valor"], validaciones);
                   this.formulario.addControl('control' + campo["id"], control);
+
                 }
               });
 
@@ -365,8 +414,8 @@ export class EditarDiagnosticoComponent implements OnInit {
                       return item["id"] === campoId;
                     })[0]["tipo_campo_formulario"]) {
                       //Si el campo es numérico.
-                      case 'ENTERO': {                        
-                        this.utilidadesService.inputNumerico(campoHTML, false, this.formulario.controls["control" + campoId] );                        
+                      case 'ENTERO': {
+                        this.utilidadesService.inputNumerico(campoHTML, false, this.formulario.controls["control" + campoId]);
                         break;
                       }
                       //Si el campo es decimal.
@@ -374,6 +423,18 @@ export class EditarDiagnosticoComponent implements OnInit {
                         this.utilidadesService.inputNumerico(campoHTML, true, this.formulario.controls["control" + campoId]);
                         break;
                       }
+                      /*case 'IMAGEN': {
+                        console.log(campoHTML);
+                        for (let i = 0; i < this.imagenes.length; i++) {
+                          if (this.imagenes[i]["campoId"] == campoId) {
+                    
+                            //campoHTML.nativeElement["onchange"] = this.seleccionarImagen(null, this.formulario.controls["control" + campoId], this.imagenes[i]["json"]["valor"]);
+                       
+                            break;
+                          }
+                        }
+                         
+                      }     */               
                     }
                   }
                 });
@@ -398,7 +459,7 @@ export class EditarDiagnosticoComponent implements OnInit {
   seleccionarImagen(event) {
 
     //Si ha sido seleccionada una imagen.
-    if (event.target.files && event.target.files[0]) {
+    if (event && event.target.files && event.target.files[0]) {
 
       //Variable que almacena la ruta del archivo.
       let archivo: File = event.target.files[0];
@@ -438,9 +499,6 @@ export class EditarDiagnosticoComponent implements OnInit {
             //Arma el JSON de la información de la imageny la almacena en el arreglo de imágenes.
             this.imagenes.push({
               campoId: campoId, "json": {
-                nombre: archivo.name,
-                extension: archivo.type,
-                tamano: archivo.size,
                 //decodifica la imagen para que todos los carácteres se almacenen.
                 valor: btoa(event.target["result"])
               }
@@ -553,7 +611,7 @@ export class EditarDiagnosticoComponent implements OnInit {
         //Arma el JSON de la información de la imagen y la almacena en el arreglo de imágenes.
         this.imagenes.push({
           campoId: campoId, "json": {
-            'valor': imagen
+            valor: imagen
           }
         });
 
@@ -673,7 +731,9 @@ export class EditarDiagnosticoComponent implements OnInit {
         else if (campo["tipo_campo_formulario"] == "DIBUJO") {
           for (let i = 0; i < this.imagenes.length; i++) {
             if (this.imagenes[i]["campoId"] == campo["id"]) {
-              archivo = JSON.stringify(this.imagenes[i]["json"]);
+              archivo = JSON.stringify({
+                valor: btoa(this.imagenes[i]["json"]["valor"])
+              });
               break;
             }
           }
@@ -688,13 +748,13 @@ export class EditarDiagnosticoComponent implements OnInit {
         //Se agregan al arreglo los campos que se van a insertar en el detalle de consulta.
         camposInfo.push({ "diagnosticoId": this.diagnosticoId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
       }
-      
+
       //Se recoren los campos a insertar recursivamente.
       this.altaDetDiagnostico(camposInfo, 0);
     }
   }
 
-  
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaDetDiagnostico.                                          |
   |-----------------------------------------------------------------------|
@@ -721,10 +781,9 @@ export class EditarDiagnosticoComponent implements OnInit {
 
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
-          //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
           this.esperarService.noEsperar();
           this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
-            //Se retorna a la lista de consultas.
+            //Se retorna a la lista de diagnósticos.
             this.regresar();
             return;
           });
@@ -738,8 +797,8 @@ export class EditarDiagnosticoComponent implements OnInit {
           //Si ya es el último registro, se despliega alerta de éxito.
           else {
             this.esperarService.noEsperar();
-            this.utilidadesService.alerta("Alta exitosa", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
-              //Se retorna a la lista de consultas.
+            this.utilidadesService.alerta("Información guardada", "La información del diagnóstico se guardó satisfactoriamente.").subscribe(() => {
+              //Se retorna a la lista de diagnósticos.
               this.regresar();
             });
           }
