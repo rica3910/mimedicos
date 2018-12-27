@@ -31,6 +31,8 @@ import { EditarDiagnosticoComponent } from './editar-diagnostico/editar-diagnost
 import { UsuarioPuedeEditarDiagnosticosGuard } from './usuario-puede-editar-diagnosticos.guard';
 import { InfoConsultaComponent } from './info-consulta/info-consulta.component';
 import { NgxEditorModule } from 'ngx-editor';
+import { VerDiagnosticoComponent } from './ver-diagnostico/ver-diagnostico.component';
+import { UsuarioPuedeVerDiagnosticoGuard } from './usuario-puede-ver-diagnostico.guard';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -41,6 +43,7 @@ export const rutas: Routes = [
   { path: 'lista-diagnosticos/:id', component: ListaDiagnosticosComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticosGuard]},
   { path: 'alta-diagnostico/:id', component: AltaDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard]},
   { path: 'editar-diagnostico/:id/:diagnosticoId', component: EditarDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard, UsuarioPuedeEditarDiagnosticosGuard]},  
+  { path: 'ver-diagnostico/:id/:diagnosticoId', component: VerDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticoGuard]},  
   { path: '**', redirectTo: 'lista-consultas', pathMatch: 'full'  }  
 ];
 
@@ -61,7 +64,8 @@ export const rutas: Routes = [
     ListaDiagnosticosComponent,
     AltaDiagnosticoComponent,
     EditarDiagnosticoComponent,
-    InfoConsultaComponent
+    InfoConsultaComponent,
+    VerDiagnosticoComponent
   ],
   exports: [ConsultasComponent],
   providers: [
@@ -69,7 +73,8 @@ export const rutas: Routes = [
     UsuarioPuedeModificarConsultaGuard,
     UsuarioPuedeVerDiagnosticosGuard,
     UsuarioPuedeCrearDiagnosticosGuard,
-    UsuarioPuedeEditarDiagnosticosGuard    
+    UsuarioPuedeEditarDiagnosticosGuard,
+    UsuarioPuedeVerDiagnosticoGuard  
   ]
 })
 export class ConsultasModule { }

@@ -38,6 +38,8 @@ export class ListaDiagnosticosComponent implements OnInit {
   eliminarDiagnosticos: boolean = false;
   //Propiedad que indica si el usuario puede editar diagnósticos.
   editarDiagnosticos: boolean = false;
+  //Propiedad que indica si el usuario puede ver diagnósticos.
+  verDiagnosticos: boolean = false;
   //Cuadro de texto de búsqueda.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
   //Almacena los diagnósticos de la base de datos pero su información se puede filtrar.
@@ -52,6 +54,8 @@ export class ListaDiagnosticosComponent implements OnInit {
   verificarAltaDiagnosticos: boolean = false;
   //Indica que ya se verificó que se pueda editar diagnósticos.
   verificarEditarDiagnosticos: boolean = false;
+  //Indica que ya se verificó que se pueda ver diagnósticos.
+  verificarVerDiagnosticos: boolean = false;
   //Indica que ya se verificó que la información de la consulta está lista.
   verificarInfoConsulta: boolean = false;
 
@@ -86,6 +90,7 @@ export class ListaDiagnosticosComponent implements OnInit {
       this.verificarAltaDiagnosticos = false;
       this.verificarEliminarDiagnosticos = false;
       this.verificarEditarDiagnosticos = false;
+      this.verificarVerDiagnosticos = false;
       this.verificarInfoConsulta = false;
 
       //Obtiene el identificador de la consulta de la url.
@@ -144,6 +149,15 @@ export class ListaDiagnosticosComponent implements OnInit {
 
       });
 
+      //El botón de ver diagnósticos se hará visible solamente si el usuario tiene el privilegio.
+      this.autenticarService.usuarioTieneDetModulo('VER INFORMACION DIAGNOSTICO').subscribe(respuesta => {
+
+        this.verDiagnosticos = respuesta["value"];
+        this.verificarVerDiagnosticos = true;
+        this.cargaInicialLista$.next(this.verificarVerDiagnosticos);
+
+      });
+
 
     });
 
@@ -154,6 +168,7 @@ export class ListaDiagnosticosComponent implements OnInit {
       if (this.verificarAltaDiagnosticos &&
         this.verificarEliminarDiagnosticos &&
         this.verificarEditarDiagnosticos &&
+        this.verificarVerDiagnosticos &&
         this.verificarInfoConsulta) {
         //Inicia la búsqueda de información.
         this.buscar();
@@ -316,6 +331,22 @@ export class ListaDiagnosticosComponent implements OnInit {
       }
     });
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verDiagnostico.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de ver diagnóstico.      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: diagnosticoId = identificador del diagnóstico.|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/12/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verDiagnostico(diagnosticoId: string) {    
+    //Se abre la pantalla de ver diagnóstico.
+    this.rutaNavegacion.navigateByUrl('consultas/ver-diagnostico/' + this.consultaId + "/" + diagnosticoId);
+  }  
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: editarDiagnostico.                                           |

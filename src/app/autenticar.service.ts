@@ -885,8 +885,51 @@ export class AutenticarService {
     }
     //No está conectado.
     return of(false);
-  }   
+  }  
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeVerDiagnostico.                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda ver         |
+  |  un diagnóstico en específico.                                                        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: diagnosticoId: identificador del diagnóstico. |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda modificar la consulta respectivamente|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/12/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeVerDiagnostico(diagnosticoId: string): Observable<any> {
 
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-ver-diagnostico/${diagnosticoId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede acceder o editar la cita.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí puede acceder o modificar la cita.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }   
+  
 }
 
 //Constante que se utilizará para inyectar el servicio.

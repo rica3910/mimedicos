@@ -200,6 +200,7 @@ export class AltaDiagnosticoComponent implements OnInit {
 
         //Se obtiene el identificador del diagnóstico recién creado.
         let diagnosticoId: string = respuesta["mensaje"];
+        this.rutaNavegacion.navigateByUrl('consultas/editar-diagnostico/' + this.consultaId + '/' + diagnosticoId);
 
       }
 

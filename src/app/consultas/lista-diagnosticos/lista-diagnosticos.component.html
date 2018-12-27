@@ -66,6 +66,9 @@
             <td>{{diagnostico.descripcion}}</td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
+                <button *ngIf="verDiagnosticos" type="button" class="btn" ngbTooltip="Ver diagnóstico." (click)='verDiagnostico(diagnostico.id)'>
+                  <i class="material-icons">visibility</i>
+                </button>
                 <button *ngIf="editarDiagnosticos" type="button" class="btn" ngbTooltip="Editar diagnóstico." (click)='editarDiagnostico(diagnostico.id)'>
                   <i class="material-icons">edit</i>
                 </button>
