@@ -172,10 +172,10 @@ export class VerDiagnosticoComponent implements OnInit {
 
         pdf.setFontSize(14);
         pdf.setFontType("bold");
-        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
         pdf.setFontSize(12);
-        pdf.setFontType("normal");    
-  
+        pdf.setFontType("normal");
+
         posicionY = posicionY + 5;
         let lineas = pdf.splitTextToSize(campo["valor"], 180);
         pdf.text(lineas, posicionX, posicionY);
@@ -186,9 +186,9 @@ export class VerDiagnosticoComponent implements OnInit {
 
         pdf.setFontSize(14);
         pdf.setFontType("bold");
-        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
         pdf.setFontSize(12);
-        pdf.setFontType("normal");  
+        pdf.setFontType("normal");
 
         posicionY = posicionY + 5;
         pdf.text(campo["valor_completo"], posicionX, posicionY);
@@ -197,14 +197,29 @@ export class VerDiagnosticoComponent implements OnInit {
       }
       else if (campo["tipo_campo"] == "COMENTARIO") {
 
+        var specialElementHandlers = {
+          '#bypassme': function (element, renderer) {
+            return true;
+          }
+        };
+
         posicionY = 15;
         pdf.addPage();
         pdf.setFontSize(14);
         pdf.setFontType("bold");
-        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
         pdf.setFontSize(12);
-        pdf.setFontType("normal");          
-        pdf.fromHTML(campo["valor"], posicionX, posicionY);        
+        pdf.setFontType("normal");
+
+        pdf.fromHTML(
+          campo["valor"], // HTML string or DOM elem ref.
+          0.5, // x coord
+          0.5, // y coord
+          {
+          'width': 7.5, // max width of content on PDF
+          'elementHandlers': specialElementHandlers
+          });
+       
 
       }
       else if (campo["tipo_campo"] == "IMAGEN" ||
@@ -214,9 +229,9 @@ export class VerDiagnosticoComponent implements OnInit {
         pdf.addPage();
         pdf.setFontSize(14);
         pdf.setFontType("bold");
-        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
         pdf.setFontSize(12);
-        pdf.setFontType("normal");  
+        pdf.setFontType("normal");
         pdf.addImage(campo["archivo"], 'PNG', posicionX, posicionY, 180, 180);
         pdf.addPage();
       }
