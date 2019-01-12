@@ -18,8 +18,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { EsperarService } from '../../esperar.service';
 import { ConsultasService } from '../../consultas.service';
 import { UtilidadesService } from '../../utilidades.service';
-import * as jspdf from 'jspdf';  
-import html2canvas from 'html2canvas';  
+import * as jspdf from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-ver-diagnostico',
@@ -77,7 +77,7 @@ export class VerDiagnosticoComponent implements OnInit {
     private utilidadesService: UtilidadesService) {
 
     //Obtiene el identificador de la consulta y del diagnóstico de la url.
-    /*this.rutaActual.paramMap.subscribe(params => {
+    this.rutaActual.paramMap.subscribe(params => {
 
       this.consultaId = params.get("id");
       this.diagnosticoId = params.get("diagnosticoId");
@@ -106,62 +106,137 @@ export class VerDiagnosticoComponent implements OnInit {
 
       }
 
-    });*/
+    });
 
   }
 
   ngOnInit() {
   }
 
-  public captureScreen()  
-  {  
-    /*var data = document.getElementById('contentToConvert');  
-    html2canvas(data).then(canvas => {  
-      // Few necessary setting options  
-      var imgWidth = 208;   
-      var pageHeight = 295;    
-      var imgHeight = canvas.height * imgWidth / canvas.width;  
-      var heightLeft = imgHeight;  
-  
-      const contentDataURL = canvas.toDataURL('image/png')  
-      let pdf = new jspdf('p', 'mm', 'a4'); // A4 size page of PDF  
-      var position = 0;  
-      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);      
-      pdf.save('MYPdf.pdf'); // Generated PDF   
-    }); */
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: reporte.                                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que convierte la pantalla actual a un pdf.       |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/01/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  public reporte() {
 
-      var content = document.getElementById('contentToConvert'); 
-      let doc  = new jspdf();
-      let specialElementsHandlers = {
-        '#editor': function(element, renderer){
-          return true;
-        }
+    //Contenedor del PDF (Será toda la pantalla).
+    /*var container = document.getElementById('container');
+    html2canvas(container).then(canvas => {
+      // Few necessary setting options  
+      var imgWidth = 180;
+      var imgHeight = canvas.height * imgWidth / canvas.width;
+      const contentDataURL = canvas.toDataURL('image/png')
+      let pdf = new jspdf('p', 'mm', 'a4'); // A4 size page of PDF  
+      var position = 15;
+      pdf.addImage(contentDataURL, 'PNG', 15, position, imgWidth, imgHeight);
+      pdf.save('MYPdf.pdf'); // Generated PDF   
+    });*/
+
+    /*var doc = new jspdf('p', 'in', 'letter')
+    var loremipsum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus id eros turpis. Vivamus tempor urna vitae sapien mollis molestie. Vestibulum in lectus non enim bibendum laoreet at at libero. Etiam malesuada erat sed sem blandit in varius orci porttitor. Sed at sapien urna. Fusce augue ipsum, molestie et adipiscing at, varius quis enim. Morbi sed magna est, vel vestibulum urna. Sed tempor ipsum vel mi pretium at elementum urna tempor. Nulla faucibus consectetur felis, elementum venenatis mi mollis gravida. Aliquam mi ante, accumsan eu tempus vitae, viverra quis justo.\n\nProin feugiat augue in augue rhoncus eu cursus tellus laoreet. Pellentesque eu sapien at diam porttitor venenatis nec vitae velit. Donec ultrices volutpat lectus eget vehicula. Nam eu erat mi, in pulvinar eros. Mauris viverra porta orci, et vehicula lectus sagittis id. Nullam at magna vitae nunc fringilla posuere. Duis volutpat malesuada ornare. Nulla in eros metus. Vivamus a posuere libero.'
+
+    // This line works. Try generating PDF.
+    let lines = doc.splitTextToSize(loremipsum, 7.5)
+
+    doc.text(0.5, 0.5, lines)
+    doc.save('Test.pdf')*/
+
+    let pdf = new jspdf('p', 'mm', 'letter');
+    let posicionX: number = 15;
+    let posicionY: number = 15;
+
+    this.campos.forEach(campo => {
+
+      if (campo["tipo_campo"] == "ENTERO" ||
+        campo["tipo_campo"] == "DECIMAL" ||
+        campo["tipo_campo"] == "FECHA" ||
+        campo["tipo_campo"] == "HORA") {
+
+        pdf.setFontSize(14);
+        pdf.setFontType("bold");
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
+        pdf.setFontSize(12);
+        pdf.setFontType("normal");
+
+        posicionY = posicionY + 5;
+        pdf.text(campo["valor"], posicionX, posicionY);
+        posicionY = posicionY + 10;
+
+      }
+      else if (campo["tipo_campo"] == "TEXTO") {
+
+        pdf.setFontSize(14);
+        pdf.setFontType("bold");
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.setFontSize(12);
+        pdf.setFontType("normal");    
+  
+        posicionY = posicionY + 5;
+        let lineas = pdf.splitTextToSize(campo["valor"], 180);
+        pdf.text(lineas, posicionX, posicionY);
+        posicionY = posicionY + (lineas.length * 5) + 10;
+
+      }
+      else if (campo["tipo_campo"] == "LISTA") {
+
+        pdf.setFontSize(14);
+        pdf.setFontType("bold");
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.setFontSize(12);
+        pdf.setFontType("normal");  
+
+        posicionY = posicionY + 5;
+        pdf.text(campo["valor_completo"], posicionX, posicionY);
+        posicionY = posicionY + 10;
+
+      }
+      else if (campo["tipo_campo"] == "COMENTARIO") {
+
+        posicionY = 15;
+        pdf.addPage();
+        pdf.setFontSize(14);
+        pdf.setFontType("bold");
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.setFontSize(12);
+        pdf.setFontType("normal");          
+        pdf.fromHTML(campo["valor"], posicionX, posicionY);        
+
+      }
+      else if (campo["tipo_campo"] == "IMAGEN" ||
+        campo["tipo_campo"] == "DIBUJO") {
+
+        posicionY = 15;
+        pdf.addPage();
+        pdf.setFontSize(14);
+        pdf.setFontType("bold");
+        pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);  
+        pdf.setFontSize(12);
+        pdf.setFontType("normal");  
+        pdf.addImage(campo["archivo"], 'PNG', posicionX, posicionY, 180, 180);
+        pdf.addPage();
       }
 
-      let elementoHTML: ElementRef;
-      elementoHTML= new ElementRef("<h1>HOLA!!</h1>");
-      //elementoHTML.nativeElement.addHTML();
+    });
 
-      doc.addHTML(elementoHTML,function(){
+    pdf.save('Test.pdf')
 
-      });
 
-      doc.fromHTML(content.innerHTML, 15, 15, {
-        'width': 190,
-        'elementHandlers': specialElementsHandlers
-      });
-      doc.save('prueba.pdf');
-    }  
+  }
 
   /*----------------------------------------------------------------------|
- |  NOMBRE: infoFormulario.                                              |
- |-----------------------------------------------------------------------|
- |  DESCRIPCIÓN: Método que obtiene la información del formulario.       |   
- |-----------------------------------------------------------------------|
- |  AUTOR: Ricardo Luna.                                                 |
- |-----------------------------------------------------------------------|
- |  FECHA: 20/11/2018.                                                   |    
- |----------------------------------------------------------------------*/
+  |  NOMBRE: infoFormulario.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que obtiene la información del formulario.       |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
   infoFormulario() {
 
     this.consultasService.infoFormularioDiagnostico(this.diagnosticoId).subscribe(respuesta => {
@@ -200,7 +275,7 @@ export class VerDiagnosticoComponent implements OnInit {
             this.campos = respuestaInfoDiagnostico["datos"];
             this.campos.forEach(campo => {
               //Se decodifica las imágenes para que puedan ser visualizadas.
-              if (campo["tipo_campo"] == "IMAGEN" || campo["tipo_campo"] == "DIBUJO") {                
+              if (campo["tipo_campo"] == "IMAGEN" || campo["tipo_campo"] == "DIBUJO") {
                 campo["archivo"] = atob(campo["archivo"]);
               }
             });

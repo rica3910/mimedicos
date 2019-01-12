@@ -33,9 +33,6 @@
           <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('pacientes')">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/pacientes']">Pacientes</a>
           </li>      
-          <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('citas')">
-            <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/citas']">Citas</a>
-          </li>    
           <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('consultas')">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/consultas']">Consultas</a>
           </li>                     

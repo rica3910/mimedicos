@@ -718,9 +718,9 @@ export class EditarDiagnosticoComponent implements OnInit {
 
 
         //Se agregan al arreglo los campos que se van a insertar en el detalle de consulta.
-        camposInfo.push({ "diagnosticoId": this.diagnosticoId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
+        camposInfo.push({ "diagnosticoId": this.diagnosticoId, "campoId": campo["id"], "valor": valor, "archivo": archivo });                
 
-      }
+      }      
 
       //Se recoren los campos a insertar recursivamente.
       this.altaDetDiagnostico(camposInfo, 0);

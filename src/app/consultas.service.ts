@@ -445,20 +445,18 @@ export class ConsultasService {
       valor: valor,
       archivo: archivo
     });
-
-    //Le concatena la palabra "json=" al json armado.
-    const params = "json=" + json;
+    
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
     const headers: HttpHeaders = new HttpHeaders({
       'X-API-KEY': this.autorizacion.obtenerToken(),
       'Content-Type': 'application/x-www-form-urlencoded'
-    });
+    });    
 
     //Realiza la petición al servidor.
     return this.http
       .post(this.urlApi + 'alta-det-diagnostico',
-        params,
+      json,
         { headers: headers });
   }  
 
