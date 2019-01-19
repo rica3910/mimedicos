@@ -20,6 +20,7 @@ import { ConsultasService } from '../../consultas.service';
 import { UtilidadesService } from '../../utilidades.service';
 import * as jspdf from 'jspdf';
 import html2canvas from 'html2canvas';
+import { providerDef } from '@angular/core/src/view';
 
 @Component({
   selector: 'app-ver-diagnostico',
@@ -149,6 +150,8 @@ export class VerDiagnosticoComponent implements OnInit {
     let pdf = new jspdf('p', 'mm', 'letter');
     let posicionX: number = 15;
     let posicionY: number = 15;
+    let anchoPagina: number = 185;
+    let altoPagina: number = 280 - (posicionY * 2);
 
     this.campos.forEach(campo => {
 
@@ -177,7 +180,7 @@ export class VerDiagnosticoComponent implements OnInit {
         pdf.setFontType("normal");
 
         posicionY = posicionY + 5;
-        let lineas = pdf.splitTextToSize(campo["valor"], 180);
+        let lineas = pdf.splitTextToSize(campo["valor"], anchoPagina);
         pdf.text(lineas, posicionX, posicionY);
         posicionY = posicionY + (lineas.length * 5) + 10;
 
@@ -197,11 +200,6 @@ export class VerDiagnosticoComponent implements OnInit {
       }
       else if (campo["tipo_campo"] == "COMENTARIO") {
 
-        var specialElementHandlers = {
-          '#bypassme': function (element, renderer) {
-            return true;
-          }
-        };
 
         posicionY = 15;
         pdf.addPage();
@@ -210,16 +208,36 @@ export class VerDiagnosticoComponent implements OnInit {
         pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
         pdf.setFontSize(12);
         pdf.setFontType("normal");
+        posicionY = posicionY + 5;
 
-        pdf.fromHTML(
-          campo["valor"], // HTML string or DOM elem ref.
-          0.5, // x coord
-          0.5, // y coord
-          {
-          'width': 180, // max width of content on PDF
-          'elementHandlers': specialElementHandlers
-          });
-       
+        let specialElementHandlers = {
+          // element with id of "bypass" - jQuery style selector
+          '#bypassme': function (element, renderer) {
+            // true = "handled elsewhere, bypass text extraction"
+            return true
+          }
+        }
+
+        let margins = {
+          top: posicionY,
+          bottom: 0,
+          left: posicionX,
+          width: anchoPagina
+        };
+        // all coords and widths are in jsPDF instance's declared units
+        // 'inches' in this case
+        pdf.fromHTML
+          (
+            campo["valor"] // HTML string or DOM elem ref.
+            , posicionX// x coord
+            , posicionY // y coord
+            , {
+              'width': anchoPagina // max width of content on PDF
+              , 'elementHandlers': specialElementHandlers
+            }
+            , function (medidas) { }
+            , margins
+          )
 
       }
       else if (campo["tipo_campo"] == "IMAGEN" ||
@@ -230,15 +248,17 @@ export class VerDiagnosticoComponent implements OnInit {
         pdf.setFontSize(14);
         pdf.setFontType("bold");
         pdf.text(campo["etiqueta"] + ": ", posicionX, posicionY);
+        posicionY = posicionY + 5;
         pdf.setFontSize(12);
         pdf.setFontType("normal");
-        pdf.addImage(campo["archivo"], 'PNG', posicionX, posicionY, 180, 180);
+        pdf.addImage(campo["archivo"], 'PNG', posicionX, posicionY, anchoPagina, altoPagina);
         pdf.addPage();
+
       }
 
     });
 
-    pdf.save('Test.pdf')
+    pdf.save('diagnostico.pdf')
 
 
   }
