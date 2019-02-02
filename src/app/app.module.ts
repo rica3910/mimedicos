@@ -52,6 +52,8 @@ import { FullCalendarModule } from 'ng-fullcalendar';
 import { PRODUCTOS_PROVIDERS } from './productos.service';
 import { FORMULARIOS_PROVIDERS } from './formularios.service';
 import * as $ from 'jquery';
+import { PDFCARTA_PROVIDERS } from './pdfcarta.service';
+
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -111,7 +113,8 @@ const rutas: Routes = [
     USUARIOS_PROVIDERS,
     CONSULTAS_PROVIDERS,
     PRODUCTOS_PROVIDERS,
-    FORMULARIOS_PROVIDERS
+    FORMULARIOS_PROVIDERS,
+    PDFCARTA_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })
