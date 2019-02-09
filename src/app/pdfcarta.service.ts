@@ -81,6 +81,9 @@ export class PDFCartaService {
 
     this.pdf.setFontSize(this.tamanoLetraNormal);
 
+    //Imagen.
+    let imagen: string= pInfoEncabezado["imagen"]? pInfoEncabezado["imagen"] : "";
+
     //Se realiza un ciclo para escribir en cada página el número de página actual.
     for (let i: number = 1; i <= this.pdf.internal.getNumberOfPages(); i++) {
       //Se establece la página a la que hay que plancharle el encabezado.
@@ -89,7 +92,9 @@ export class PDFCartaService {
       posicionYActual = 15;
       posicionXActual = 10;
       //Se agrea el logo a cada página.
-      this.pdf.addImage(pInfoEncabezado["imagen"], 'PNG', posicionXActual, posicionYActual, 20, 20);
+      //Se agrega la firma digitalizada en caso de que exista.      
+      imagen.length > 0 ? this.pdf.addImage(imagen, 'PNG', posicionXActual, posicionYActual, 20, 20) : null;
+      //this.pdf.addImage(pInfoEncabezado["imagen"], 'PNG', posicionXActual, posicionYActual, 20, 20);
       //Se establecen las posiciones de X y Y.
       posicionYActual = 20;
       posicionXActual = 35;

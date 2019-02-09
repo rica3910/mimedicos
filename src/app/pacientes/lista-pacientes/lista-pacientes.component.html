@@ -70,6 +70,9 @@
                                     <button *ngIf="editarPacientes" type="button" class="btn" ngbTooltip="Editar información del paciente." (click)='editarPaciente(paciente.id)'>
                                         <i class="material-icons">edit</i>
                                     </button>
+                                    <button *ngIf="verFichaClinicaPacientes" type="button" class="btn" ngbTooltip="Ver la ficha clínica del paciente." (click)='verFichaClinica(paciente.id)'>
+                                        <i class="material-icons">assignment</i>
+                                    </button>                                    
                                     <button *ngIf="eliminarPacientes" type="button" class="btn" ngbTooltip="Eliminar paciente permanentemente." (click)='eliminarPaciente(paciente.id)'>
                                         <i class="material-icons">delete_forever</i>
                                     </button>

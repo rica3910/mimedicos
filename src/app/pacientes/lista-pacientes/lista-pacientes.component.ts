@@ -43,6 +43,8 @@ export class ListaPacientesComponent implements OnInit {
   private altaPacientes: boolean = false;
   //Propiedad que indica si el usuario puede ver pacientes.
   private verPacientes: boolean = false;
+  //Propiedad que indica si el usuario puede ver las fichas clínicas de los pacientes.
+  private verFichaClinicaPacientes: boolean = false;
   //Propiedad que indica si el usuario puede editar pacientes.
   private editarPacientes: boolean = false;
   //Propiedad que indica si el usuario puede eliminar pacientes.
@@ -94,7 +96,7 @@ export class ListaPacientesComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
           //No se intenta mostrar nada en la vista por el error.
           this.infoLista = false;
         }
@@ -135,25 +137,32 @@ export class ListaPacientesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
+
     //Se le da un focus a la búsqueda.
     this.buscarInfoHTML.nativeElement.focus();
 
     //El botón de dar de alta pacientes se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('alta-paciente').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('ALTA PACIENTE').subscribe((respuesta: boolean) => {
       this.altaPacientes = respuesta["value"];
-    });
+    });    
 
     //El botón de ver a un paciente en la tabla de lista de pacientes,
-    // se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('ver-paciente').subscribe((respuesta: boolean) => {
+    // se hará visible solamente si el usuario tiene el privilegio. 
+    this.autenticarService.usuarioTieneDetModulo('VER PACIENTE').subscribe((respuesta: boolean) => {
       this.verPacientes = respuesta["value"];
-    });
+    });    
 
     //El botón de editar a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneMenu('editar-paciente').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('EDITAR PACIENTE').subscribe((respuesta: boolean) => {
       this.editarPacientes = respuesta["value"];
-    });
+    });      
+
+    //El botón de ver la ficha clínica a un paciente en la tabla de lista de pacientes,
+    // se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER FICHA CLINICA PACIENTE').subscribe((respuesta: boolean) => {
+      this.verFichaClinicaPacientes = respuesta["value"];
+    });          
 
     //El botón de eliminar a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
@@ -165,35 +174,10 @@ export class ListaPacientesComponent implements OnInit {
     // se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('DESASIGNAR PACIENTE').subscribe((respuesta: boolean) => {
       this.desAsignarPacientes = respuesta["value"];
-    });    
+    });
 
   }
 
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: _alerta.                                                     |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Abre el modal cuando se obtiene la respuesta incorrecta |
-  |               de la base de datos en forma de alerta.                 | 
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 30/05/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  private _alerta(mensaje: String) {
-
-    //Abre el modal de tamaño chico.
-    const modalRef = this.modalService.open(DialogoAlertaComponent, { centered: true });
-
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Notificación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = mensaje;
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-
-  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: limpiarCampoBusqueda.                                        |
@@ -258,7 +242,7 @@ export class ListaPacientesComponent implements OnInit {
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
           //Muestra una alerta con el porqué del error.
-          this._alerta(respuesta["mensaje"]);
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
           //No se intenta mostrar nada en la vista por el error.
           this.infoLista = false;
         }
@@ -312,36 +296,27 @@ export class ListaPacientesComponent implements OnInit {
   |----------------------------------------------------------------------*/
   eliminarPaciente(id: string) {
 
-    //Abre el modal.
-    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Confirmación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = "Se eliminará permanentemente toda la información del paciente. "
-      + "¿Está seguro de eliminar al paciente?";
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
-    //Define la etiqueta del botón de Cancelar.
-    modalRef.componentInstance.etiquetaBotonCancelar = "No";
-    //Se retorna el botón pulsado.
-    modalRef.result.then((result) => {
-      //Si la respuesta es eliminar al paciente.
-      if (result === "Sí") {
-        this.pacientesService.eliminarPaciente(id).subscribe(respuesta => {
-          //Si hubo un error.
-          if (respuesta["estado"] === "ERROR") {
-            //Muestra una alerta con el porqué del error.
-            this._alerta(respuesta["mensaje"]);
-          }
-          //Si todo salió bien.
-          else {
-            this._alerta("El paciente se eliminó permanentemente.");
-            //Se actualizan los datos.
-            this.buscar();
-          }
-        });
-      }
-    });
+    this.utilidadesService.confirmacion("Confirmación.", "Se eliminará permanentemente toda la información del paciente. "
+      + "¿Está seguro de eliminar al paciente?").subscribe(respuesta => {
+        if (respuesta == "Aceptar") {
+
+          this.pacientesService.eliminarPaciente(id).subscribe(respuesta => {
+            //Si hubo un error.
+            if (respuesta["estado"] === "ERROR") {
+              //Muestra una alerta con el porqué del error.
+              this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+            }
+            //Si todo salió bien.
+            else {
+              this.utilidadesService.alerta("Paciente eliminado", "El paciente se eliminó permanentemente.");
+              //Se actualizan los datos.
+              this.buscar();
+            }
+          });
+
+        }
+      });
+
   }
 
   /*----------------------------------------------------------------------|
@@ -357,37 +332,26 @@ export class ListaPacientesComponent implements OnInit {
   |----------------------------------------------------------------------*/
   desAsignarPaciente(id: string) {
 
-    //Abre el modal.
-    const modalRef = this.modalService.open(DialogoConfirmacionComponent, { centered: true });
-    //Define el título del modal.
-    modalRef.componentInstance.titulo = "Confirmación";
-    //Define el mensaje del modal.
-    modalRef.componentInstance.mensaje = "Ya no podrá acceder a la información del paciente. "
-      + "¿Está seguro de desasignarse el paciente?";
-    //Define la etiqueta del botón de Aceptar.
-    modalRef.componentInstance.etiquetaBotonAceptar = "Sí";
-    //Define la etiqueta del botón de Cancelar.
-    modalRef.componentInstance.etiquetaBotonCancelar = "No";
-    //Se retorna el botón pulsado.
-    modalRef.result.then((result) => {
-      //Si la respuesta es eliminar al paciente.
-      if (result === "Sí") {
-        this.pacientesService.desAsignarPaciente(id).subscribe(respuesta => {
-          //Si hubo un error.
-          if (respuesta["estado"] === "ERROR") {
-            //Muestra una alerta con el porqué del error.
-            this._alerta(respuesta["mensaje"]);
-          }
-          //Si todo salió bien.
-          else {
-            this._alerta("El paciente se desasignó satisfactoriamente.");
-            //Se actualizan los datos.
-            this.buscar();
-          }
-        });
-      }
-    });
+    this.utilidadesService.confirmacion("Confirmación.", "Ya no podrá acceder a la información del paciente. "
+      + "¿Está seguro de desasignarse el paciente?").subscribe(respuesta => {
+        if (respuesta == "Aceptar") {
 
+          this.pacientesService.desAsignarPaciente(id).subscribe(respuesta => {
+            //Si hubo un error.
+            if (respuesta["estado"] === "ERROR") {
+              //Muestra una alerta con el porqué del error.
+              this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+            }
+            //Si todo salió bien.
+            else {
+              this.utilidadesService.alerta("Paciente desasignado", "El paciente se desasignó satisfactoriamente.");
+              //Se actualizan los datos.
+              this.buscar();
+            }
+          });
+
+        }
+      });
   }
 
 

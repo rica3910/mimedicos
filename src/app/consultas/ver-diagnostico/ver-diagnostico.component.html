@@ -31,7 +31,7 @@
       <h3><small class="text-muted">{{descripcionFormulario}}</small></h3>
     </div>
   </div>
-  <app-info-consulta id="contenedorInfoConsulta" [consultaId]="consultaId" (informacionLista)="infoConsultaLista($event)"></app-info-consulta>
+  <app-info-consulta id="contenedorInfoConsulta" [consultaId]="consultaId" (informacionLista)="infoConsultaLista($event)" (informacionConsulta)="informacionConsulta($event)"></app-info-consulta>
   <br>
   <div class="row">
     <div class="col-lg-12 table-responsive">

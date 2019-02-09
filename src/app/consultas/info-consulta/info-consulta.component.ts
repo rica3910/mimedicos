@@ -27,6 +27,8 @@ export class InfoConsultaComponent implements OnInit {
   @Input() consultaId: string;
   //Método que se disparará cuando la información de la consulta esté lista.
   @Output() informacionLista: EventEmitter<boolean>;
+  //Método que obtiene la información recolectada de la consulta.
+  @Output() informacionConsulta: EventEmitter<object>;
   //Variable que almacenará el nombre del usuario.
   nombresUsuario: string;
   //Variable que almacenará el nombre del paciente.
@@ -49,6 +51,7 @@ export class InfoConsultaComponent implements OnInit {
   constructor(private consultasService: ConsultasService) { 
     //Se inicializa el emisor de información lista.
     this.informacionLista = new EventEmitter(false);
+    this.informacionConsulta = new EventEmitter();
   }
 
   ngOnInit() {
@@ -58,6 +61,7 @@ export class InfoConsultaComponent implements OnInit {
 
       //Se emite el evento de la información lista.
       this.informacionLista.emit(true);
+      this.informacionConsulta.emit(respuesta);
 
       //Si NO hubo un error en la obtención de información.
       if (respuesta["estado"] === "OK") {
