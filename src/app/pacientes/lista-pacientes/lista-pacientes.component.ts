@@ -144,25 +144,25 @@ export class ListaPacientesComponent implements OnInit {
     //El botón de dar de alta pacientes se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ALTA PACIENTE').subscribe((respuesta: boolean) => {
       this.altaPacientes = respuesta["value"];
-    });    
+    });
 
     //El botón de ver a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio. 
     this.autenticarService.usuarioTieneDetModulo('VER PACIENTE').subscribe((respuesta: boolean) => {
       this.verPacientes = respuesta["value"];
-    });    
+    });
 
     //El botón de editar a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('EDITAR PACIENTE').subscribe((respuesta: boolean) => {
       this.editarPacientes = respuesta["value"];
-    });      
+    });
 
     //El botón de ver la ficha clínica a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('VER FICHA CLINICA PACIENTE').subscribe((respuesta: boolean) => {
       this.verFichaClinicaPacientes = respuesta["value"];
-    });          
+    });
 
     //El botón de eliminar a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
@@ -217,6 +217,7 @@ export class ListaPacientesComponent implements OnInit {
     this.rutaNavegacion.navigate(['pacientes', 'alta-paciente']);
   }
 
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: buscar.                                                      |
   |-----------------------------------------------------------------------|
@@ -260,7 +261,9 @@ export class ListaPacientesComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: verPaciente.                                                 |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para entrar al detalle del paciente.             |   
+  |  DESCRIPCIÓN: Método para entrar al detalle del paciente.             |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: Id = identificador del paciente.              |   
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -271,9 +274,26 @@ export class ListaPacientesComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: verFichaClinica.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver la ficha clínica del paciente.          |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: Id = identificador del paciente.              |    
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/02/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verFichaClinica(id: string) {
+    this.rutaNavegacion.navigateByUrl('pacientes/ver-ficha-clinica-paciente/' + id);
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: editarPaciente.                                              |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para entrar al formulario de editar paciente.    |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: Id = identificador del paciente.              |  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|

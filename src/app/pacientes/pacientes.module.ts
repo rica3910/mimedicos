@@ -25,6 +25,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { UsuarioTienePacienteGuard } from "./usuario-tiene-paciente.guard";
 import { VerPacienteComponent } from './ver-paciente/ver-paciente.component';
 import { EditarPacienteComponent } from './editar-paciente/editar-paciente.component';
+import { VerFichaClinicaPacienteComponent } from './ver-ficha-clinica-paciente/ver-ficha-clinica-paciente.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 export const rutas: Routes = [    
@@ -32,7 +33,8 @@ export const rutas: Routes = [
     { path: 'lista-pacientes', component: ListaPacientesComponent, canActivate: [UsuarioTieneMenuGuard]},        
     { path: 'alta-paciente', component: AltaPacienteComponent,canActivate: [UsuarioTieneMenuGuard]},        
     { path: 'ver-paciente/:id', component: VerPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
-    { path: 'editar-paciente/:id', component:EditarPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
+    { path: 'editar-paciente/:id', component:EditarPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},      
+    { path: 'ver-ficha-clinica-paciente/:id', component:VerFichaClinicaPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
     { path: '**', redirectTo: 'lista-pacientes'}    
   ];
 
@@ -42,7 +44,8 @@ export const rutas: Routes = [
       AltaPacienteComponent,
       ListaPacientesComponent,
       VerPacienteComponent,
-      EditarPacienteComponent
+      EditarPacienteComponent,
+      VerFichaClinicaPacienteComponent
     ],  
     exports: [
         PacientesComponent

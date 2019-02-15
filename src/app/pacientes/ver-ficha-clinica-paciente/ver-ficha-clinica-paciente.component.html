@@ -1,0 +1,90 @@
+<!------------------------------------------------------------------
+|NOMBRE: ver-ficha-clinica-paciente                                | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para ver la ficha clínica del paciente.       |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 11/02/2019.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+<div class="container-fluid" *ngIf="infoLista">
+  <div class="row">
+      <div class="col-lg-1">
+          <button *ngIf="altaRegistrosClinicos" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom" ngbTooltip="Añadir un registro a la ficha clínica."
+              (click)="altaRegistroClinico();">
+              <i class="material-icons">add</i>
+          </button>
+      </div>
+      <div class="col-lg-5">
+          <div class="input-group input-group-lg">
+              <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
+              <div class="input-group-append">
+                  <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda(buscarInfoHTML)" placement="bottom" ngbTooltip="Borrar búsqueda.">
+                      <i class="material-icons">backspace</i>
+                  </button>
+              </div>
+          </div>
+      </div>
+      <div class="col-lg-1">
+          <button class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom" ngbTooltip="Buscar.">
+              <i class="material-icons">search</i>
+          </button>
+      </div>
+  </div>
+  <br>
+  <div class="row">
+      <div class="col-lg-12 table-responsive">
+          <div style="height:600px;overflow:auto;margin-right:15px;">
+              <table class="table table-striped table-bordered">
+                  <thead>
+                      <tr>
+                          <th class="text-center">Nombres</th>
+                          <th class="text-center">Apellido paterno</th>
+                          <th class="text-center">Apellido materno</th>
+                          <th class="text-center">Email</th>
+                          <th class="text-center">Teléfono</th>
+                          <th class="text-center">Celular</th>
+                          <th class="text-center">Estatus</th>
+                          <th class="text-center">Opciones</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let paciente of pacientes">
+                          <td>{{paciente.nombres}}</td>
+                          <td>{{paciente.apellido_paterno}}</td>
+                          <td>{{paciente.apellido_materno}}</td>
+                          <td>{{paciente.email}}</td>
+                          <td class="text-right">{{paciente.telefono}}</td>
+                          <td class="text-right">{{paciente.celular}}</td>
+                          <td>{{paciente.estatus}}</td>
+                          <td>
+                              <div class="btn-group btn-group-sm" role="group">
+                                  <button *ngIf="verPacientes" type="button" class="btn" ngbTooltip="Ver información del paciente." (click)='verPaciente(paciente.id)'>
+                                      <i class="material-icons">visibility</i>
+                                  </button>
+                                  <button *ngIf="editarPacientes" type="button" class="btn" ngbTooltip="Editar información del paciente." (click)='editarPaciente(paciente.id)'>
+                                      <i class="material-icons">edit</i>
+                                  </button>
+                                  <button *ngIf="verFichaClinicaPacientes" type="button" class="btn" ngbTooltip="Ver la ficha clínica del paciente." (click)='verFichaClinica(paciente.id)'>
+                                      <i class="material-icons">assignment</i>
+                                  </button>                                    
+                                  <button *ngIf="eliminarPacientes" type="button" class="btn" ngbTooltip="Eliminar paciente permanentemente." (click)='eliminarPaciente(paciente.id)'>
+                                      <i class="material-icons">delete_forever</i>
+                                  </button>
+                                  <button *ngIf="desAsignarPacientes" type="button" class="btn" ngbTooltip="Desasignar paciente." (click)='desAsignarPaciente(paciente.id)'>
+                                      <i class="material-icons">remove</i>
+                                  </button>                               
+                              </div>
+                          </td>
+
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+</div>
