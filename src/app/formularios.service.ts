@@ -56,7 +56,7 @@ export class FormulariosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 09/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroFormularios(estatus: string = "ACTIVO"): Observable<any> {
+  filtroFormularios(estatus: string = "ACTIVO", consultas: string = "1"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -67,7 +67,7 @@ export class FormulariosService {
       });
 
       //Envía la petición al servidor backend para obtener los servicios.
-      return this.http.get(this.urlApi + 'filtro-formularios/' + estatus, { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-formularios/' + estatus + "/" + consultas, { headers: headers });
     }
     //No está conectado.
     return of(false);
