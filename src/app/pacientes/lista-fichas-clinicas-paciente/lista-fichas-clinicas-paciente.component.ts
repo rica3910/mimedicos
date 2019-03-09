@@ -1,17 +1,18 @@
 /******************************************************************|
-|NOMBRE: verFichaClinicaPaciente.                                  | 
+|NOMBRE: listaFichasClinicasPaciente.                              | 
 |------------------------------------------------------------------|
 |DESCRIPCIÓN: Componente que contiene la lista de fichas clínicas  | 
 |             del paciente.                                        |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 05/03/2019.                                                |
+|FECHA: 07/03/2019.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -24,11 +25,11 @@ import { fromEvent, Subject } from 'rxjs';
 import { switchAll, debounceTime, map } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-ver-ficha-clinica-paciente',
-  templateUrl: './ver-ficha-clinica-paciente.component.html',
-  styleUrls: ['./ver-ficha-clinica-paciente.component.css']
+  selector: 'app-lista-fichas-clinicas-paciente',
+  templateUrl: './lista-fichas-clinicas-paciente.component.html',
+  styleUrls: ['./lista-fichas-clinicas-paciente.component.css']
 })
-export class VerFichaClinicaPacienteComponent implements OnInit {
+export class ListaFichasClinicasPacienteComponent implements OnInit {
 
   //Identificador del paciente. Tomada de la url.
   pacienteId: string;
@@ -49,7 +50,7 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
   //Indica que ya se verificó que se pueda eliminar fichas clínicas.
-  verificarFichasClinicas: boolean = false;
+  verificarEliminarFichasClinicas: boolean = false;
   //Indica que ya se verificó que se pueda dar de alta fichas clínicas.
   verificarAltaFichasClinicas: boolean = false;
   //Indica que ya se verificó que se pueda editar fichas clínicas.
@@ -58,7 +59,14 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
   verificarVerFichasClinicas: boolean = false;
   //Indica que ya se verificó que la información del paciente ya está lista.
   verificarInfoPaciente: boolean = false;
-
+  //Nombre completo del paciente.  
+  nombrePaciente: string = "";
+  //Correo electrónico.
+  email: string = "";
+  //Teléfono
+  telefono: string = "";
+  //Celular
+  celular: string = "";   
 
   /*----------------------------------------------------------------------|
    |  NOMBRE: constructor.                                                 |
@@ -82,20 +90,132 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
     private esperarService: EsperarService,
     private utilidadesService: UtilidadesService,
     private pacientesService: PacientesService,
-    private autenticarService: AutenticarService) { }
+    private autenticarService: AutenticarService) {
+
+    //Obtiene el identificador de la consulta de la url.
+    this.rutaActual.paramMap.subscribe(params => {
+
+      //Se resetean los valores de verificación.
+      this.verificarAltaFichasClinicas = false;
+      this.verificarEliminarFichasClinicas = false;
+      this.verificarEditarFichasClinicas = false;
+      this.verificarVerFichasClinicas = false;
+      this.verificarInfoPaciente = false;
+
+      //Obtiene el identificador del paciente de la url.
+      this.pacienteId = params.get("id");
+
+      //Se inicia la espera.
+      this.esperarService.esperar();
+
+      //El botón de dar de alta fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
+      this.autenticarService.usuarioTieneDetModulo('ALTA FICHA CLINICA').subscribe(respuesta => {
+
+        this.altaFichasClinicas = respuesta["value"];
+        this.verificarAltaFichasClinicas = true;
+        this.cargaInicialLista$.next(this.verificarAltaFichasClinicas);
+
+      });
+
+      //El botón de eliminar fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
+      this.autenticarService.usuarioTieneDetModulo('ELIMINAR FICHA CLINICA').subscribe(respuesta => {
+
+        this.eliminarFichasClinicas = respuesta["value"];
+        this.verificarEliminarFichasClinicas = true;
+        this.cargaInicialLista$.next(this.verificarEliminarFichasClinicas);
+
+      });
+
+      //El botón de editar fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
+      this.autenticarService.usuarioTieneDetModulo('EDITAR FICHA CLINICA').subscribe(respuesta => {
+
+        this.editarFichasClinicas = respuesta["value"];
+        this.verificarEditarFichasClinicas = true;
+        this.cargaInicialLista$.next(this.verificarEditarFichasClinicas);
+
+      });
+      
+      //El botón de ver fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
+      this.autenticarService.usuarioTieneDetModulo('VER FICHA CLINICA PACIENTE').subscribe(respuesta => {
+
+        this.verFichasClinicas = respuesta["value"];
+        this.verificarVerFichasClinicas = true;
+        this.cargaInicialLista$.next(this.verificarVerFichasClinicas);
+
+      });
+
+      //Obtener la información del paciente.
+      this.pacientesService.verPaciente(this.pacienteId).subscribe(respuesta => {
+
+        this.infoPacienteLista = respuesta["value"];
+        this.verificarInfoPaciente = true;
+        this.cargaInicialLista$.next(this.verificarInfoPaciente);
+        this.nombrePaciente = respuesta["datos"][0]["nombres"] + " " + respuesta["datos"][0]["apellido_paterno"] + " " + respuesta["datos"][0]["apellido_materno"];
+        this.email = respuesta["datos"][0]["email"];
+        this.telefono = respuesta["datos"][0]["telefono"];
+        this.celular = respuesta["datos"][0]["celular"];        
+
+      });
+
+
+    });
+
+    //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
+    this.cargaInicialLista$.subscribe((valor: boolean) => {
+
+      //Si todos los filtros e información están listos.
+      if (this.verificarAltaFichasClinicas &&
+        this.verificarEliminarFichasClinicas &&
+        this.verificarEditarFichasClinicas &&
+        this.verificarVerFichasClinicas &&
+        this.verificarInfoPaciente) {
+        //Inicia la búsqueda de información.
+        this.esperarService.noEsperar();
+        this.buscar();
+      }
+
+    });
+
+
+  }
 
   ngOnInit() {
+    
+    //Se obtiene el método de tecleado del elemento HTML de búsqueda.
+    fromEvent(this.buscarInfoHTML.nativeElement, 'keyup')
+      //Extrae el valor de la búsqueda.
+      .pipe(map((e: any) => e.target.value))
+      //Se realiza la búsqueda.
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.fichasClinicasServidor)))
+      //Se utiliza para obtener solo la búsqueda más reciente.
+      .pipe(switchAll())
+      //Se actualiza la información del arreglo.
+      .subscribe((resultados: JSON[]) => {
+        //Se actualiza la información en pantalla.        
+        this.fichasClinicas = resultados;
+      });
+
+    //Evento de cuando se pega con el mouse algun texto en la caja de texto.
+    fromEvent(this.buscarInfoHTML.nativeElement, 'paste')
+      //Extrae el texto del cuadro de texto.
+      .pipe(map((e: any) => e.target.value))
+      .pipe(debounceTime(50))
+      //Se subscribe al evento.
+      .subscribe((cadena: string) => {
+        //Genera un evento de teclazo para asegurar que se dispare el evento.
+        this.buscarInfoHTML.nativeElement.dispatchEvent(new Event('keyup'));
+      });
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaFichaClinica.                                            |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al formulario de crear ficha clínica.  |   
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 05/03/2019.                                                   |    
-  |----------------------------------------------------------------------*/
+    |  NOMBRE: altaFichaClinica.                                            |
+    |-----------------------------------------------------------------------|
+    |  DESCRIPCIÓN: Método que llama al formulario de crear ficha clínica.  |   
+    |-----------------------------------------------------------------------|
+    |  AUTOR: Ricardo Luna.                                                 |
+    |-----------------------------------------------------------------------|
+    |  FECHA: 05/03/2019.                                                   |    
+    |----------------------------------------------------------------------*/
   altaFichaClinica() {
     //Se abre la pantalla de alta de fichas clínicas.
     this.rutaNavegacion.navigateByUrl('pacientes/alta-ficha-clinica/' + this.pacienteId);
@@ -138,8 +258,8 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
     this.esperarService.esperar();
 
     //Busca las fichas clínicas del paciente.
-    /*this.pacientesService.verFichaClinicaPaciente(this.pacienteId).subscribe(respuesta => {
-
+    this.pacientesService.listaFichasClinicasPaciente(this.pacienteId).subscribe(respuesta => {
+ 
       //Detiene la espera, signo de que ya se obtuvo la información.
       this.esperarService.noEsperar();
       //Si hubo un error en la obtención de información.
@@ -154,12 +274,12 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
         //Se almacenan las fichas clínicas.
         this.fichasClinicas = respuesta["datos"];
         this.fichasClinicasServidor = respuesta["datos"];
-        //Le da un focus al elemento de búsqueda.
+        //Le da un focus al elemento de búsqueda.        
         this.buscarInfoHTML.nativeElement.focus();
 
       }
 
-    });*/
+    });
 
   }
 
@@ -226,10 +346,10 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 07/03/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  verFichaClinica(fichaClinicaId: string) {    
+  verFichaClinica(fichaClinicaId: string) {
     //Se abre la pantalla de ver ficha clínica.
     this.rutaNavegacion.navigateByUrl('pacientes/ver-ficha-clinica/' + this.pacienteId + "/" + fichaClinicaId);
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: editarFichaClinica.                                          |
@@ -263,6 +383,5 @@ export class VerFichaClinicaPacienteComponent implements OnInit {
     this.verificarInfoPaciente = infoLista;
     this.cargaInicialLista$.next(this.verificarInfoPaciente);
   }
-
 
 }

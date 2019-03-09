@@ -160,7 +160,7 @@ export class ListaPacientesComponent implements OnInit {
 
     //El botón de ver la ficha clínica a un paciente en la tabla de lista de pacientes,
     // se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('VER FICHA CLINICA PACIENTE').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('LISTA FICHAS CLINICAS PACIENTE').subscribe((respuesta: boolean) => {
       this.verFichaClinicaPacientes = respuesta["value"];
     });
 
@@ -285,7 +285,7 @@ export class ListaPacientesComponent implements OnInit {
   |  FECHA: 11/02/2018.                                                   |    
   |----------------------------------------------------------------------*/
   verFichaClinica(id: string) {
-    this.rutaNavegacion.navigateByUrl('pacientes/ver-ficha-clinica-paciente/' + id);
+    this.rutaNavegacion.navigateByUrl('pacientes/lista-fichas-clinicas-paciente/' + id);
   }
 
   /*----------------------------------------------------------------------|

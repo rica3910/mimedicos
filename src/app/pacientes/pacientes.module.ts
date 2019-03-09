@@ -26,6 +26,7 @@ import { UsuarioTienePacienteGuard } from "./usuario-tiene-paciente.guard";
 import { VerPacienteComponent } from './ver-paciente/ver-paciente.component';
 import { EditarPacienteComponent } from './editar-paciente/editar-paciente.component';
 import { VerFichaClinicaPacienteComponent } from './ver-ficha-clinica-paciente/ver-ficha-clinica-paciente.component';
+import { ListaFichasClinicasPacienteComponent } from './lista-fichas-clinicas-paciente/lista-fichas-clinicas-paciente.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 export const rutas: Routes = [    
@@ -34,7 +35,7 @@ export const rutas: Routes = [
     { path: 'alta-paciente', component: AltaPacienteComponent,canActivate: [UsuarioTieneMenuGuard]},        
     { path: 'ver-paciente/:id', component: VerPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
     { path: 'editar-paciente/:id', component:EditarPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},      
-    { path: 'ver-ficha-clinica-paciente/:id', component:VerFichaClinicaPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
+    { path: 'lista-fichas-clinicas-paciente/:id', component:ListaFichasClinicasPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},  
     { path: '**', redirectTo: 'lista-pacientes'}    
   ];
 
@@ -45,7 +46,8 @@ export const rutas: Routes = [
       ListaPacientesComponent,
       VerPacienteComponent,
       EditarPacienteComponent,
-      VerFichaClinicaPacienteComponent
+      VerFichaClinicaPacienteComponent,
+      ListaFichasClinicasPacienteComponent
     ],  
     exports: [
         PacientesComponent

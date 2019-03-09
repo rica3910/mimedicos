@@ -358,6 +358,43 @@ export class PacientesService {
 
   }
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaFichasClinicasPaciente.                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN:  Método que sirve para obtener las fichas clínicas      |
+  |                de un paciente dado.                                   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: pacienteId = identificador del paciente.      |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/03/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  listaFichasClinicasPaciente(pacienteId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+      
+      //Envía la petición al servidor backend para obtener la ficha clínica del paciente.
+      return this.http.get(this.urlApi + 'lista-fichas-clinicas-paciente/' + pacienteId, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
 }
 
 //Constante que se utilizará para inyectar el servicio.
