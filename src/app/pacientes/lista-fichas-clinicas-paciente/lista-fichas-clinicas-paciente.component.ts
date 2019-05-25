@@ -218,7 +218,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
     |----------------------------------------------------------------------*/
   altaFichaClinica() {
     //Se abre la pantalla de alta de fichas clínicas.
-    this.rutaNavegacion.navigateByUrl('pacientes/alta-ficha-clinica/' + this.pacienteId);
+    this.rutaNavegacion.navigateByUrl('pacientes/alta-ficha-clinica-paciente/' + this.pacienteId);
   }
 
   /*----------------------------------------------------------------------|
@@ -315,7 +315,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        /*this.consultasService.eliminarDiagnostico(diagnosticoId).subscribe(respuesta => {
+        this.pacientesService.eliminarFichaClinica(fichaClinicaId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -326,10 +326,10 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Eliminación exitosa", "El diagnóstico se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa", "La ficha clínica se eliminó permanentemente.");
             this.buscar();
           }
-        });*/
+        });
       }
     });
   }
@@ -348,7 +348,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
   |----------------------------------------------------------------------*/
   verFichaClinica(fichaClinicaId: string) {
     //Se abre la pantalla de ver ficha clínica.
-    this.rutaNavegacion.navigateByUrl('pacientes/ver-ficha-clinica/' + this.pacienteId + "/" + fichaClinicaId);
+    this.rutaNavegacion.navigateByUrl('pacientes/ver-ficha-clinica-paciente/' + this.pacienteId + "/" + fichaClinicaId);
   }
 
   /*----------------------------------------------------------------------|
@@ -364,8 +364,8 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
   |  FECHA: 07/03/2019.                                                   |    
   |----------------------------------------------------------------------*/
   editarFichaClinica(fichaClinicaId: string) {
-    //Se abre la pantalla de alta de diagnósticos
-    this.rutaNavegacion.navigateByUrl('consultas/editar-diagnostico/' + this.pacienteId + "/" + fichaClinicaId);
+    //Se abre la pantalla edición de fichas clínicas.
+    this.rutaNavegacion.navigateByUrl('pacientes/editar-ficha-clinica-paciente/' + this.pacienteId + "/" + fichaClinicaId);
   }
 
   /*----------------------------------------------------------------------|

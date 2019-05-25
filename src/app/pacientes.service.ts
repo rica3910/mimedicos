@@ -395,7 +395,245 @@ export class PacientesService {
 
   }  
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaFichaClinicaPaciente.                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta una ficha clínica.              | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  pacienteId = identificador del paciente,                             |
+  |  formularioId = identificador del formulario.                         |                            
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/04/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaFichaClinicaPaciente(
+    pacienteId: string,
+    formularioId: string
+    ): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      pacienteId: pacienteId,
+      formularioId: formularioId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-ficha-clinica-paciente',
+        params,
+        { headers: headers });
+  }     
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: camposFichaClinica.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los campos para realizar, ver o     |
+  |  editar una ficha clínica de un paciente.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  fichaClinicaId = identificador de la ficha clínica.                  |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/05/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  camposFichaClinica(
+    fichaClinicaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información..
+      return this.http.get(this.urlApi + `campos-ficha-clinica/${fichaClinicaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: infoFormularioFichaClinica.                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener la info de un formulario de un      |
+  |   ficha clínica dada.                                                 |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: fichaClinicaId = id. de la ficha clínica.     |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/05/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  infoFormularioFichaClinica(
+    fichaClinicaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información.
+      return this.http.get(this.urlApi + `info-formulario-ficha-clinica/${fichaClinicaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+    /*----------------------------------------------------------------------|
+  |  NOMBRE: informacionFichaClinica.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener la información de la ficha clínica. |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  fichaClinicaId = identificador de la ficha clínica.                  |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/05/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  informacionFichaClinica(
+    fichaClinicaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información..
+      return this.http.get(this.urlApi + `informacion-ficha-clinica/${fichaClinicaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetFichaClinica.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta el detalle de una ficha clínica.| 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  fichaClinicaId = identificador de la ficha clínica,                  | 
+  |  detCampoFormularioId = identificador del campo,                      |                            
+  |  valor = valor o contenido del campo,                                 |
+  |  archivo = archivo seleccionado por el usuario.                       |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/05/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetFichaClinica(
+    fichaClinicaId: string,
+    detCampoFormularioId:string,
+    valor:string,
+    archivo: string): Observable<any> {
+   
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      fichaClinicaId: fichaClinicaId,
+      detCampoFormularioId: detCampoFormularioId,      
+      valor: valor,
+      archivo: archivo
+    });
+    
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });    
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-det-ficha-clinica',
+      json,
+        { headers: headers });
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarFichaClinica.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una ficha clínica.                 | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  fichaClinicaId = identificador de la ficha clínica.                  |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 10/05/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarFichaClinica(fichaClinicaId: string): Observable<any> {
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({      
+      fichaClinicaId: fichaClinicaId
+    });
+
+    //Le concatena la palabra "json=" al json armado.
+    const params = "json=" + json;
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-ficha-clinica',
+        params,
+        { headers: headers });
+  }     
+
+
 }
+
 
 //Constante que se utilizará para inyectar el servicio.
 export const PACIENTES_PROVIDERS: Array<any> = [

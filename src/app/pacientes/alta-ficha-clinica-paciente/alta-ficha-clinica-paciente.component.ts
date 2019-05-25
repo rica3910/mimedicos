@@ -1,11 +1,11 @@
 /******************************************************************|
-|NOMBRE: AltaDiagnosticoComponent.                                 | 
+|NOMBRE: AltaFichaClinicaPacienteComponent.                        | 
 |------------------------------------------------------------------|
 |DESCRIPCIÓN: Componente que inserta un diagnóstico a la consulta. |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 09/11/2018.                                                |
+|FECHA: 29/04/2019.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -21,24 +21,25 @@ import { FormGroup, Validators } from '@angular/forms';
 import { AbstractControl } from '@angular/forms';
 import { FormulariosService } from './../../formularios.service';
 import { Subject } from 'rxjs';
-import { ConsultasService } from './../../consultas.service';
+import { PacientesService } from '../../pacientes.service';
+
 
 @Component({
-  selector: 'app-alta-diagnostico',
-  templateUrl: './alta-diagnostico.component.html',
-  styleUrls: ['./alta-diagnostico.component.css']
+  selector: 'app-alta-ficha-clinica-paciente',
+  templateUrl: './alta-ficha-clinica-paciente.component.html',
+  styleUrls: ['./alta-ficha-clinica-paciente.component.css']
 })
-export class AltaDiagnosticoComponent implements OnInit {
+export class AltaFichaClinicaPacienteComponent implements OnInit {
 
-  //Identificador de la consulta. Tomada de la url.
-  consultaId: string;
-  //Objeto que contendrá el formulario de alta de los diagnósticos.
-  formAltaDiagnosticos: FormGroup;
+  //Identificador del paciente. Tomado de la url.
+  pacienteId: string;
+  //Objeto que contendrá el formulario de alta de las fichas clínicas.
+  formAltaFichasClinicas: FormGroup;
   //Objeto del formulario que contendrá al formulario.
   formularioControl: AbstractControl;
   //Variable que almacena el control del formulario del formulario.
   @ViewChild('formularioHTML') formularioHTML: ElementRef;
-  //Propiedad para cuando se oprime el botón de crear consulta.
+  //Propiedad para cuando se oprime el botón de crear ficha clínica.
   pulsarCrear: boolean = false;
   //Indica si el filtro de formularios ya se cargó.
   filtroFormulariosListo: boolean = false;
@@ -60,7 +61,7 @@ export class AltaDiagnosticoComponent implements OnInit {
   |  consultasService = contiene los métodos de la bd de las consultas,   |
   |  rutaActual = para obtener los parámetros de la url,                  |
   |  formulariosService = contiene métodos de la bd. de formularios,      |
-  |  consultasService = contiene los métodos de bd. de las consultas.     |                          
+  |  pacientesService = contiene los métodos de bd. de los pacientes.     |                          
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -72,20 +73,20 @@ export class AltaDiagnosticoComponent implements OnInit {
     private utilidadesService: UtilidadesService,
     private rutaActual: ActivatedRoute,
     private formularioService: FormulariosService,
-    private consultasService: ConsultasService) {
+    private pacientesService: PacientesService) {
 
-    //Obtiene el identificador de la consulta de la url.
+    //Obtiene el identificador del paciente de la url.
     this.rutaActual.paramMap.subscribe(params => {
-      this.consultaId = params.get("id");
+      this.pacienteId = params.get("id");
     });
 
-    //Se agregan las validaciones al formulario de alta de diagnósticos.
-    this.formAltaDiagnosticos = fb.group({
+    //Se agregan las validaciones al formulario de alta de fichas clínicas.
+    this.formAltaFichasClinicas = fb.group({
       'formulario': ['', Validators.required]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
-    this.formularioControl = this.formAltaDiagnosticos.controls['formulario'];
+    this.formularioControl = this.formAltaFichasClinicas.controls['formulario'];
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
@@ -112,15 +113,15 @@ export class AltaDiagnosticoComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: regresar.                                                    |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Regresa al menú de listado de diagnósticos.             |   
+  |  DESCRIPCIÓN: Regresa al menú de listado de fichas clínicas.          |   
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 09/11/2018.                                                   |    
+  |  FECHA: 29/04/2019.                                                   |    
   |----------------------------------------------------------------------*/
   regresar() {
-    //Se regresa a la lista de diagnósticos.
-    this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + this.consultaId);
+    //Se regresa a la lista de fichas clínicas.
+    this.rutaNavegacion.navigateByUrl('pacientes/lista-fichas-clinicas-paciente/' + this.pacienteId);
   }
 
 
@@ -136,7 +137,7 @@ export class AltaDiagnosticoComponent implements OnInit {
   filtroFormularios() {
 
     //Intenta obtener los formularios del usuario logueado.
-    this.formularioService.filtroFormularios()
+    this.formularioService.filtroFormularios("ACTIVO", "0")
       .subscribe((respuesta) => {
 
         this.filtroFormulariosListo = true;
@@ -165,17 +166,17 @@ export class AltaDiagnosticoComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaDiagnostico.                                             |
+  |  NOMBRE: altaFichaClinica.                                            |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para dar de alta una consulta.                   | 
+  |  DESCRIPCIÓN: Método para dar de alta una ficha clínica.              | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 09/11/2018.                                                   |    
+  |  FECHA: 29/04/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  altaDiagnostico() {
+  altaFichaClinica() {
 
-    //Se pulsa el botón  de dar de alta consulta.
+    //Se pulsa el botón  de dar de alta la ficha clínica.
     this.pulsarCrear = true;
 
     /*Si los elementos del formulario estáticos requeridos no están llenos, 
@@ -188,11 +189,11 @@ export class AltaDiagnosticoComponent implements OnInit {
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
-    //Se intenta dar de alta el diagnóstico.
-    this.consultasService.altaDiagnostico(this.consultaId, this.formularioControl.value).subscribe(respuesta => {
+    //Se intenta dar de alta la ficha clínica del paciente.
+    this.pacientesService.altaFichaClinicaPaciente(this.pacienteId, this.formularioControl.value).subscribe(respuesta => {
 
-      //Se detiene la espera.
-      this.esperarService.noEsperar();
+       //Se detiene la espera.
+       this.esperarService.noEsperar();
 
       //Si hubo un error en la obtención de información.
       if (respuesta["estado"] === "ERROR") {
@@ -200,10 +201,10 @@ export class AltaDiagnosticoComponent implements OnInit {
         this.utilidadesService.alerta("Error", respuesta["mensaje"]);
       }
       else {
-
-        //Se obtiene el identificador del diagnóstico recién creado.
-        let diagnosticoId: string = respuesta["mensaje"];
-        this.rutaNavegacion.navigateByUrl('consultas/editar-diagnostico/' + this.consultaId + '/' + diagnosticoId);
+   
+        //Se obtiene el identificador de la ficha clínica recién creado.
+        let fichaClinicaId: string = respuesta["mensaje"];        
+        this.rutaNavegacion.navigateByUrl('pacientes/editar-ficha-clinica-paciente/' + this.pacienteId + '/' + fichaClinicaId);
 
       }
 

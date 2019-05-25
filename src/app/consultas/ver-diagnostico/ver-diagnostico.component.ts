@@ -300,7 +300,7 @@ export class VerDiagnosticoComponent implements OnInit {
 
     //Se arma la  información del footer.
     let infoPiePagina: Object = {
-      imagen: this.firmaMedico,
+      imagen: "",//this.firmaMedico,
       nombre: "DR. " + this.nombresUsuario
     }
 

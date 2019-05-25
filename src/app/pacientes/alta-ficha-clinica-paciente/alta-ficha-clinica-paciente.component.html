@@ -1,0 +1,56 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-ficha-clinica-paciente.                              | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para dar de alta un diagnóstico a la consulta.|
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 29/04/2019.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de fichas clínicas."
+        (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Alta de fichas clínicas</h1>
+    </div>
+  </div>
+  <div class="row">
+    <br>
+  </div>
+  <form [formGroup]="formAltaFichasClinicas" (ngSubmit)="altaFichaClinica()">
+    <br>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Formulario*</span>
+          </div>
+          <select class="form-control input-lg" [formControl]="formularioControl" #formularioHTML ngbTooltip="Seleccionar un formulario.">
+            <option *ngFor="let formulario of formularios" value={{formulario.id}}>
+              {{formulario.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !formularioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          formulario es Requerido.</div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-lg-12">
+        <button class="btn btn-lg btn-azul  btn-block" type="submit" ngbTooltip="Dar de alta la ficha clínica.">Crear</button>
+      </div>
+    </div>
+  </form>
+</div>
