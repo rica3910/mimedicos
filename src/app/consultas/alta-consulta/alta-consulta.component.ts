@@ -12,10 +12,10 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ɵConsole } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, Subscription, fromEvent, of } from 'rxjs';
+import { Subject, Observable, merge, Subscription, fromEvent, of, BehaviorSubject } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -311,28 +311,22 @@ export class AltaConsultaComponent implements OnInit {
 
       }
 
-      //Se inicializan los  usuarios.
-      this.usuarios = new Array();
-
       //Se inicia la espera.
-      this.esperarService.esperar();
-
-      //Se obtienen los usuarios que tengan al paciente seleccionado.
-      this.usuariosTienenPacienteSeleccionado(this.usuariosServidor, paciente.id).subscribe((usuariosConPacienteSeleccionado) => {
-
+      //this.esperarService.esperar();ç
+    
+      let usuaritos: any[] = [];
   
-        console.log(usuariosConPacienteSeleccionado);
-
-
-        //De los usuarios resultantes, se obtienen los que tengan a la clínica seleccionada.
-        /*this.usuariosTienenClinicaSeleccionada(usuariosConPacienteSeleccionado, this.clinicaControl.value).subscribe((usuariosConClinicaSeleccionada: Array<any>) => {
-
-          console.log(usuariosConClinicaSeleccionada);
-          //this.usuarios = usuariosConClinicaSeleccionada;
-          //Se detiene la espera.
-          this.esperarService.noEsperar();
-        });*/
+      this.usuariosTienenPacienteSeleccionado(this.usuariosServidor, paciente.id).pipe(map(usuario => {
+        usuaritos.push(usuario);
+        return usuaritos;
+      })).toPromise().then(usuarios => {
+        console.log("hola");
+        console.log(usuarios);
       });
+  
+      //let usuariosConClinica = this.usuariosTienenClinicaSeleccionada(usuariosConPaciente, this.clinicaControl.value);
+      //Se termina la espera.
+      this.esperarService.noEsperar();
 
     }
     //Si el paciente está vacío.
@@ -387,42 +381,32 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  usuariosTienenPacienteSeleccionado(usuarios: Array<any>, pacienteId: string): Subject<Array<object>> {
+  usuariosTienenPacienteSeleccionado(usuarios: Array<any>, pacienteId: string): Observable<any[]>{
 
-    //Arreglo de las iteraciones por las que ya ha pasado el arreglo de usuarios.
-    let iteraciones: Array<number> = new Array();
-    //Usuarios que tienen al paciente seleccionado.
-    let usuariosResultantes: Array<any> = new Array();
-    //Indica si la carga inicial de la página ya terminó.
-    let lista$: Subject<Array<object>> = new Subject<Array<object>>();
+    //Almacena los usuarios resultantes después del filtro.
+    let usuariosResultantes: Subject<any[]>= new Subject<any[]>();
 
-    //Se recorren los usuarios.
-    usuarios.map((usuario, indice) => {
+    //Se manda a llamar recursivamente cada uno de los usuarios del arreglo si es que existen.
+    siguienteUsuario(this.autenticarService, 0);
 
-      this.autenticarService.usuarioTienePaciente(pacienteId, usuario["id"]).subscribe(respuesta => {
+    return usuariosResultantes;
 
-        //Si el usuario sí tiene el paciente seleccionado.
-        if (respuesta["value"]) {
+    //Se retornan los usuarios que tienen al paciente seleccionado.
 
-          usuariosResultantes.push(usuario);
+    //Función recursiva.
+    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number): any{
+      if(indice < usuarios.length){
 
-          lista$.next(usuario);
-
-        }
-        //Se agrega la iteración.
-        iteraciones.push(indice);
-
-        //Si es la última iteración.
-        if (iteraciones.length == usuarios.length) {
-
-          lista$.complete();
-        }
-
-      });
-
-    });
-    
-    return lista$;
+        pAutenticarService.usuarioTienePaciente(pacienteId, usuarios[indice]).subscribe(respuesta => {
+          if(respuesta["value"]){
+            usuariosResultantes.next(usuarios[indice]);                       
+          }
+          siguienteUsuario(pAutenticarService, indice + 1);
+        });
+      }else{
+        usuariosResultantes.complete();
+      }
+    }
 
   }
 
@@ -441,44 +425,34 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  usuariosTienenClinicaSeleccionada(usuarios: Array<any>, clinicaId: string): Observable<Array<object>> {
+  usuariosTienenClinicaSeleccionada(usuarios: any[], clinicaId: string): any[]{
 
-    //Arreglo de las iteraciones por las que ya ha pasado el arreglo de usuarios.
-    let iteraciones: Array<number> = new Array();
-    //Usuarios que tienen a la cínica seleccionado.
+    //Usuarios que tienen a la clínica seleccionada.
     let usuariosResultantes: Array<any> = new Array();
 
-    console.log("CLINICAAAAAA");
-
-    //Se recorren los usuarios.
-    usuarios.map((usuario, indice) => {
-
-      console.log("hola");
-
-      this.autenticarService.usuarioTieneClinica(clinicaId, usuario["id"]).subscribe(respuesta => {
-
-        //Si el usuario sí tiene la clínica seleccionada.
-        if (respuesta["value"]) {
-
-          usuariosResultantes.push(usuario);
-
-        }
-        //Se agrega la iteración.
-        iteraciones.push(indice);
-
-        //Si es la última iteración.
-        if (iteraciones.length == usuarios.length) {
-
-          //Se retornan los usuarios resultantes.
-          return of(usuariosResultantes);
-
-        }
-
-      });
-
+    usuarios.map(usuario => {
+      console.log(usuario);
     });
 
-    return of(usuariosResultantes);
+    
+    //Se manda a llamar recursivamente cada uno de los usuarios del arreglo si es que existen.
+    usuarios.length > 0 ? siguienteUsuario(this.autenticarService, 0) : null;
+
+    //Se retornan los usuarios que tienen a la clínica seleccionada.
+    return usuariosResultantes;
+
+    //Función recursiva.
+    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number){
+      if(indice < usuarios.length){
+
+        pAutenticarService.usuarioTieneClinica(clinicaId, usuarios[indice]).subscribe(respuesta => {
+          if(respuesta["value"]){
+            usuariosResultantes.push(usuarios[indice]);
+          }
+          siguienteUsuario(pAutenticarService, indice + 1);
+        });
+      }
+    }
   }
 
   /*----------------------------------------------------------------------|
