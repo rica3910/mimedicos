@@ -136,7 +136,7 @@ export class AltaDiagnosticoComponent implements OnInit {
   filtroFormularios() {
 
     //Intenta obtener los formularios del usuario logueado.
-    this.formularioService.filtroFormularios()
+    this.formularioService.filtroFormularios("", "ACTIVO")
       .subscribe((respuesta) => {
 
         this.filtroFormulariosListo = true;

@@ -25,26 +25,7 @@
     </div>
   </div>  
   <br>
-  <div class="row">
-    <table class="table table-bordered">
-      <tr>
-        <th class="text-center">Paciente</th>
-        <td class="text-center">{{nombrePaciente}}</td>      
-      </tr>  
-      <tr>
-        <th class="text-center">Email</th>
-        <td class="text-center">{{email}}</td>      
-      </tr>       
-      <tr>
-        <th class="text-center">Teléfono</th>
-        <td class="text-center">{{telefono}}</td>      
-      </tr>       
-      <tr>
-        <th class="text-center">Celular</th>
-        <td class="text-center">{{celular}}</td>      
-      </tr>                
-    </table>
-  </div>
+  <app-info-paciente [pacienteId]="pacienteId" (informacionLista)="infoPacienteLista($event)"></app-info-paciente>
   <div class="row">
     <div class="col-lg-1">
       <button *ngIf="altaFichasClinicas" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom"
@@ -77,6 +58,7 @@
             <th class="text-center">Ficha clínica</th>
             <th class="text-center">Descripción</th>
             <th class="text-center">Médico</th>
+            <th class="text-center">Clínica</th>
             <th class="text-center">Fecha</th>
             <th class="text-center">Opciones</th>
           </tr>
@@ -86,16 +68,17 @@
             <td>{{fichaClinica.nombre}}</td>
             <td>{{fichaClinica.descripcion}}</td>
             <td>{{fichaClinica.nombre_usuario}}</td>
+            <td>{{fichaClinica.nombre_clinica}}</td>
             <td>{{fichaClinica.fecha}}</td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
-                <button *ngIf="verFichasClinicas" type="button" class="btn" ngbTooltip="Ver fichas clínicas." (click)='verFichaClinica(fichaClinica.id)'>
+                <button *ngIf="verFichasClinicas" type="button" class="btn" ngbTooltip="Ver fichas clínica." (click)='verFichaClinica(fichaClinica.id)'>
                   <i class="material-icons">visibility</i>
                 </button>
-                <button *ngIf="editarFichasClinicas  && fichaClinica.usuario_puede_manipular > 0" type="button" class="btn" ngbTooltip="Editar ficha clínica." (click)='editarFichaClinica(fichaClinica.id)'>
+                <button *ngIf="editarFichasClinicas" type="button" class="btn" ngbTooltip="Editar ficha clínica." (click)='editarFichaClinica(fichaClinica.id)'>
                   <i class="material-icons">edit</i>
                 </button>
-                <button *ngIf="eliminarFichasClinicas  && fichaClinica.usuario_puede_manipular > 0" type="button" class="btn" ngbTooltip="Eliminar ficha clínica."
+                <button *ngIf="eliminarFichasClinicas" type="button" class="btn" ngbTooltip="Eliminar ficha clínica."
                   (click)='eliminarFichaClinica(fichaClinica.id)'>
                   <i class="material-icons">delete_forever</i>
                 </button>

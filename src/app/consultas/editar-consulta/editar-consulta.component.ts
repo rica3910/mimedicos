@@ -197,7 +197,7 @@ export class EditarConsultaComponent implements OnInit {
     //Se cargan los usuarios en su filtro.
     this.filtroUsuarios();
     //Se cargan las clínicas en su filtro.
-    this.filtroClinicas(0);
+    this.filtroClinicas("0");
     //Se cargan los tipos de consultas.
     this.filtroTiposConsultas();
     //Se cargan los estudios.
@@ -574,12 +574,12 @@ export class EditarConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 29/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroClinicas(organizacionId: number, esperar: boolean = false) {
+  filtroClinicas(organizacionId: string, esperar: boolean = false) {
 
     //Si esperar es verdadero, entonces se abre el modal de espera.
     esperar ? this.esperarService.esperar() : null;
 
-    this.clinicasService.filtroClinicas(organizacionId).subscribe((respuesta) => {
+    this.clinicasService.filtroClinicas(null, null, organizacionId).subscribe((respuesta) => {
 
       //Solo se realiza al recargar la página.
       if (!esperar) {

@@ -46,7 +46,10 @@ export class ClinicasService {
   |  DESCRIPCIÓN: Método para obtener las clínicas activas                |
   |  del usuario logueado.                                                |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:  organizacionId = id de la organización.      |
+  |  PARÁMETROS DE ENTRADA: usuarioId = id del usuario,                   |
+  |                         status = estatus de la clínica: ACTIVO,       |
+  |                         INACTIVO o TODOS,                             |
+  |                         organizacionId = id de la organización.       |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
   |                          o ERROR                                      |
@@ -57,7 +60,7 @@ export class ClinicasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 06/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroClinicas(organizacionId: number): Observable<any> {
+  filtroClinicas(usuarioId: string, status: string, organizacionId: string): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -68,7 +71,7 @@ export class ClinicasService {
       });
 
       //Envía la petición al servidor backend para obtener los registros.
-      return this.http.get(this.urlApi + 'filtro-clinicas/' + organizacionId, { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-clinicas/' + usuarioId + "/" + status + "/" + organizacionId, { headers: headers });
     }
     //No está conectado.
     return of(false);

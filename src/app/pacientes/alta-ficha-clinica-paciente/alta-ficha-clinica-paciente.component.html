@@ -24,11 +24,29 @@
       <h1 class="display-4">Alta de fichas clínicas</h1>
     </div>
   </div>
+  <app-info-paciente [pacienteId]="pacienteId" (informacionLista)="infoPacienteLista($event)"></app-info-paciente>
   <div class="row">
     <br>
   </div>
   <form [formGroup]="formAltaFichasClinicas" (ngSubmit)="altaFichaClinica()">
     <br>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Médico*</span>
+          </div>
+          <select class="form-control input-lg" [formControl]="usuarioControl" #usuarioHTML ngbTooltip="Seleccionar un Médico." (change)="actualizarFiltros()">                        
+            <option *ngFor="let usuario of usuarios" value={{usuario.id}}>
+              {{usuario.nombres_usuario}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Médico es Requerido.</div>
+      </div>
+    </div> 
     <div class="row">
       <div class="col-lg-2"></div>
       <div class="col-lg-8">
@@ -45,7 +63,24 @@
         <div *ngIf="pulsarCrear && !formularioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
           formulario es Requerido.</div>
       </div>
-    </div>
+    </div>   
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica*</span>
+          </div>
+          <select class="form-control input-lg" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica.">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La clínica es requerida.
+        </div>
+      </div>
+    </div>     
     <hr>
     <div class="row">
       <div class="col-lg-12">

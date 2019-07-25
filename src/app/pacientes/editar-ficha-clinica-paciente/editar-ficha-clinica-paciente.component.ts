@@ -12,7 +12,7 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChildren, ElementRef, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChildren, ElementRef, QueryList, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { EsperarService } from './../../esperar.service';
@@ -20,6 +20,9 @@ import { UtilidadesService } from './../../utilidades.service';
 import { Subject, Subscription } from 'rxjs';
 import { FormGroup, FormBuilder, FormControl, Validators, FormControlName, AbstractControl } from '@angular/forms';
 import { PacientesService } from '../../pacientes.service';
+import { UsuariosService } from '../../usuarios.service';
+import { ClinicasService } from '../../clinicas.service';
+import { AutenticarService } from '../../autenticar.service';
 
 @Component({
   selector: 'app-editar-ficha-clinica-paciente',
@@ -32,6 +35,10 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   pacienteId: string;
   //Identificador de la ficha clínica. Tomado de la url.
   fichaClinicaId: string;
+  //Identificador del usuario o médico.
+  usuarioId: string;
+  //Identificador de la clínica.
+  clinicaId: string;
   //Identificador del formulario.
   formularioId: string;
   //Nombre del formulario que se desplegará en el título.
@@ -42,7 +49,22 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   verificarInfoFormulario: boolean = false;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
-
+  //Indica si el filtro de usuarios o médicos ya se cargó.
+  filtroUsuariosListo: boolean = false;
+  //Indica si el filtro de clínicas ya se cargó.
+  filtroClinicasListo: boolean = false;
+  //Registros de usuarios o  médicos.
+  usuarios: Array<JSON>;
+  //Registros de clínicas.
+  clinicas: Array<JSON>;
+  //Objeto del formulario que contendrá al médico o usuario.
+  usuarioControl: AbstractControl;
+  //Objeto del formulario que contendrá a la clínica.
+  clinicaControl: AbstractControl;
+  //Variable que almacena el control del formulario del usuario o médico.
+  @ViewChild('usuarioHTML') usuarioHTML: ElementRef;
+  //Variable que almacena el control del formulario de la clínica.
+  @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable para almacenar los campos del formulario.
   campos: JSON[] = new Array();
   //Variable que almacena los campos dinámicos del formulario.
@@ -57,6 +79,8 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   pulsarCrear: boolean = false;
   //Propiedad para almacenar las imágenes que pudiera tener el formulario.
   imagenes: any[] = new Array();
+  //Indica que ya se verificó que la información del paciente ya está lista.
+  verificarInfoPaciente: boolean = false;
 
   //Propiedad para la configuración del editor de textos.
   editorConfig: any = {
@@ -92,7 +116,10 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   |  esperarService = contiene los métodos para mostrar o no la espera,   |  
   |  pacientesService = contiene los métodos de la bd de los pacientes,   |
   |  utilidadesService = Contiene métodos genéricos y útiles,             |
-  |  fb = contiene los métodos para manipular formularios HTML.           |
+  |  fb = contiene los métodos para manipular formularios HTML,           |
+  |  usuariosService = contiene los métodos de bd. de los usuarios,       |
+  |  clinicasService = contiene los métodos de bd. de las clínicas,       |
+  |  autenticarService = contiene los métodos de permisos.                |          
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -103,20 +130,32 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
     private esperarService: EsperarService,
     private pacientesService: PacientesService,
     private utilidadesService: UtilidadesService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private usuariosService: UsuariosService,
+    private clinicasService: ClinicasService,
+    private autenticarService: AutenticarService) {
 
     //Obtiene el identificador del paciente y de la ficha clínica de la url.
     this.rutaActual.paramMap.subscribe(params => {
 
-      this.pacienteId = params.get("id");
+      this.pacienteId = params.get("pacienteId");
       this.fichaClinicaId = params.get("fichaClinicaId");
       //Se inicia la espera de respuesta de información.
       this.esperarService.esperar();
+
+      //Se agregan las validaciones al formulario de edición de fichas clínicas.
+      this.formulario = fb.group({
+        'usuario': ['', Validators.required],
+        'clinica': ['', Validators.required]
+      });
+
+      //Se relacionan los elementos del formulario con las propiedades/variables creadas.
+      this.usuarioControl = this.formulario.controls['usuario'];
+      this.clinicaControl = this.formulario.controls['clinica'];
+
       //Se obtiene la información del formulario.
       this.infoFormulario();
 
-      //Se agregan las validaciones al formulario de alta de consultas.
-      this.formulario = fb.group({});
     });
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
@@ -124,17 +163,17 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
 
       //Si todos los filtros e información están listos.
       if (this.verificarInfoFormulario &&
-          this.verificarCampos) {
+        this.filtroUsuariosListo &&
+        this.filtroClinicasListo &&
+        this.verificarCampos &&
+        this.verificarInfoPaciente) {
 
-        //Se resetean los valores de información inicial.
-        this.verificarInfoFormulario = false;
-        this.verificarCampos = false;
+        //Se resetea solo el filtro de clínicas ya que es el único que puede cambiar dinámicamente.
+        this.filtroClinicasListo = false;
 
         //Se detiene la espera.
         this.esperarService.noEsperar();
 
-        //Se cancela la subscripción de la escucha de cambios en los campos HTML.
-        this.subscripcionCamposDinamicos.unsubscribe();
       }
 
     });
@@ -142,6 +181,127 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  /*----------------------------------------------------------------------|
+   |  NOMBRE: filtroUsuarios.                                              |
+   |-----------------------------------------------------------------------|
+   |  DESCRIPCIÓN: Método para llenar el filtro de médicos o usuarios.     | 
+   |-----------------------------------------------------------------------|
+   |  AUTOR: Ricardo Luna.                                                 |
+   |-----------------------------------------------------------------------|
+   |  FECHA: 07/06/2019.                                                   |    
+   |----------------------------------------------------------------------*/
+  filtroUsuarios() {
+
+    //Se resetea el valor del campo para que no se quede con basura.
+    this.usuarioControl.setValue("");
+
+    //Intenta obtener los usuarios del usuario logueado.
+    this.usuariosService.filtroUsuariosPaciente(this.pacienteId, "TODOS")
+      .subscribe((respuesta) => {
+
+        this.filtroUsuariosListo = true;
+        this.cargaInicialLista$.next(this.filtroUsuariosListo);
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los usuarios en su select.
+          this.usuarios = respuesta["datos"];
+
+          //Se verifica que los usuarios encontrados puedan utilizar el formulario de la ficha clínica.
+          this.usuarios.forEach((usuario, indice) => {
+
+            this.autenticarService.usuarioTieneFormulario(usuario["id"], this.formularioId, "TODOS").subscribe((respuesta) => {
+              //Si hubo un error en la obtención de información.
+              if (!respuesta["value"]) {
+                //Elimina el usuario del arreglo.
+                this.usuarios.splice(indice, 1);
+              }
+
+            });
+          });
+
+          //Si los usuarios no vienen vacíos.
+          if (this.usuarios.length > 0) {
+            //Se inicializa el select con el valor del usuario id o médico almacenado.          
+            this.usuarioControl.setValue(this.usuarioId);
+            //Se cargan las clínicas.
+            this.filtroClinicas();
+          }
+
+        }
+      });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroClinicas.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/06/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroClinicas() {
+
+    //Se resetea el valor del campo para que no se quede con basura.
+    this.clinicaControl.setValue("");
+
+    //Intenta obtener las clínicas del usuario seleccionado.
+    this.clinicasService.filtroClinicas(this.usuarioControl.value, "TODOS", "0")
+      .subscribe((respuesta) => {
+
+        this.filtroClinicasListo = true;
+        this.cargaInicialLista$.next(this.filtroClinicasListo);
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los registos en su select.
+          this.clinicas = respuesta["datos"];
+
+          //Si los registros no vienen vacíos.
+          if (this.clinicas.length > 0) {
+            //Se inicializa el select con el valor almacenado de la clínica.
+            this.clinicaControl.setValue(this.clinicaId);
+          }
+
+        }
+      });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: actualizarFiltros.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para actualizar los filtros.                     | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 17/06/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  actualizarFiltros() {
+
+    //Se pierde el foco del usuario para evitar que aparezca el error.
+    this.usuarioHTML.nativeElement.blur();
+
+    //Inicia la espera de respuesta de parte del servidor.
+    this.esperarService.esperar();
+
+    //Se cargan de nuevo el filtro de clínicas.
+    this.filtroClinicas();
+
   }
 
   /*----------------------------------------------------------------------|
@@ -188,6 +348,11 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
         this.formularioId = respuesta["datos"][0]["formulario_id"];
         this.nombreFormulario = respuesta["datos"][0]["nombre"];
         this.descripcionFormulario = respuesta["datos"][0]["descripcion"];
+        this.usuarioId = respuesta["datos"][0]["usuario_id"];
+        this.clinicaId = respuesta["datos"][0]["clinica_id"];
+
+        //Se cargan los usuarios.
+        this.filtroUsuarios();
 
         //Se obtienen los campos del formulario.
         this.obtenerCampos();
@@ -200,7 +365,7 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: obtenerCampos.                                               |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para obtener los campos del usuario logueado.    | 
+  |  DESCRIPCIÓN: Método para obtener los campos de la ficha clínica.     | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -295,10 +460,10 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
 
                 etiqueta = campo["etiqueta"];
               });
-              
+
               //Se almacenan los campos únicos.
               this.campos = camposUnicos;
-              
+
               //Se empiezan a crear los campos del formulario.
               this.campos.forEach((campo: JSON) => {
 
@@ -313,7 +478,7 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
                 campo["tipo_campo_formulario"] == "DECIMAL" ? validaciones.push(this.utilidadesService.decimalValidator) : null;
 
                 //Si el campo no es un dibujo ni una imagen.
-                if (campo["tipo_campo_formulario"] != "DIBUJO" && campo["tipo_campo_formulario"] != "IMAGEN" && campo["tipo_campo_formulario"] != "LISTA" ) {
+                if (campo["tipo_campo_formulario"] != "DIBUJO" && campo["tipo_campo_formulario"] != "IMAGEN" && campo["tipo_campo_formulario"] != "LISTA") {
                   //Se agrega el campo control al formulario.
                   control = new FormControl(campo["valor"], validaciones);
                   this.formulario.addControl('control' + campo["id"], control);
@@ -374,7 +539,7 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
                         valorDefault ? this.formulario.controls["control" + campoId].setValue(valorDefault) : this.formulario.controls["control" + campoId].setValue(this.formulario.controls["control" + campoId].value);
                       }
                       //Si hay información, entonces se le da el valor correspondiente.
-                      else {                        
+                      else {
 
                         this.formulario.controls["control" + campoId].setValue(infoFichaClinica.filter(function (item) {
                           return item["campo_formulario_id"] === campoFormularioId;
@@ -399,6 +564,10 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
                     }
                   }
                 });
+
+                //Se cancela la subscripción de la escucha de cambios en los campos HTML.
+                this.subscripcionCamposDinamicos.unsubscribe();
+
               });
 
             }
@@ -602,7 +771,15 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
 
     /*Si los elementos del formulario dinámicos requeridos no están llenos, 
     se hace un focus para que se ingrese texto.*/
-    if (this.formulario.invalid) {
+    if (this.usuarioControl.invalid) {
+      this.usuarioHTML.nativeElement.focus();
+      return;
+    }
+    else if (this.clinicaControl.invalid) {
+      this.clinicaHTML.nativeElement.focus();
+      return;
+    }
+    else if (this.formulario.invalid) {
       return;
     }
 
@@ -698,12 +875,31 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
 
 
         //Se agregan al arreglo los campos que se van a insertar en el detalle de la ficha clínica.
-        camposInfo.push({ "fichaClinicaId": this.fichaClinicaId, "campoId": campo["id"], "valor": valor, "archivo": archivo });                
+        camposInfo.push({ "fichaClinicaId": this.fichaClinicaId, "campoId": campo["id"], "valor": valor, "archivo": archivo });
 
-      }      
+      }
 
-      //Se recoren los campos a insertar recursivamente.
-      this.altaDetFichaClinica(camposInfo, 0);
+      //Se edita la información de la ficha clínica.
+      this.pacientesService.editarFichaClinicaPaciente(this.fichaClinicaId, this.clinicaControl.value, this.usuarioControl.value)
+        .subscribe(respuesta => {
+          //Si hubo un error en la edición de la ficha clínica.
+          if (respuesta["estado"] === "ERROR") {
+            this.esperarService.noEsperar();
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
+              //Se retorna a la lista de diagnósticos.
+              this.regresar();
+              return;
+            });
+
+          } 
+          //Si se editó la información correctamente.
+          else {            
+            //Se recoren los campos a insertar recursivamente.
+            this.altaDetFichaClinica(camposInfo, 0);
+          }
+
+        });
+
     }
   }
 
@@ -757,6 +953,23 @@ export class EditarFichaClinicaPacienteComponent implements OnInit {
         }
       });
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: infoPacienteLista.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que avisa que ya se obtuvo la info del paciente. |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: infoLista = indica que la info está lista.    |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/03/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  infoPacienteLista(infoLista: boolean) {
+    this.verificarInfoPaciente = infoLista;
+    this.cargaInicialLista$.next(this.verificarInfoPaciente);
+  }
+
 
 }
 

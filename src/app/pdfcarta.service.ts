@@ -174,8 +174,10 @@ export class PDFCartaService {
 
     //Nombre del médico.
     let nombre: string = pInfoFooter["nombre"];
+    //Cédula profesional del médico.
+    let cedula: string = pInfoFooter["cedula"];
     //Imagen.
-    let imagen: string= pInfoFooter["imagen"]? pInfoFooter["imagen"] : "";
+    let firma: string= pInfoFooter["firma"];
     //Se obtiene la posición en X del centro de la hoja.
     let centroXHoja: number = (this.pdf.internal.pageSize.width / 2);
 
@@ -184,12 +186,13 @@ export class PDFCartaService {
       //Se establece la página a la que hay que plancharle el encabezado.
       this.pdf.setPage(i);
       //Se agrega la firma digitalizada en caso de que exista.      
-      imagen.length > 0 ? this.pdf.addImage(imagen, 'PNG', centroXHoja - 15, 220, 30, 30) : null;
+      firma.length > 0 ? this.pdf.addImage(firma, 'PNG', centroXHoja - 15, 220, 30, 30) : null;
       //Se agrega la línea.
       this.pdf.setLineWidth(0.5);
       this.pdf.line(centroXHoja - ((nombre.length / 2) * (this.tamanoCaracterNormal)), 250, centroXHoja + ((nombre.length / 2) * (this.tamanoCaracterNormal)), 250);
       //Se agrega el nombre del médico
       this.pdf.text(nombre, this.pdf.internal.pageSize.width / 2, 255, null, null, 'center');
+      this.pdf.text(cedula, this.pdf.internal.pageSize.width / 2, 260, null, null, 'center');      
 
     }
   }

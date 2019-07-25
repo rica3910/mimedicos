@@ -588,7 +588,8 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para saber si el usuario tiene un paciente dado. | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: pacienteId: identificador del paciente.       |
+  |  PARÁMETROS DE ENTRADA: pacienteId: identificador del paciente,       |
+  |                         usuarioId: identificador del usuario.         |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
   |  en caso de que el usuario tenga o no el paciente respectivamente.    |  
@@ -597,7 +598,7 @@ export class AutenticarService {
   |-----------------------------------------------------------------------|
   |  FECHA: 04/07/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  usuarioTienePaciente(pacienteId: string): Observable<any> {
+  usuarioTienePaciente(pacienteId: string, usuarioId: string): Observable<any> {
 
     //Si está conectado, entonces el token si existe.
     if (this.obtenerToken() !== null) {
@@ -607,7 +608,7 @@ export class AutenticarService {
       });
 
       //Envía la petición al servidor backend.
-      return this.http.get(this.urlApi + 'usuario-tiene-paciente/' + pacienteId, { headers: headers })
+      return this.http.get(this.urlApi + 'usuario-tiene-paciente/' + pacienteId + "/" + usuarioId, { headers: headers })
         .pipe(map(respuesta => {
 
           //Si el usuario no tiene el paciente.
@@ -973,7 +974,93 @@ export class AutenticarService {
     //No está conectado.
     return of(false);
   }   
-  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneFormulario.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene un formulario.    | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: usuarioId: identificador del usuario,         |
+  |                         formularioId: identificador del formulario,   |
+  |                         estatus: estatus del formulario.              |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario tenga o no el paciente respectivamente.    |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 02/07/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneFormulario(usuarioId: string, formularioId: string, estatus: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-formulario/' + usuarioId + "/" + formularioId + "/" + estatus, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene el formulario
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí tiene asignado el formulario.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneClinica.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene una clínica.      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: clinicaId: identificador de la clínica,       |
+  |                         usuarioId: identificador del usuario.         |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario tenga o no la clínica respectivamente.     |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 18/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneClinica(clinicaId: string, usuarioId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-clinica/' + clinicaId + '/' + usuarioId, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene la clínica.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí tiene asignado la clínica.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }  
 }
 
 //Constante que se utilizará para inyectar el servicio.

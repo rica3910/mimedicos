@@ -59,15 +59,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
   verificarVerFichasClinicas: boolean = false;
   //Indica que ya se verificó que la información del paciente ya está lista.
   verificarInfoPaciente: boolean = false;
-  //Nombre completo del paciente.  
-  nombrePaciente: string = "";
-  //Correo electrónico.
-  email: string = "";
-  //Teléfono
-  telefono: string = "";
-  //Celular
-  celular: string = "";   
-
+ 
   /*----------------------------------------------------------------------|
    |  NOMBRE: constructor.                                                 |
    |-----------------------------------------------------------------------|
@@ -94,13 +86,13 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
 
     //Obtiene el identificador de la consulta de la url.
     this.rutaActual.paramMap.subscribe(params => {
-
+      
       //Se resetean los valores de verificación.
       this.verificarAltaFichasClinicas = false;
       this.verificarEliminarFichasClinicas = false;
       this.verificarEditarFichasClinicas = false;
       this.verificarVerFichasClinicas = false;
-      this.verificarInfoPaciente = false;
+      this.verificarInfoPaciente = false;      
 
       //Obtiene el identificador del paciente de la url.
       this.pacienteId = params.get("id");
@@ -127,7 +119,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
       });
 
       //El botón de editar fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
-      this.autenticarService.usuarioTieneDetModulo('EDITAR FICHA CLINICA').subscribe(respuesta => {
+      this.autenticarService.usuarioTieneDetModulo('ALTA DETALLE FICHA CLINICA').subscribe(respuesta => {
 
         this.editarFichasClinicas = respuesta["value"];
         this.verificarEditarFichasClinicas = true;
@@ -136,27 +128,13 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
       });
       
       //El botón de ver fichas clínicas se hará visible solamente si el usuario tiene el privilegio.
-      this.autenticarService.usuarioTieneDetModulo('VER FICHA CLINICA PACIENTE').subscribe(respuesta => {
+      this.autenticarService.usuarioTieneDetModulo('VER INFORMACION FICHA CLINICA').subscribe(respuesta => {
 
         this.verFichasClinicas = respuesta["value"];
         this.verificarVerFichasClinicas = true;
         this.cargaInicialLista$.next(this.verificarVerFichasClinicas);
 
-      });
-
-      //Obtener la información del paciente.
-      this.pacientesService.verPaciente(this.pacienteId).subscribe(respuesta => {
-
-        this.infoPacienteLista = respuesta["value"];
-        this.verificarInfoPaciente = true;
-        this.cargaInicialLista$.next(this.verificarInfoPaciente);
-        this.nombrePaciente = respuesta["datos"][0]["nombres"] + " " + respuesta["datos"][0]["apellido_paterno"] + " " + respuesta["datos"][0]["apellido_materno"];
-        this.email = respuesta["datos"][0]["email"];
-        this.telefono = respuesta["datos"][0]["telefono"];
-        this.celular = respuesta["datos"][0]["celular"];        
-
-      });
-
+      }); 
 
     });
 
@@ -169,6 +147,7 @@ export class ListaFichasClinicasPacienteComponent implements OnInit {
         this.verificarEditarFichasClinicas &&
         this.verificarVerFichasClinicas &&
         this.verificarInfoPaciente) {
+                    
         //Inicia la búsqueda de información.
         this.esperarService.noEsperar();
         this.buscar();

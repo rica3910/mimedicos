@@ -11,11 +11,11 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
-<div class="container">    
+<div class="container">
   <div class="row">
     <div class="col-lg-1">
-      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de fichas clínicas."
-        (click)="regresar()">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom"
+        ngbTooltip="Regresar al listado de fichas clínicas." (click)="regresar()">
         <i class="material-icons">arrow_back</i>
       </button>
     </div>
@@ -24,8 +24,46 @@
       <h3><small class="text-muted">{{descripcionFormulario}}</small></h3>
     </div>
   </div>
-  
+  <app-info-paciente [pacienteId]="pacienteId" (informacionLista)="infoPacienteLista($event)"></app-info-paciente>
   <form [formGroup]="formulario" (ngSubmit)="guardar()">
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Médico*</span>
+          </div>
+          <select class="form-control input-lg" [formControl]="usuarioControl" #usuarioHTML
+            ngbTooltip="Seleccionar un Médico." (change)="actualizarFiltros()">
+            <option *ngFor="let usuario of usuarios" value={{usuario.id}}>
+              {{usuario.nombres_usuario}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Médico es Requerido.</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-8">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica*</span>
+          </div>
+          <select class="form-control input-lg" [formControl]="clinicaControl" #clinicaHTML
+            ngbTooltip="Seleccionar una clínica.">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+          clínica es requerida.
+        </div>
+      </div>
+    </div>
+    <hr>
     <div *ngFor="let campo of campos" class="row">
       <div class="col-lg-2"></div>
       <div class="col-lg-8">
@@ -35,40 +73,49 @@
           </div>
           <input *ngIf="campo.tipo_campo_formulario.includes('ENTERO') || 
                           campo.tipo_campo_formulario.includes('DECIMAL')|| 
-                          campo.tipo_campo_formulario.includes('TEXTO')"
-            #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}" type="text" class="form-control"
-            ngbTooltip="{{campo.indicio}}">      
-          <app-ngx-editor *ngIf="campo.tipo_campo_formulario == 'COMENTARIO'" #campoHTML [formControlName]="'control' + campo.id"   [config]="editorConfig"  ngbTooltip="{{campo.indicio}}"></app-ngx-editor>
-          <input *ngIf="campo.tipo_campo_formulario == 'FECHA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"
-            type="date" class="form-control" ngbTooltip="{{campo.indicio}}">
-          <input *ngIf="campo.tipo_campo_formulario == 'HORA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"
-            type="time" class="form-control" ngbTooltip="{{campo.indicio}}">
-          <button *ngIf="campo.tipo_campo_formulario == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
+                          campo.tipo_campo_formulario.includes('TEXTO')" #campoHTML
+            [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}" type="text" class="form-control"
+            ngbTooltip="{{campo.indicio}}">
+          <app-ngx-editor *ngIf="campo.tipo_campo_formulario == 'COMENTARIO'" #campoHTML
+            [formControlName]="'control' + campo.id" [config]="editorConfig" ngbTooltip="{{campo.indicio}}">
+          </app-ngx-editor>
+          <input *ngIf="campo.tipo_campo_formulario == 'FECHA'" #campoHTML [formControlName]="'control' + campo.id"
+            id="campoHTML{{campo.id}}" type="date" class="form-control" ngbTooltip="{{campo.indicio}}">
+          <input *ngIf="campo.tipo_campo_formulario == 'HORA'" #campoHTML [formControlName]="'control' + campo.id"
+            id="campoHTML{{campo.id}}" type="time" class="form-control" ngbTooltip="{{campo.indicio}}">
+          <button
+            *ngIf="campo.tipo_campo_formulario == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
             type="button" class="btn btn-link" ngbTooltip="Ver imagen." (click)="verImagen(campo.id, true)">
             <i class="material-icons">visibility</i>
           </button>
-          <button *ngIf="campo.tipo_campo_formulario == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
+          <button
+            *ngIf="campo.tipo_campo_formulario == 'IMAGEN' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
             type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen(campo.id)">
             <i class="material-icons">clear</i>
           </button>
-          <input *ngIf="campo.tipo_campo_formulario == 'IMAGEN'" #campoHTML id="campoHTML{{campo.id}}"
-            type="file" class="form-control" ngbTooltip="{{campo.indicio}}" accept="image/*" (change)="seleccionarImagen($event)">
-          <select *ngIf="campo.tipo_campo_formulario == 'LISTA'" #campoHTML [formControlName]="'control' + campo.id" id="campoHTML{{campo.id}}"
-            class="form-control" ngbTooltip="{{campo.indicio}}"></select>
-          <button *ngIf="campo.tipo_campo_formulario == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
+          <input *ngIf="campo.tipo_campo_formulario == 'IMAGEN'" #campoHTML id="campoHTML{{campo.id}}" type="file"
+            class="form-control" ngbTooltip="{{campo.indicio}}" accept="image/*" (change)="seleccionarImagen($event)">
+          <select *ngIf="campo.tipo_campo_formulario == 'LISTA'" #campoHTML [formControlName]="'control' + campo.id"
+            id="campoHTML{{campo.id}}" class="form-control" ngbTooltip="{{campo.indicio}}"></select>
+          <button
+            *ngIf="campo.tipo_campo_formulario == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
             type="button" class="btn btn-link" ngbTooltip="Ver imagen." (click)="verImagen(campo.id, false)">
             <i class="material-icons">visibility</i>
           </button>
-          <button *ngIf="campo.tipo_campo_formulario == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
+          <button
+            *ngIf="campo.tipo_campo_formulario == 'DIBUJO' && utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
             type="button" class="btn btn-link" ngbTooltip="Limpiar imagen." (click)="limpiarImagen(campo.id, false)">
             <i class="material-icons">clear</i>
           </button>
-          <button *ngIf="campo.tipo_campo_formulario == 'DIBUJO'" class="form-control"
-            ngbTooltip="{{campo.indicio}}" type="button" (click)="desplegarAreaDibujo(campo.id, campo.archivo)">
-            <i class="material-icons">insert_photo</i></button>                  
-          <div *ngIf="pulsarCrear && campo.tipo_campo_formulario != 'DIBUJO'  && campo.tipo_campo_formulario != 'IMAGEN' && !formulario.controls['control' + campo.id].valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          <button *ngIf="campo.tipo_campo_formulario == 'DIBUJO'" class="form-control" ngbTooltip="{{campo.indicio}}"
+            type="button" (click)="desplegarAreaDibujo(campo.id, campo.archivo)">
+            <i class="material-icons">insert_photo</i></button>
+          <div
+            *ngIf="pulsarCrear && campo.tipo_campo_formulario != 'DIBUJO'  && campo.tipo_campo_formulario != 'IMAGEN' && !formulario.controls['control' + campo.id].valid"
+            class="col-lg-12 alert-danger text-center campo-invalido">El
             campo {{campo.etiqueta}} es requerido.</div>
-          <div *ngIf="pulsarCrear && (campo.tipo_campo_formulario == 'DIBUJO'  || campo.tipo_campo_formulario == 'IMAGEN') && campo.requerido =='1' && !utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
+          <div
+            *ngIf="pulsarCrear && (campo.tipo_campo_formulario == 'DIBUJO'  || campo.tipo_campo_formulario == 'IMAGEN') && campo.requerido =='1' && !utilidadesService.existeElementoArreglo('campoId', campo.id, imagenes)"
             class="col-lg-12 alert-danger text-center campo-invalido">El campo {{campo.etiqueta}} es requerido.</div>
         </div>
       </div>

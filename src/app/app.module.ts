@@ -54,7 +54,6 @@ import { FORMULARIOS_PROVIDERS } from './formularios.service';
 import * as $ from 'jquery';
 import { PDFCARTA_PROVIDERS } from './pdfcarta.service';
 
-
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
   { path: '', redirectTo: 'ingresar', pathMatch: 'full'}, 
@@ -78,7 +77,7 @@ const rutas: Routes = [
     CambiarPasswordOlvidadoComponent,    
     PaginaInvalidaComponent, 
     DesplegarImagenComponent, 
-    DibujoComponent
+    DibujoComponent    
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 

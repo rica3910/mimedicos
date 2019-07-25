@@ -21,7 +21,7 @@ import { AltaPacienteComponent } from './alta-paciente/alta-paciente.component';
 import { ListaPacientesComponent } from './lista-pacientes/lista-pacientes.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UsuarioTieneMenuGuard } from "../usuario-tiene-menu.guard";
-import { ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { UsuarioTienePacienteGuard } from "./usuario-tiene-paciente.guard";
 import { VerPacienteComponent } from './ver-paciente/ver-paciente.component';
 import { EditarPacienteComponent } from './editar-paciente/editar-paciente.component';
@@ -30,6 +30,11 @@ import { AltaFichaClinicaPacienteComponent } from './alta-ficha-clinica-paciente
 import { EditarFichaClinicaPacienteComponent } from './editar-ficha-clinica-paciente/editar-ficha-clinica-paciente.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { UsuarioPuedeManipularFichasClinicasGuard } from "./usuario-puede-manipular-fichas-clinicas.guard";
+import { InfoPacienteComponent } from "../info-paciente/info-paciente.component";
+import { VerFichaClinicaComponent } from './ver-ficha-clinica/ver-ficha-clinica.component';
+import { InfoFichaClinicaComponent } from './info-ficha-clinica/info-ficha-clinica.component';
+
+
 
 //Constante que contiene las rutas que tendrá el sistema.
 export const rutas: Routes = [    
@@ -41,6 +46,7 @@ export const rutas: Routes = [
     { path: 'lista-fichas-clinicas-paciente/:id', component:ListaFichasClinicasPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},          
     { path: 'alta-ficha-clinica-paciente/:id', component:AltaFichaClinicaPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioTienePacienteGuard]},          
     { path: 'editar-ficha-clinica-paciente/:pacienteId/:fichaClinicaId', component:EditarFichaClinicaPacienteComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeManipularFichasClinicasGuard]},              
+    { path: 'ver-ficha-clinica-paciente/:pacienteId/:fichaClinicaId', component:VerFichaClinicaComponent,canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeManipularFichasClinicasGuard]},              
     { path: '**', redirectTo: 'lista-pacientes'}    
   ];
 
@@ -53,12 +59,16 @@ export const rutas: Routes = [
       EditarPacienteComponent,
       ListaFichasClinicasPacienteComponent,
       AltaFichaClinicaPacienteComponent,
-      EditarFichaClinicaPacienteComponent
+      EditarFichaClinicaPacienteComponent,
+      InfoPacienteComponent,
+      VerFichaClinicaComponent,
+      InfoFichaClinicaComponent
     ],  
     exports: [
         PacientesComponent
     ],
     imports: [
+      FormsModule,
       CommonModule,
       RouterModule,
       NgbModule.forRoot(),

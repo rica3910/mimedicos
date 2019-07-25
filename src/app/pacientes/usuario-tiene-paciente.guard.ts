@@ -48,7 +48,7 @@ export class UsuarioTienePacienteGuard implements CanActivate {
     let pacienteId: string = next.paramMap.get("id");
           
     //Retorna verdadero o falso en caso de que el usuario tenga o no el paciente respectivamente.
-    return this.autorizacion.usuarioTienePaciente(pacienteId).pipe(map((resultado) => { 
+    return this.autorizacion.usuarioTienePaciente(pacienteId, "0").pipe(map((resultado) => { 
       
       //Si el usuario no tiene al paciente lo retorna a la lista de pacientes.
       if(!resultado["value"]){
