@@ -45,7 +45,8 @@ export class ProductosService {
   |  DESCRIPCIÓN: Método para obtener los servicios y/o estudios          |
   |  activos del usuario logueado.                                        |
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  usuarioId = identificador del usuario al que se buscarán los prod,   |  
   |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO.     |   
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
@@ -57,7 +58,7 @@ export class ProductosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 23/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroServicios(estatus: string = "ACTIVO"): Observable<any> {
+  filtroServicios(usuarioId: string, estatus: string = "ACTIVO"): Observable<any> {
 
     //Si está conectado, entonces el token sí existe.
     if (this.autorizacion.obtenerToken() !== null) {
@@ -68,7 +69,7 @@ export class ProductosService {
       });
 
       //Envía la petición al servidor backend para obtener los servicios.
-      return this.http.get(this.urlApi + 'filtro-servicios/' + estatus, { headers: headers });
+      return this.http.get(this.urlApi + 'filtro-servicios/' + usuarioId + "/" + estatus, { headers: headers });
     }
     //No está conectado.
     return of(false);

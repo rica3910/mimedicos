@@ -1,0 +1,77 @@
+<!------------------------------------------------------------------
+|NOMBRE: ver-consulta.                                             | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para ver consultas.                           |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 16/08/2019.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-3">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom"
+        ngbTooltip="Regresar al listado de consultas." (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Detalle de consulta</h1>
+    </div>
+  </div>
+  <div class="row">
+    <br>
+  </div>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th class="text-center">Fecha</th>
+      <td class="text-center">{{fecha}}</td>
+      <th class="text-center">Hora</th>
+      <td class="text-center">{{hora}}</td>
+    <tr>
+      <th>Médico</th>
+      <td colspan="3">{{medico}}</td>
+    </tr>
+    <tr>
+      <th>Paciente</th>
+      <td colspan="3">{{paciente}}</td>
+    </tr>
+    <tr>
+      <th>Clínica</th>
+      <td colspan="3">{{clinica}}</td>
+    </tr>
+    <tr>
+      <th>Tipo de consulta</th>
+      <td colspan="3">{{tipoConsulta}}</td>
+    </tr>
+    <tr>
+      <th>Estado de la consulta</th>
+      <td colspan="3">{{estadoConsulta}}</td>
+    </tr>
+  </table>
+  <br>
+  <table class="table table-bordered">
+    <tr>
+      <th class="text-center" colspan="4">Estudios</th>
+    </tr>
+    <tr>
+      <th class="text-center">#</th>
+      <th class="text-center">Descripción</th>
+      <th class="text-center">Precio neto</th>
+    </tr>
+    <tr *ngFor="let estudio of estudios; let i = index" [attr.data-index]="i">
+      <td class="text-center">{{i + 1}}</td>
+      <td class="text-center">{{estudio.nombre}}</td>
+      <td class="text-center">{{estudio.precio_neto_formato}}</td>
+    <tr *ngIf="estudios.length > 0">
+      <th class="text-center" colspan="4">
+        <h4> {{totalEstudios | currency}}</h4>
+      </th>
+    </tr>
+  </table>
+</div>

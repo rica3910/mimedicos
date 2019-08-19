@@ -97,14 +97,14 @@ export class ListaDiagnosticosComponent implements OnInit {
       this.consultaId = params.get("id");
 
       //Se inicia la espera.
-      this.esperarService.esperar();
+      this.esperarService.esperar();      
 
       //Verificar que consulta está en diagnóstico y el usuario puede crear o eliminar diagnósticos en ella.
       this.autenticarService.usuarioPuedeCrearDiagnosticos(this.consultaId).subscribe(respuesta => {
 
         //Si la consulta está en diagnóstico.
         if (respuesta["value"]) {
-
+          
           //El botón de dar de alta diagnósticos se hará visible solamente si el usuario tiene el privilegio.
           this.autenticarService.usuarioTieneDetModulo('ALTA DIAGNOSTICO').subscribe(respuesta => {
 
@@ -258,7 +258,7 @@ export class ListaDiagnosticosComponent implements OnInit {
 
     //Busca los diagnósticos de la consulta.
     this.consultasService.listaDiagnosticos(this.consultaId).subscribe(respuesta => {
-
+      
       //Detiene la espera, signo de que ya se obtuvo la información.
       this.esperarService.noEsperar();
       //Si hubo un error en la obtención de información.
@@ -291,8 +291,8 @@ export class ListaDiagnosticosComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 09/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  regresar() {
-    this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
+  regresar() {    
+    this.rutaNavegacion.navigateByUrl('consultas/lista-consultas/DIAGNOSTICO');
   }
 
   /*----------------------------------------------------------------------|
@@ -375,7 +375,7 @@ export class ListaDiagnosticosComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 20/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  infoConsultaLista(infoLista: boolean) {
+  infoConsultaLista(infoLista: boolean) {    
     this.verificarInfoConsulta = infoLista;
     this.cargaInicialLista$.next(this.verificarInfoConsulta);
   }

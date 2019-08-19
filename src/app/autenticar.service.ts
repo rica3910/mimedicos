@@ -743,7 +743,7 @@ export class AutenticarService {
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + `usuario-puede-modificar-consulta/${consultaId}`, { headers: headers })
         .pipe(map(respuesta => {
-
+          
           //Si el usuario no puede acceder o editar la cita.
           if (respuesta["estado"] === "ERROR") {
             //Retorna un falso.
@@ -829,7 +829,7 @@ export class AutenticarService {
 
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + `usuario-puede-ver-diagnosticos/${consultaId}`, { headers: headers })
-        .pipe(map(respuesta => {
+        .pipe(map(respuesta => {          
 
           //Si el usuario no puede acceder o editar la cita.
           if (respuesta["estado"] === "ERROR") {
@@ -873,7 +873,7 @@ export class AutenticarService {
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + `usuario-puede-crear-diagnosticos/${consultaId}`, { headers: headers })
         .pipe(map(respuesta => {
-
+          
           //Si el usuario no puede acceder o editar la cita.
           if (respuesta["estado"] === "ERROR") {
             //Retorna un falso.
@@ -1061,6 +1061,95 @@ export class AutenticarService {
     //No está conectado.
     return of(false);
   }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneProducto.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene un producto.      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: usuarioId: identificador del usuario,         |
+  |                         productoId: identificador del producto.       |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario tenga o no el producto respectivamente.    |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/07/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneProducto(usuarioId: string, productoId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-producto/' + usuarioId + '/' + productoId, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene el producto.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí tiene asignado el producto.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeVerConsulta.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda ver         |
+  | una consulta.                                                         |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId: identificador de la consulta.     |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda ver o no la consulta respectivamente.|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 16/08/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeVerConsulta(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-ver-consulta/${consultaId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede acceder o editar la consulta.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí pueda ver la consulta.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }  
+
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

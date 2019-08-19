@@ -13,7 +13,7 @@
 */
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker} from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeahead, NgbModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject, merge, fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, switchAll } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
@@ -28,6 +28,7 @@ import { UsuariosService } from '../../usuarios.service';
 import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ConsultasService } from '../../consultas.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -40,6 +41,8 @@ import { ConsultasService } from '../../consultas.service';
 })
 export class ListaConsultasComponent implements OnInit {
 
+  //Propiedad que indica si el usuario puede ver consultas.
+  verConsultas: boolean = false;
   //Propiedad que indica si el usuario puede dar de alta consultas.
   altaConsultas: boolean = false;
   //Propiedad que indica si el usuario puede editar consultas.
@@ -56,6 +59,8 @@ export class ListaConsultasComponent implements OnInit {
   pasarADiagnosticos: boolean = false;
   //Propiedad que indica si el usuario puede finalizar la consulta
   finalizarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede ver disgnósticos.
+  verDiagnostico: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -146,6 +151,10 @@ export class ListaConsultasComponent implements OnInit {
   fechaHastaMinima: NgbDateStruct;
   //Fecha hasta seleccionada.
   fechaHastaSeleccionada: NgbDateStruct;
+  //Estado de la consulta obtenido de la url.
+  estadoConsulta: string;
+  //Verifica que ya se haya obtenido el estado de la consulta de la url.
+  estadoConsultaObtenido: boolean = false;
 
   //Almacena las consultas de la base de datos pero su información se puede filtrar.
   consultas: JSON[] = [];
@@ -168,7 +177,8 @@ export class ListaConsultasComponent implements OnInit {
   |  consultasService = contiene los métodos de la bd de las consultas,   |
   |  usuariosService = contiene los métodos de la bd de los usuarios,     |
   |  fb = contiene los métodos para manipular formularios HTML,           |
-  |  rutaNavegacion   = para navegar a otras url´s                        |
+  |  rutaNavegacion   = para navegar a otras url´s,                       |
+  |  rutaActual = obtiene los parámetros de la url actual.                |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -183,7 +193,8 @@ export class ListaConsultasComponent implements OnInit {
     private consultasService: ConsultasService,
     private usuariosService: UsuariosService,
     private fb: FormBuilder,
-    private rutaNavegacion: Router) {
+    private rutaNavegacion: Router,
+    private rutaActual: ActivatedRoute) {
 
 
     //Se agregan las validaciones al formulario de búsqueda de consultas.
@@ -233,6 +244,18 @@ export class ListaConsultasComponent implements OnInit {
     //Se cargan los tipos de consultas.
     this.filtroTiposConsultas();
 
+    //Obtiene el identificador del estado de la consulta de la url.
+    this.rutaActual.paramMap.subscribe(params => {
+
+      //Obtiene el estado de la consulta de la url.
+      this.estadoConsulta = params.get("status");
+
+      //Avisa que  ya se obtuvo el estado de la consulta.
+      this.estadoConsultaObtenido = true;
+      this.cargaInicialLista$.next(this.organizacionesInicioListas);
+
+    });
+
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
 
@@ -242,7 +265,21 @@ export class ListaConsultasComponent implements OnInit {
         this.usuariosListos &&
         this.pacientesInicioListo &&
         this.estadosConsultasInicioListos &&
-        this.tiposConsultasInicioListos) {
+        this.tiposConsultasInicioListos &&
+        this.estadoConsultaObtenido) {
+
+
+        //Si el estado de la consulta obtenido de la url es válido.
+        if (this.estadoConsulta) {
+          let estadoConsultaURL = this.utilidadesService.existeElementoArreglo("nombre", this.estadoConsulta, this.estadosConsultas);
+
+          if (estadoConsultaURL) {
+            this.estadoConsultaControl.setValue(estadoConsultaURL["id"]);
+          }
+          else if (this.estadoConsulta == "TODOS") {
+            this.estadoConsultaControl.setValue("0");
+          }
+        }
 
         //Se detiene la espera.
         this.esperarService.noEsperar();
@@ -286,6 +323,11 @@ export class ListaConsultasComponent implements OnInit {
 
   ngAfterViewInit() {
 
+    //El botón de dar de ver consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER CONSULTA').subscribe((respuesta: boolean) => {
+      this.verConsultas = respuesta["value"];
+    });
+
     //El botón de dar de alta consultas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ALTA CONSULTA').subscribe((respuesta: boolean) => {
       this.altaConsultas = respuesta["value"];
@@ -324,7 +366,12 @@ export class ListaConsultasComponent implements OnInit {
     //El botón de finalizar consulta se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('FINALIZAR CONSULTA').subscribe((respuesta: boolean) => {
       this.finalizarConsultas = respuesta["value"];
-    });    
+    });
+
+    //El botón de ver diagnóstico se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER DIAGNOSTICOS').subscribe((respuesta: boolean) => {
+      this.verDiagnostico = respuesta["value"];
+    });
 
   }
 
@@ -1039,9 +1086,9 @@ export class ListaConsultasComponent implements OnInit {
         });
       }
     });
-  }  
+  }
 
-  
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarConsulta.                                            |
   |-----------------------------------------------------------------------|
@@ -1105,7 +1152,47 @@ export class ListaConsultasComponent implements OnInit {
   |  FECHA: 28/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
   editarConsulta(consultaId) {
-    this.rutaNavegacion.navigateByUrl('consultas/editar-consulta/' + consultaId);
+    
+    let url: string = 'consultas/editar-consulta/' + consultaId;
+    let estadoConsulta = this.utilidadesService.existeElementoArreglo("id", this.estadoConsultaControl.value, this.estadosConsultas);
+    estadoConsulta ? url = url + '/'  + estadoConsulta["nombre"] : url = url + '/TODOS';
+    this.rutaNavegacion.navigateByUrl(url);
+
+  }
+
+ /*----------------------------------------------------------------------|
+  |  NOMBRE: verConsulta.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al detalle de la consulta.             |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  verConsulta(consultaId) {        
+    
+    let url: string = 'consultas/ver-consulta/' + consultaId;
+    let estadoConsulta = this.utilidadesService.existeElementoArreglo("id", this.estadoConsultaControl.value, this.estadosConsultas);
+    estadoConsulta ? url = url + '/'  + estadoConsulta["nombre"] : url = url + '/TODOS';
+
+    this.rutaNavegacion.navigateByUrl(url);
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verDiagnosticos.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que envía a la pantalla de ver diagnósticos.     |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 14/08/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  verDiagnosticos(consultaId) {
+    this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + consultaId);
   }
 
 }

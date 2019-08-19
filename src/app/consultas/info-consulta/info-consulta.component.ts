@@ -13,7 +13,7 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { ConsultasService } from '../../consultas.service';
 
 @Component({
@@ -48,13 +48,29 @@ export class InfoConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 20/11/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(private consultasService: ConsultasService) { 
+  constructor(private consultasService: ConsultasService) {
     //Se inicializa el emisor de información lista.
     this.informacionLista = new EventEmitter(false);
     this.informacionConsulta = new EventEmitter();
   }
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {    
+    this.buscar();
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: buscar.                                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que busca la información de la consulta.         |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 002/08/2019.                                                  |    
+  |----------------------------------------------------------------------*/
+  private buscar() {
 
     //Se obtiene la información de la consulta.
     this.consultasService.verConsulta(this.consultaId).subscribe(respuesta => {
@@ -71,8 +87,6 @@ export class InfoConsultaComponent implements OnInit {
       }
 
     });
-
-
   }
 
 }

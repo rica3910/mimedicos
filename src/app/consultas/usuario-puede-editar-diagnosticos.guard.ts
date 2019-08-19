@@ -49,7 +49,7 @@ export class UsuarioPuedeEditarDiagnosticosGuard implements CanActivate {
 
     //Retorna verdadero o falso en caso de que el usuario pueda editar los diagnósticos o no respectivamente.
     return this.autorizacion.usuarioPuedeEditarDiagnosticos(diagnosticoId).pipe(map((resultado) => {
-
+     
       //Si el usuario no puede editar diagnósticos.
       if (!resultado["value"]) {
 

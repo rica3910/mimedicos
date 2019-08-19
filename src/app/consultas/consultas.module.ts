@@ -33,13 +33,19 @@ import { InfoConsultaComponent } from './info-consulta/info-consulta.component';
 import { NgxEditorModule } from 'ngx-editor';
 import { VerDiagnosticoComponent } from './ver-diagnostico/ver-diagnostico.component';
 import { UsuarioPuedeVerDiagnosticoGuard } from './usuario-puede-ver-diagnostico.guard';
+import { VerConsultaComponent } from './ver-consulta/ver-consulta.component';
+import { UsuarioPuedeVerConsultaGuard } from './usuario-puede-ver-consulta.guard';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', redirectTo: 'lista-consultas', pathMatch: 'full' },
   { path: 'lista-consultas', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]},   
+  { path: 'lista-consultas/:status', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]}, 
   { path: 'alta-consulta', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
   { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]},
+  { path: 'editar-consulta/:id/:status', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]},
+  { path: 'ver-consulta/:id', component: VerConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerConsultaGuard]},
+  { path: 'ver-consulta/:id/:status', component: VerConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerConsultaGuard]},
   { path: 'lista-diagnosticos/:id', component: ListaDiagnosticosComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticosGuard]},
   { path: 'alta-diagnostico/:id', component: AltaDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard]},
   { path: 'editar-diagnostico/:id/:diagnosticoId', component: EditarDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard, UsuarioPuedeEditarDiagnosticosGuard]},  
@@ -65,7 +71,8 @@ export const rutas: Routes = [
     AltaDiagnosticoComponent,
     EditarDiagnosticoComponent,
     InfoConsultaComponent,
-    VerDiagnosticoComponent
+    VerDiagnosticoComponent,
+    VerConsultaComponent
   ],
   exports: [ConsultasComponent],
   providers: [

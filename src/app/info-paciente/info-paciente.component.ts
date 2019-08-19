@@ -60,7 +60,7 @@ export class InfoPacienteComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.buscar();
+   // this.buscar();
   }
 
   /*----------------------------------------------------------------------|
@@ -73,6 +73,7 @@ export class InfoPacienteComponent implements OnInit {
   |  FECHA: 16/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
   private buscar() {
+
     //Se obtiene la información del paciente.
     this.pacientesService.verPaciente(this.pacienteId).subscribe(respuesta => {
 

@@ -24,9 +24,7 @@
         <h1 class="display-4">Alta de diagnósticos</h1>
       </div>
     </div>
-    <div class="row">
-      <br>
-    </div>
+    <app-info-consulta [consultaId]="consultaId"  (informacionConsulta)="infoConsulta($event)"></app-info-consulta>
     <form [formGroup]="formAltaDiagnosticos" (ngSubmit)="altaDiagnostico()">
       <br>
       <div class="row">

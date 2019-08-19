@@ -48,7 +48,7 @@ import { DibujoComponent } from './dibujo/dibujo.component';
 import { SignaturePadModule } from 'angular2-signaturepad';
 import { ColorPickerModule } from 'ngx-color-picker';
 import {MatSliderModule} from '@angular/material/slider';
-import { FullCalendarModule } from 'ng-fullcalendar';
+import { FullCalendarModule } from '@fullcalendar/angular';
 import { PRODUCTOS_PROVIDERS } from './productos.service';
 import { FORMULARIOS_PROVIDERS } from './formularios.service';
 import * as $ from 'jquery';

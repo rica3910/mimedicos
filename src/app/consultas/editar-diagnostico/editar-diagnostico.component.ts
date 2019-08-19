@@ -111,7 +111,14 @@ export class EditarDiagnosticoComponent implements OnInit {
     //Obtiene el identificador de la consulta y del diagnóstico de la url.
     this.rutaActual.paramMap.subscribe(params => {
 
-      this.consultaId = params.get("id");
+      //Si es la misma consulta no es necesario volver a buscar la información de la misma.
+      if(this.consultaId == params.get("id")){
+        this.verificarInfoConsulta = true;
+      }
+      else{
+        this.consultaId = params.get("id");
+      }
+            
       this.diagnosticoId = params.get("diagnosticoId");
       //Se inicia la espera de respuesta de información.
       this.esperarService.esperar();
@@ -128,8 +135,7 @@ export class EditarDiagnosticoComponent implements OnInit {
       //Si todos los filtros e información están listos.
       if (this.verificarInfoConsulta &&
         this.verificarInfoFormulario &&
-        this.verificarCampos) {
-
+        this.verificarCampos) {        
         //Se resetean los valores de información inicial.
         this.verificarInfoConsulta = false;
         this.verificarInfoFormulario = false;

@@ -19,8 +19,8 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Organización</span>
         </div>
-        <select class="form-control select" [formControl]="organizacionControl" #organizacionHTML ngbTooltip="Seleccionar una organización."
-          (change)="filtroClinicas(organizacionHTML.value, true)">
+        <select class="form-control select" [formControl]="organizacionControl" #organizacionHTML
+          ngbTooltip="Seleccionar una organización." (change)="filtroClinicas(organizacionHTML.value, true)">
           <option value="0">TODAS</option>
           <option *ngFor="let organizacion of organizaciones" value={{organizacion.id}}>
             {{organizacion.nombre}}
@@ -48,14 +48,16 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Desde</span>
         </div>
-        <input class="form-control" #calendarioDesdeHTML="ngbDatepicker" [startDate]="fechaDesdeInicial"
-          #fechaDesdeHTML (dateSelect)="fechaDesdeSeleccion($event)" ngbDatepicker readonly ngbTooltip="Fecha desde donde inicia la búsqueda."
-          [formControl]="fechaDesdeControl">
+        <input class="form-control" #calendarioDesdeHTML="ngbDatepicker" [startDate]="fechaDesdeInicial" #fechaDesdeHTML
+          (dateSelect)="fechaDesdeSeleccion($event)" ngbDatepicker readonly
+          ngbTooltip="Fecha desde donde inicia la búsqueda." [formControl]="fechaDesdeControl">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary btn-sm" (click)="mostrarPopUpFechaDesde()" type="button" ngbTooltip="Abrir calendario.">
+          <button class="btn btn-outline-secondary btn-sm" (click)="mostrarPopUpFechaDesde()" type="button"
+            ngbTooltip="Abrir calendario.">
             <i class="material-icons">date_range</i>
           </button>
-          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaDesde()">
+          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha."
+            (click)="limpiarCampoFechaDesde()">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -66,15 +68,16 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Hasta</span>
         </div>
-        <input class="form-control" #calendarioHastaHTML="ngbDatepicker" [startDate]="fechaHastaMinima" [minDate]="fechaHastaMinima"
-          #fechaHastaHTML (dateSelect)="fechaHastaSeleccion($event)" ngbDatepicker readonly ngbTooltip="Fecha hasta donde inicia la búsqueda."
-          [formControl]="fechaHastaControl">
+        <input class="form-control" #calendarioHastaHTML="ngbDatepicker" [startDate]="fechaHastaMinima"
+          [minDate]="fechaHastaMinima" #fechaHastaHTML (dateSelect)="fechaHastaSeleccion($event)" ngbDatepicker readonly
+          ngbTooltip="Fecha hasta donde inicia la búsqueda." [formControl]="fechaHastaControl">
         <div class="input-group-append">
           <button class="btn btn-outline-secondary btn-sm" (click)="calendarioHastaHTML.toggle()" type="button"
             ngbTooltip="Abrir calendario.">
             <i class="material-icons">date_range</i>
           </button>
-          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha." (click)="limpiarCampoFechaHasta()">
+          <button class="btn btn-outline-secondary btn-sm" type="button" ngbTooltip="Borrar fecha."
+            (click)="limpiarCampoFechaHasta()">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -87,12 +90,13 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Paciente</span>
         </div>
-        <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente" (focus)="focusBuscarPaciente$.next($event.target.value)"
-          (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead" ngbTooltip="Buscar por paciente."
-          [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
+        <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente"
+          (focus)="focusBuscarPaciente$.next($event.target.value)"
+          (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead"
+          ngbTooltip="Buscar por paciente." [resultFormatter]="formatoPacientes" [inputFormatter]="formatoPacientes" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()" placement="bottom"
-            ngbTooltip="Borrar contenido.">
+          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()"
+            placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -103,12 +107,13 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Médico</span>
         </div>
-        <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario" (focus)="focusBuscarUsuario$.next($event.target.value)"
-          (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead" ngbTooltip="Buscar por médico."
-          [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
+        <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario"
+          (focus)="focusBuscarUsuario$.next($event.target.value)"
+          (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead"
+          ngbTooltip="Buscar por médico." [resultFormatter]="formatoUsuarios" [inputFormatter]="formatoUsuarios" />
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()" placement="bottom"
-            ngbTooltip="Borrar contenido.">
+          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()"
+            placement="bottom" ngbTooltip="Borrar contenido.">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -121,7 +126,8 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Estatus</span>
         </div>
-        <select class="form-control" [formControl]="estadoConsultaControl" ngbTooltip="Seleccionar un estatus de la consulta.">
+        <select class="form-control" [formControl]="estadoConsultaControl"
+          ngbTooltip="Seleccionar un estatus de la consulta.">
           <option value="0">TODOS</option>
           <option *ngFor="let estadoConsulta of estadosConsultas" value={{estadoConsulta.id}}>
             {{estadoConsulta.nombre}}
@@ -147,8 +153,8 @@
 <br>
 <div class="row">
   <div class="col-lg-1">
-    <button *ngIf="altaConsultas" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom" ngbTooltip="Realizar una consulta."
-      (click)="altaConsulta();">
+    <button *ngIf="altaConsultas" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom"
+      ngbTooltip="Realizar una consulta." (click)="altaConsulta();">
       <i class="material-icons">add</i>
     </button>
   </div>
@@ -156,14 +162,16 @@
     <div class="input-group input-group-lg">
       <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
       <div class="input-group-append">
-        <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom" ngbTooltip="Borrar búsqueda.">
+        <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
+          ngbTooltip="Borrar búsqueda.">
           <i class="material-icons">backspace</i>
         </button>
       </div>
     </div>
   </div>
   <div class="col-lg-1">
-    <button class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom" ngbTooltip="Buscar.">
+    <button class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom"
+      ngbTooltip="Buscar.">
       <i class="material-icons">search</i>
     </button>
   </div>
@@ -197,26 +205,48 @@
           <td>{{consulta.nombre_tipo_consulta}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="editarConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA')" type="button" class="btn" ngbTooltip="Editar consulta."
-                (click)='editarConsulta(consulta.id)'>
+              <button
+                *ngIf="verConsultas"
+                type="button" class="btn" ngbTooltip="Ver consulta."(click)='verConsulta(consulta.id)'>
+                <i class="material-icons">visibility</i>
+              </button>
+              <button
+                *ngIf="verDiagnostico && (consulta.nombre_estado_consulta == 'DIAGNOSTICO' || consulta.nombre_estado_consulta == 'FINALIZADA')"
+                type="button" class="btn" ngbTooltip="Ver diagnósticos." (click)='verDiagnosticos(consulta.id)'>
+                <i class="material-icons">assessment</i>
+              </button>
+              <button
+                *ngIf="editarConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA')"
+                type="button" class="btn" ngbTooltip="Editar consulta." (click)='editarConsulta(consulta.id)'>
                 <i class="material-icons">edit</i>
               </button>
-              <button *ngIf="pasarAConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'DIAGNOSTICO' )" type="button" class="btn" ngbTooltip="Pasar a consulta." (click)='pasarAConsulta(consulta.id)'>
+              <button
+                *ngIf="pasarAConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || (consulta.nombre_estado_consulta == 'DIAGNOSTICO' && consulta.cantidad_diagnosticos == 0) )"
+                type="button" class="btn" ngbTooltip="Pasar a consulta." (click)='pasarAConsulta(consulta.id)'>
                 <i class="material-icons">assignment_ind</i>
               </button>
-              <button *ngIf="pasarADiagnosticos && consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Pasar a diagnóstico." (click)='pasarADiagnostico(consulta.id)'>
+              <button *ngIf="pasarADiagnosticos && consulta.nombre_estado_consulta == 'CONSULTA'" type="button"
+                class="btn" ngbTooltip="Pasar a diagnóstico." (click)='pasarADiagnostico(consulta.id)'>
                 <i class="material-icons">assignment</i>
-              </button>                   
-              <button *ngIf="pasarAPendientes && consulta.nombre_estado_consulta == 'CONSULTA'" type="button" class="btn" ngbTooltip="Regresar a estado pendiente la consulta." (click)='pasarAPendiente(consulta.id)'>
+              </button>
+              <button *ngIf="pasarAPendientes && consulta.nombre_estado_consulta == 'CONSULTA'" type="button"
+                class="btn" ngbTooltip="Regresar a estado pendiente la consulta."
+                (click)='pasarAPendiente(consulta.id)'>
                 <i class="material-icons">assignment_return</i>
-              </button>          
-              <button *ngIf="finalizarConsultas && consulta.nombre_estado_consulta == 'DIAGNOSTICO'" type="button" class="btn" ngbTooltip="Finalizar la consulta." (click)='finalizarConsulta(consulta.id)'>
+              </button>
+              <button *ngIf="finalizarConsultas && consulta.nombre_estado_consulta == 'DIAGNOSTICO'" type="button"
+                class="btn" ngbTooltip="Finalizar la consulta." (click)='finalizarConsulta(consulta.id)'>
                 <i class="material-icons">assignment_turned_in</i>
-              </button>                         
-              <button *ngIf="cancelarConsultas && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')" type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
+              </button>
+              <button
+                *ngIf="cancelarConsultas && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')"
+                type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
                 <i class="material-icons">cancel</i>
               </button>
-              <button *ngIf="eliminarConsultas && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')" type="button" class="btn" ngbTooltip="Eliminar consulta permanentemente." (click)='eliminarConsulta(consulta.id)'>
+              <button
+                *ngIf="eliminarConsultas && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')"
+                type="button" class="btn" ngbTooltip="Eliminar consulta permanentemente."
+                (click)='eliminarConsulta(consulta.id)'>
                 <i class="material-icons">delete_forever</i>
               </button>
             </div>

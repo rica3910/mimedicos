@@ -89,7 +89,8 @@
             <div class="input-group-prepend">
               <span class="input-group-text">Clínica*</span>
             </div>
-            <select class="form-control" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica.">
+            <select class="form-control" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica." (change)="cambiarClinica()">
+                <option  value="vacio">
               <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
                 {{clinica.nombre}}
               </option>

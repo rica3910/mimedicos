@@ -61,7 +61,7 @@ export class InfoFichaClinicaComponent implements OnInit {
   }
 
   ngOnInit() {      
-    this.obtenerInfo();
+    //this.obtenerInfo();
   }
 
   /*----------------------------------------------------------------------|

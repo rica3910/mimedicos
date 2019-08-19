@@ -42,10 +42,14 @@ export class AltaDiagnosticoComponent implements OnInit {
   pulsarCrear: boolean = false;
   //Indica si el filtro de formularios ya se cargó.
   filtroFormulariosListo: boolean = false;
+  //Indica que ya se verificó que la información de la consulta está lista.
+  verificarInfoConsulta: boolean = false;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
   //Registros de formularios.
   formularios: Array<JSON>;
+  //Usuario que atiende la consulta.
+  usuarioAtencionId: string;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -90,14 +94,18 @@ export class AltaDiagnosticoComponent implements OnInit {
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
 
-    //Se cargan los formularios.
-    this.filtroFormularios();
-
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
 
       //Si todos los filtros e información están listos.
-      if (this.filtroFormulariosListo) {
+      if (this.verificarInfoConsulta && !this.filtroFormulariosListo) { 
+        //Se cargan los formularios.
+        this.filtroFormularios();
+      }
+
+      if (this.filtroFormulariosListo) {            
+        this.verificarInfoConsulta = false;
+        this.filtroFormulariosListo = false;
         //Se detiene la espera.
         this.esperarService.noEsperar();
       }
@@ -136,7 +144,7 @@ export class AltaDiagnosticoComponent implements OnInit {
   filtroFormularios() {
 
     //Intenta obtener los formularios del usuario logueado.
-    this.formularioService.filtroFormularios("", "ACTIVO")
+    this.formularioService.filtroFormularios(this.usuarioAtencionId, "ACTIVO", "1")
       .subscribe((respuesta) => {
 
         this.filtroFormulariosListo = true;
@@ -210,5 +218,23 @@ export class AltaDiagnosticoComponent implements OnInit {
     });
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: infoConsultaLista.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que obtiene la info de la consulta.              |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: info = información de la consulta.            |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  infoConsulta(info) {
+    this.usuarioAtencionId = info["datos"][0]["usuario_atencion_id"];
+    this.verificarInfoConsulta = true;
+    this.cargaInicialLista$.next(this.verificarInfoConsulta);
+  }
+
 
 }

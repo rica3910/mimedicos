@@ -12,10 +12,10 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef, ɵConsole } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, Subscription, fromEvent, of, BehaviorSubject } from 'rxjs';
+import { Subject, Observable, merge } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
@@ -27,7 +27,6 @@ import { ConsultasService } from '../../consultas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
 import { ProductosService } from '../../productos.service';
 import { AutenticarService } from '../../autenticar.service';
-import { pipe } from '@angular/core/src/render3/pipe';
 
 @Component({
   selector: 'app-alta-consulta',
@@ -45,7 +44,7 @@ export class AltaConsultaComponent implements OnInit {
 
   //Registros de usuarios que se verán en la vista en el campo de búsqueda de usuarios.
   usuarios: { id: string, nombres_usuario: string }[];
-  //Reigtros de usuarios que provienen del servidor que no se filtrarán.
+  //Registros de usuarios que provienen del servidor que no se filtrarán.
   usuariosServidor: { id: string, nombres_usuario: string }[];
   //Registros de pacientes que se verán en la vista en el campo de búsqueda de pacientes.
   pacientes: { id: string, nombres_paciente: string }[];
@@ -53,6 +52,8 @@ export class AltaConsultaComponent implements OnInit {
   pacientesServidor: { id: string, nombres_paciente: string }[];
   //Registros de estudios que se verán en la vista en el campo de búsqueda de estudios.
   estudios: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string }[];
+  //Registros de estudios que están almacenados en el servidor y que no serán filtrados.
+  estudiosServidor: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string }[];
   //Registros de los estudios que se programarán al paciente.
   estudiosAProgramar: { id: string, nombre_estudio: string, precio_neto: string, precio_neto_formato: string }[] = new Array();
   //Precio total de los estudios.
@@ -73,7 +74,6 @@ export class AltaConsultaComponent implements OnInit {
   @ViewChild('estudioNG') estudioNG: NgbTypeahead;
   //Variable que almacena el control del formulario de la búsqueda del estudio.
   @ViewChild('estudioHTML') estudioHTML: ElementRef;
-
   //Variable que almacena el control del formulario de la clínica.
   @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable que almacena el control del formulario del tipo de consulta.
@@ -100,8 +100,6 @@ export class AltaConsultaComponent implements OnInit {
   usuariosListos: boolean = false;
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
-  //Indica si el filtro de estudios ya se cargó.
-  estudiosInicioListos: boolean = false;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
   //Objeto que contendrá el formulario de alta de las consultas.
@@ -131,7 +129,7 @@ export class AltaConsultaComponent implements OnInit {
   //Indica si el filtro de tipos de consultas ya se cargó.
   tiposConsultasInicioListos: boolean = false;
   //Registros de tipos de las consultas que se verán en la vista en el campo de búsqueda de tipos consultas.
-  tiposConsultas: Array<JSON>;
+  tiposConsultas: Array<JSON> = [];
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -202,8 +200,6 @@ export class AltaConsultaComponent implements OnInit {
     this.filtroClinicas();
     //Se cargan los tipos de consultas.
     this.filtroTiposConsultas();
-    //Se cargan los estudios.
-    this.filtroEstudios();
     //Se cargan los usuarios.
     this.filtroUsuarios();
 
@@ -214,13 +210,21 @@ export class AltaConsultaComponent implements OnInit {
       if (this.usuariosListos &&
         this.pacientesInicioListo &&
         this.clinicasInicioListas &&
-        this.tiposConsultasInicioListos &&
-        this.estudiosInicioListos) {
-        //Se detiene la espera.
-        this.esperarService.noEsperar();
-        //Se actualizan los usuarios pertenecientes a la clínica seleccionada.
-        console.log("TRES");
-        this.actualizarUsuarios();
+        this.tiposConsultasInicioListos) {
+
+        //Se actualizan los usuarios pertenecientes a la clínica seleccionada.   
+        let usuariosConClinicaSeleccionada: Array<any> = new Array();
+        this.usuariosTienenClinicaSeleccionada(this.usuariosServidor, this.clinicaControl.value).
+          pipe(map(usuario => {
+            usuariosConClinicaSeleccionada.push(usuario);
+            return usuariosConClinicaSeleccionada;
+          }))
+          .toPromise().then(usuarios => {
+            //Se guardan los usuarios con la clínica seleccionada.
+            this.usuarios = usuarios;
+            //Se detiene la espera.    
+            this.esperarService.noEsperar();
+          });
       }
 
     });
@@ -230,18 +234,19 @@ export class AltaConsultaComponent implements OnInit {
 
   ngOnInit() {
 
-    //Cuando se cambia el usuario, se actualizan los pacientes.
+    //Cuando se cambia el usuario.
     this.usuarioControl.valueChanges.subscribe(() => {
       //Se actualiza la información del paciente.
-      this.actualizarPacientes();
+      this.cambiarUsuario();
     });
 
 
-    //Cuando se cambia el paciente, se actualizan los usuarios.
+    //Cuando se cambia el paciente.
     this.pacienteControl.valueChanges.subscribe(() => {
       //Se actualiza la información del usuario.
-      this.actualizarUsuariosPorPaciente();
+      this.cambiarPaciente();
     });
+
 
   }
 
@@ -272,7 +277,6 @@ export class AltaConsultaComponent implements OnInit {
 
           //Se almacenan los usuarios en el arreglo de usuarios servidor para no tener que volver a llamar a la base de datos.                      
           this.usuariosServidor = respuesta["datos"];
-          console.log("UNO");
         }
 
         //Indica que el filtro de usuarios ya se cargó.
@@ -283,15 +287,15 @@ export class AltaConsultaComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: actualizarUsuariosPorPaciente.                               |
+  |  NOMBRE: cambiarPaciente.                                             |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que actualiza los usuarios por paciente.         | 
+  |  DESCRIPCIÓN: Método que se ejecuta cuando cambia el paciente.        | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 22/07/2019.                                                   |    
+  |  FECHA: 25/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  actualizarUsuariosPorPaciente() {
+  cambiarPaciente() {
 
     //Valor que trae el paciente.
     let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
@@ -310,58 +314,112 @@ export class AltaConsultaComponent implements OnInit {
         this.usuarioControl.setValue("");
 
       }
-
       //Se inicia la espera.
-      //this.esperarService.esperar();ç
-    
-      let usuaritos: any[] = [];
-  
-      this.usuariosTienenPacienteSeleccionado(this.usuariosServidor, paciente.id).pipe(map(usuario => {
-        usuaritos.push(usuario);
-        return usuaritos;
-      })).toPromise().then(usuarios => {
-        console.log("hola");
-        console.log(usuarios);
-      });
-  
-      //let usuariosConClinica = this.usuariosTienenClinicaSeleccionada(usuariosConPaciente, this.clinicaControl.value);
-      //Se termina la espera.
-      this.esperarService.noEsperar();
+      this.esperarService.esperar();
+
+      //Arreglo temporal para almacenar los usuarios con los pacientes y clínicas seleccionadas.
+      let usuariosFiltrados: any[] = [];
+
+      //Se subscribe al evento.
+      this.usuariosTienenPacienteSeleccionado(this.usuariosServidor, paciente.id).
+        //Se recorren los usuarios con el paciente seleccionado y se van guardando en su arreglo.
+        pipe(map(usuario => {
+          usuariosFiltrados.push(usuario);
+          return usuariosFiltrados;
+        })).
+        //Se obtiene el arreglo listo con los usuarios que tienen al paciente seleccionado.
+        toPromise().then(usuariosConPacienteSeleccionado => {
+
+          //Si hay usuarios resultantes.
+          if (usuariosConPacienteSeleccionado && usuariosConPacienteSeleccionado.length > 0) {
+
+            usuariosFiltrados = new Array();
+            //Se filtran los usuarios con la clínica seleccionada.
+            this.usuariosTienenClinicaSeleccionada(usuariosConPacienteSeleccionado, this.clinicaControl.value).
+              pipe(map(usuario => {
+                usuariosFiltrados.push(usuario);
+                return usuariosFiltrados;
+              })).
+              toPromise().then(usuariosConClinicaSeleccionada => {
+                //Se obtienen los usuarios a mostrar en la lista de usuarios o médicos.
+                this.usuarios = usuariosConClinicaSeleccionada;
+                //Se termina la espera.
+                this.esperarService.noEsperar();
+              });
+
+          }
+          //Si no hay usuarios resultantes.
+          else {
+            //Se termina la espera.
+            this.esperarService.noEsperar();
+          }
+        });
 
     }
     //Si el paciente está vacío.
     else if (valorPaciente.trim().length == 0 || valorPaciente.trim() == "") {
 
-      //Inicia la espera.
-      this.pacienteHTML.nativeElement.blur();
+      //Se inicia la espera.
       this.esperarService.esperar();
 
-      //Se inicializan los usuarios.
-      this.usuarios = new Array();
-
-      //Se obtienen los  usuarios que tengan asignada la clínica seleccionada.
-      this.usuariosServidor.forEach((usuario, indice) => {
-
-        //De los usuarios resultantes se buscan a los usuarios que tengan la clínica asignada.
-        this.autenticarService.usuarioTieneClinica(this.clinicaControl.value, usuario["id"]).subscribe((respuesta) => {
-
-          //Si el usuario tiene la clínica, se agrega.                    
-          if (respuesta["value"]) {
-            this.usuarios.push(usuario);
-          }
-
-          //Si ya terminó de recorrer los usuarios obtenidos del servidor.
-          if (indice + 1 == this.usuariosServidor.length) {
-            console.log("FUCK");
-            //Se termina la espera.
-            this.esperarService.noEsperar();
-          }
-
+      //Se obtienen los usuarios con la clínica seleccionada.
+      let usuariosFiltrados = new Array();
+      //Se filtran los usuarios con la clínica seleccionada.
+      this.usuariosTienenClinicaSeleccionada(this.usuariosServidor, this.clinicaControl.value).
+        pipe(map(usuario => {
+          usuariosFiltrados.push(usuario);
+          return usuariosFiltrados;
+        })).
+        toPromise().then(usuariosConClinicaSeleccionada => {
+          //Se obtienen los usuarios a mostrar en la lista de usuarios o médicos.
+          this.usuarios = usuariosConClinicaSeleccionada;
+          //Se termina la espera.
+          this.esperarService.noEsperar();
         });
 
-      });
+    }
 
+  }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: pacientesTienenUsuarioSeleccionado.                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para verificar que los pacientes tengan al       |
+  |  usuario seleccionado.                                                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: pacientes = pacientes para verificar,         |
+  |                         usuarioId = identificador del usuario.        |        
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA: pacientes = pacientes que tienen al usuario.   |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 25/07/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  pacientesTienenUsuarioSeleccionado(pacientes: Array<any>, usuarioId: string): Observable<any[]> {
+
+    //Almacena los pacientes resultantes después del filtro.
+    let pacientesResultantes: Subject<any[]> = new Subject<any[]>();
+
+    //Se manda a llamar recursivamente cada uno de los pacientes del arreglo si es que existen.
+    pacientes && pacientes.length > 0 ? siguientePaciente(this.autenticarService, 0) : null;
+
+    //Se retornan los pacientes que tienen al usuario seleccionado.
+    return pacientesResultantes;
+
+    //Función recursiva.
+    function siguientePaciente(pAutenticarService: AutenticarService, indice: number): any {
+      if (indice < pacientes.length) {
+
+        pAutenticarService.usuarioTienePaciente(pacientes[indice]["id"], usuarioId).subscribe(respuesta => {
+          if (respuesta["value"]) {
+            pacientesResultantes.next(pacientes[indice]);
+          }
+          siguientePaciente(pAutenticarService, indice + 1);
+        });
+      } else {
+        pacientesResultantes.complete();
+      }
     }
 
   }
@@ -381,29 +439,28 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  usuariosTienenPacienteSeleccionado(usuarios: Array<any>, pacienteId: string): Observable<any[]>{
+  usuariosTienenPacienteSeleccionado(usuarios: Array<any>, pacienteId: string): Observable<any[]> {
 
     //Almacena los usuarios resultantes después del filtro.
-    let usuariosResultantes: Subject<any[]>= new Subject<any[]>();
+    let usuariosResultantes: Subject<any[]> = new Subject<any[]>();
 
     //Se manda a llamar recursivamente cada uno de los usuarios del arreglo si es que existen.
-    siguienteUsuario(this.autenticarService, 0);
-
-    return usuariosResultantes;
+    usuarios && usuarios.length > 0 ? siguienteUsuario(this.autenticarService, 0) : null;
 
     //Se retornan los usuarios que tienen al paciente seleccionado.
+    return usuariosResultantes;
 
     //Función recursiva.
-    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number): any{
-      if(indice < usuarios.length){
+    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number): any {
+      if (indice < usuarios.length) {
 
-        pAutenticarService.usuarioTienePaciente(pacienteId, usuarios[indice]).subscribe(respuesta => {
-          if(respuesta["value"]){
-            usuariosResultantes.next(usuarios[indice]);                       
+        pAutenticarService.usuarioTienePaciente(pacienteId, usuarios[indice]["id"]).subscribe(respuesta => {
+          if (respuesta["value"]) {
+            usuariosResultantes.next(usuarios[indice]);
           }
           siguienteUsuario(pAutenticarService, indice + 1);
         });
-      }else{
+      } else {
         usuariosResultantes.complete();
       }
     }
@@ -425,46 +482,47 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  usuariosTienenClinicaSeleccionada(usuarios: any[], clinicaId: string): any[]{
+  usuariosTienenClinicaSeleccionada(usuarios: any[], clinicaId: string): Observable<any[]> {
 
-    //Usuarios que tienen a la clínica seleccionada.
-    let usuariosResultantes: Array<any> = new Array();
-
-    usuarios.map(usuario => {
-      console.log(usuario);
-    });
-
-    
+    //Almacena los usuarios resultantes después del filtro.
+    let usuariosResultantes: Subject<any[]> = new Subject<any[]>();
     //Se manda a llamar recursivamente cada uno de los usuarios del arreglo si es que existen.
-    usuarios.length > 0 ? siguienteUsuario(this.autenticarService, 0) : null;
+    usuarios && usuarios.length > 0 ? siguienteUsuario(this.autenticarService, 0) : null;
 
     //Se retornan los usuarios que tienen a la clínica seleccionada.
     return usuariosResultantes;
 
     //Función recursiva.
-    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number){
-      if(indice < usuarios.length){
+    function siguienteUsuario(pAutenticarService: AutenticarService, indice: number): any {
+      if (indice < usuarios.length) {
 
-        pAutenticarService.usuarioTieneClinica(clinicaId, usuarios[indice]).subscribe(respuesta => {
-          if(respuesta["value"]){
-            usuariosResultantes.push(usuarios[indice]);
+        pAutenticarService.usuarioTieneClinica(clinicaId, usuarios[indice]["id"]).subscribe(respuesta => {
+          if (respuesta["value"]) {
+            usuariosResultantes.next(usuarios[indice]);
           }
           siguienteUsuario(pAutenticarService, indice + 1);
         });
+      } else {
+        usuariosResultantes.complete();
       }
     }
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: actualizarPacientes.                                          |
+  |  NOMBRE: cambiarUsuario.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que actualiza los pacientes.                     | 
+  |  DESCRIPCIÓN: Método que se ejecuta cuando se cambia al usuario.      | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 22/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  actualizarPacientes() {
+  cambiarUsuario() {
+
+    //Se limpian los estudios.
+    this.estudioControl.setValue("");
+    this.estudios = new Array();
+    this.estudiosAProgramar = new Array();
 
     //Valor que trae el componente del usuario.
     let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
@@ -473,10 +531,11 @@ export class AltaConsultaComponent implements OnInit {
     //Si hay un usuario válido en el campo usuario.    
     if (usuario.id) {
 
+
       //Valor que trae el componente del paciente.
       let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
 
-      //Si No hay un paciente válido.
+      //Si el paciente no es válido. Se borra.
       if (!paciente.id) {
         //Se limpia el campo del paciente.
         this.pacienteControl.setValue("");
@@ -484,35 +543,32 @@ export class AltaConsultaComponent implements OnInit {
 
       //Se inicializan los pacientes.
       this.pacientes = new Array();
+      //Pacientes a filtrar.
+      let pacientesAFiltrar: Array<any> = new Array();
 
       //Se inicia la espera.
       this.esperarService.esperar();
 
-      //Se verifica que los pacientes encontrados tengan al usuario seleccionado.
-      this.pacientesServidor.forEach((paciente, indice) => {
+      //Se obtienen los productos o servicios del usuario seleccionado.
+      this.filtroEstudios(usuario.id);
 
-        this.autenticarService.usuarioTienePaciente(paciente["id"], usuario.id).subscribe((respuesta) => {
-          //Si el usuario tiene el paciente, se agrega.                    
-          if (respuesta["value"]) {
-            this.pacientes.push(paciente);
-          }
-
-          //Si ya terminó de recorrer los usuarios.
-          if (indice + 1 == this.pacientesServidor.length) {
-            //Se termina la espera.
-            this.esperarService.noEsperar();
-          }
-
+      //Se obtienen los pacientes que tienen asignado al usario seleccionado.
+      this.pacientesTienenUsuarioSeleccionado(this.pacientesServidor, usuario.id).
+        pipe(map(paciente => {
+          pacientesAFiltrar.push(paciente);
+          return pacientesAFiltrar;
+        })).
+        toPromise().then(pacientes => {
+          this.pacientes = pacientes;
+          //Se detiene la espera.
+          this.esperarService.noEsperar();
         });
-
-      });
 
     }
     //Si el usuario está vacío.     
     else if (valorUsuario.trim().length == 0 || valorUsuario.trim() == "") {
       this.pacientes = this.pacientesServidor;
     }
-
 
   }
 
@@ -544,6 +600,7 @@ export class AltaConsultaComponent implements OnInit {
 
           //Se almacenan los pacientes en el arreglo de pacientes.  
           this.pacientesServidor = respuesta["datos"];
+          this.pacientes = respuesta["datos"];
 
         }
 
@@ -556,18 +613,17 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para llenar el filtro de estudios.               | 
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: usuarioId = identificador del usuario.        |
+  |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 26/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstudios() {
+  filtroEstudios(usuarioId: string) {
 
     //Intenta obtener los servicios/estudios del usuario ingresado.
-    this.productosService.filtroServicios()
+    this.productosService.filtroServicios(usuarioId, "ACTIVO")
       .subscribe((respuesta) => {
-
-        this.estudiosInicioListos = true;
-        this.cargaInicialLista$.next(this.estudiosInicioListos);
 
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
@@ -643,8 +699,16 @@ export class AltaConsultaComponent implements OnInit {
 
     //Realiza la búsqueda dentro del arreglo.  
     return merge(debouncedText$, this.focusBuscarUsuario$, clicksWithClosedPopup$).pipe(
-      map(term => (term === '' ? this.usuarios
-        : this.usuarios.filter(usuario => usuario.nombres_usuario.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
+      map(term => {
+        if (term === '') {
+          return this.usuarios;
+        }
+        else {
+          if (this.usuarios && this.usuarios.length > 0) {
+            return this.usuarios.filter(usuario => usuario.nombres_usuario.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10);
+          }
+        }
+      })
     ).pipe();
 
   }
@@ -670,11 +734,17 @@ export class AltaConsultaComponent implements OnInit {
 
     //Realiza la búsqueda dentro del arreglo.  
     return merge(debouncedText$, this.focusBuscarPaciente$, clicksWithClosedPopup$).pipe(
-      map(term =>
-        (term === '' ? this.pacientes
-          : this.pacientes.filter(paciente =>
-            paciente.nombres_paciente.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
-    );
+      map(term => {
+        if (term === '') {
+          return this.pacientes;
+        }
+        else {
+          if (this.pacientes && this.pacientes.length > 0) {
+            return this.pacientes.filter(paciente => paciente.nombres_paciente.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10);
+          }
+        }
+      })
+    ).pipe();
 
   }
 
@@ -698,11 +768,17 @@ export class AltaConsultaComponent implements OnInit {
 
     //Realiza la búsqueda dentro del arreglo.  
     return merge(debouncedText$, this.focusBuscarEstudio$, clicksWithClosedPopup$).pipe(
-      map(term =>
-        (term === '' ? this.estudios
-          : this.estudios.filter(estudio =>
-            estudio.nombre_estudio.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10))
-    );
+      map(term => {
+        if (term === '') {
+          return this.estudios;
+        }
+        else {
+          if (this.estudios && this.estudios.length > 0) {
+            return this.estudios.filter(estudio => estudio.nombre_estudio.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10);
+          }
+        }
+      })
+    ).pipe();
 
   }
 
@@ -756,22 +832,16 @@ export class AltaConsultaComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: filtroClinicas.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:                                               |
-  |  esperar = para saber si se despliega el modal de espera.             |   
+  |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               |      
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 29/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroClinicas(esperar: boolean = false) {
+  filtroClinicas() {
 
     //Se limpia el control de las clínicas.
     this.clinicaControl.setValue("");
-
-    //Si esperar es verdadero, entonces se abre el modal de espera.
-    esperar ? this.esperarService.esperar() : null;
 
     this.clinicasService.filtroClinicas("0", "ACTIVO", "0").subscribe((respuesta) => {
 
@@ -787,17 +857,10 @@ export class AltaConsultaComponent implements OnInit {
         this.clinicas = respuesta["datos"];
         //Se inicializa el select con el primer valor encontrado.
         this.clinicaControl.setValue(respuesta["datos"][0]["id"] ? respuesta["datos"][0]["id"] : "");
-        console.log("DOS");
       }
 
-      //Solo se realiza al recargar la página.
-      if (!esperar) {
-        this.clinicasInicioListas = true;
-        this.cargaInicialLista$.next(this.clinicasInicioListas);
-      }
-
-      //Si esperar es verdadero, entonces se cierra el modal de espera.
-      esperar ? this.esperarService.noEsperar() : null;
+      this.clinicasInicioListas = true;
+      this.cargaInicialLista$.next(this.clinicasInicioListas);
     });
 
   }
@@ -884,16 +947,15 @@ export class AltaConsultaComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: actualizarUsuarios.                                           |  
+  |  NOMBRE: cambiarClinica.                                              |  
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para actualizar filtros de usuarios y pacientes, |
-  |  cuando se cambia la clínica.                                         | 
+  |  DESCRIPCIÓN: Método que se ejecuta cuando se cambia de clínica.      | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 22/07/2019.                                                   |    
+  |  FECHA: 25/07/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  actualizarUsuarios() {
+  cambiarClinica() {
 
     //Inicia el servicio de espera.
     this.clinicaHTML.nativeElement.blur();
@@ -903,75 +965,57 @@ export class AltaConsultaComponent implements OnInit {
     this.usuarioControl.setValue("");
 
     //Se inicializan los usuarios.
-    let usuarios = new Array();
+    let usuariosAFiltrar = new Array();
     this.usuarios = new Array();
 
-    //Se verifica que los usuarios encontrados tengan la clínica seleccionada.
-    this.usuariosServidor.map((usuario, indice) => {
+    //Se obtienen los usuarios que tienen asignada la clínica seleccionada.
+    this.usuariosTienenClinicaSeleccionada(this.usuariosServidor, this.clinicaControl.value).
+      pipe(map(usuario => {
+        usuariosAFiltrar.push(usuario);
+        return usuariosAFiltrar;
+      })).
+      toPromise().then(usuarios => {
 
-      this.autenticarService.usuarioTieneClinica(this.clinicaControl.value, usuario["id"]).subscribe((respuesta) => {
+        //Si hay usuarios resultantes.
+        if (usuarios && usuarios.length > 0) {
 
-        //Si el usuario tiene la clínica.
-        if (respuesta["value"]) {
+          //Se inicializan los usuarios a filtrar.
+          usuariosAFiltrar = new Array();
 
-          //Se agrega el usuario.
-          usuarios.push(usuario);
+          //Valor que trae el componente del paciente.
+          let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
 
-          //Si ya terminó de veriricar las clínicas.
-          if (indice + 1 == this.usuariosServidor.length) {
-
-            //Se llenan los usuarios.
-            this.usuarios = usuarios;
-
-            //Valor que trae el componente del paciente.
-            let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
-
-            //Si hay un paciente válido.
-            if (paciente.id) {
-
-              //Se recorren los usuarios filtrados.
-              usuarios.map((usuarioConClinica, indiceUsuarioConClinica) => {
-
-                this.autenticarService.usuarioTienePaciente(paciente.id, usuarioConClinica["id"]).subscribe((respuestaUsuarioConClinica) => {
-                  //Si el usuario NO tiene el paciente.                    
-                  if (!respuestaUsuarioConClinica["value"]) {
-                    //Se elimina el usuario al arreglo de usuarios.
-                    this.usuarios.splice(indiceUsuarioConClinica, 1);
-                  }
-
-                  //Si ya terminó de verificar los pacientes.
-                  if (indiceUsuarioConClinica + 1 == usuarios.length) {
-                    //Se detiene la espera.                    
-                    this.esperarService.noEsperar();
-                  }
-
-                });
-
-
+          //Si es un paciente válido.
+          if (paciente.id) {
+            this.usuariosTienenPacienteSeleccionado(usuarios, paciente.id).
+              pipe(map(usuario => {
+                usuariosAFiltrar.push(usuario);
+                return usuariosAFiltrar;
+              })).
+              toPromise().then(usuarios => {
+                this.usuarios = usuarios;
+                //Se detiene la espera.                    
+                this.esperarService.noEsperar();
               });
+          }
+          //Si el paciente no es válido.
+          else {
 
-            }
-            //Si no hay un paciente válido.
-            else {
-              //Se termina la espera.
-              this.esperarService.noEsperar();
-            }
-
+            //Se obtienen solo los usuarios con la clínica seleccionada.
+            this.usuarios = usuarios;
+            //Se limpia el paciente.
+            this.pacienteControl.setValue("");
+            //Se detiene la espera.                    
+            this.esperarService.noEsperar();
           }
 
         }
-        //Si el usuario  no tiene la clínica.
+        //Si no hay usuarios.
         else {
-          //Se termina la espera.
+          //Se detiene la espera.                    
           this.esperarService.noEsperar();
         }
-
       });
-
-
-    });
-
-
 
   }
 
@@ -1115,6 +1159,7 @@ export class AltaConsultaComponent implements OnInit {
           });
 
         }
+        //Si no tiene consultas en la fecha y hora dadas.
         else {
 
           //Se abre el modal de espera.

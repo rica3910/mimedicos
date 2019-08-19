@@ -1,28 +1,13 @@
-/******************************************************************|
-|NOMBRE: UsuarioPuedeModificarConsulta.                            | 
-|------------------------------------------------------------------|
-|DESCRIPCIÓN: Guarda para garantizar que el usuario pueda modificar|
-| una consulta.                                                    |
-|------------------------------------------------------------------|
-|AUTOR: Ricardo Luna.                                              |
-|------------------------------------------------------------------|
-|FECHA: 26/10/2018.                                                |
-|------------------------------------------------------------------|
-|                       HISTORIAL DE CAMBIOS                       |
-|------------------------------------------------------------------|
-| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
-*/
-
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AutenticarService } from '../autenticar.service';
 import { map } from "rxjs/operators";
 
-@Injectable()
-
-export class UsuarioPuedeModificarConsultaGuard implements CanActivate {
-
+@Injectable({
+  providedIn: 'root'
+})
+export class UsuarioPuedeVerConsultaGuard implements CanActivate {
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
@@ -47,8 +32,8 @@ export class UsuarioPuedeModificarConsultaGuard implements CanActivate {
       //Obtiene el identificador de la consulta de la url.
       let consultaId: string = next.paramMap.get("id");
         
-      //Retorna verdadero o falso en caso de que el usuario pueda modificar la consulta o no respectivamente.
-      return this.autorizacion.usuarioPuedeModificarConsulta(consultaId).pipe(map((resultado) => {    
+      //Retorna verdadero o falso en caso de que el usuario pueda ver la consulta o no respectivamente.
+      return this.autorizacion.usuarioPuedeVerConsulta(consultaId).pipe(map((resultado) => {    
                         
         //Si el usuario no puede acceder a la consulta.
         if(!resultado["value"]){
