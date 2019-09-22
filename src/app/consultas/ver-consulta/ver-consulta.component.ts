@@ -48,6 +48,26 @@ export class VerConsultaComponent implements OnInit {
   estadoConsultaUrl: string;
   //Estado de la consulta obtenida de la base de datos.
   estadoConsulta: string;
+  //Cantidad de diagnósticos que tiene la consulta.
+  cantidadDiagnosticos: number = 0;
+  //Propiedad que indica si el usuario puede dar de alta consultas.
+  altaConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede editar consultas.
+  editarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede eliminar consultas.
+  eliminarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede cancelar consultas.
+  cancelarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede pasar a consultas.
+  pasarAConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede pasar a pendiente la consulta.
+  pasarAPendientes: boolean = false;
+  //Propiedad que indica si el usuario puede pasar a diagnóstico la consulta.
+  pasarADiagnosticos: boolean = false;
+  //Propiedad que indica si el usuario puede finalizar la consulta
+  finalizarConsultas: boolean = false;
+  //Propiedad que indica si el usuario puede ver disgnósticos.
+  verDiagnostico: boolean = false;
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: constructor.                                                 |
@@ -81,13 +101,13 @@ export class VerConsultaComponent implements OnInit {
       //Se reinicia el total.
       this.totalEstudios = 0;
 
-      this.consultaId = params.get("id");   
+      this.consultaId = params.get("id");
       this.estadoConsultaUrl = params.get("status");
 
       //Se inicia la espera.
       this.esperarService.esperar();
 
-      this.consultasService.verConsulta(this.consultaId).subscribe(respuesta => {                
+      this.consultasService.verConsulta(this.consultaId).subscribe(respuesta => {
 
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
@@ -105,6 +125,7 @@ export class VerConsultaComponent implements OnInit {
           this.clinica = respuesta["datos"][0]["nombre_clinica"];
           this.tipoConsulta = respuesta["datos"][0]["nombre_tipo_consulta"];
           this.estadoConsulta = respuesta["datos"][0]["nombre_estado_consulta"];
+          this.cantidadDiagnosticos = respuesta["datos"][0]["cantidad_diagnosticos"];
 
           this.consultasService.verEstudiosConsulta(this.consultaId).subscribe(respuestaEstudios => {
 
@@ -141,20 +162,344 @@ export class VerConsultaComponent implements OnInit {
   ngOnInit() {
   }
 
-/*----------------------------------------------------------------------|
-|  NOMBRE: regresar.                                                    |
-|-----------------------------------------------------------------------|
-|  DESCRIPCIÓN: Regresa al menú de listado de consultas.                |   
-|-----------------------------------------------------------------------|
-|  AUTOR: Ricardo Luna.                                                 |
-|-----------------------------------------------------------------------|
-|  FECHA: 09/11/2018.                                                   |    
-|----------------------------------------------------------------------*/
+  ngAfterViewInit(): void {
+
+    //El botón de dar de alta consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ALTA CONSULTA').subscribe((respuesta: boolean) => {
+      this.altaConsultas = respuesta["value"];
+    });
+
+    //El botón de editar consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('EDITAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.editarConsultas = respuesta["value"];
+    });
+
+    //El botón de eliminar consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ELIMINAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.eliminarConsultas = respuesta["value"];
+    });
+
+    //El botón de cancelar consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('CANCELAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.cancelarConsultas = respuesta["value"];
+    });
+
+    //El botón de pasar a consultas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('INICIAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.pasarAConsultas = respuesta["value"];
+    });
+
+    //El botón de pasar la consulta a pendiente se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('CONSULTA PENDIENTE').subscribe((respuesta: boolean) => {
+      this.pasarAPendientes = respuesta["value"];
+    });
+
+    //El botón de pasar la consulta a diangóstico se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('INICIAR DIAGNOSTICO').subscribe((respuesta: boolean) => {
+      this.pasarADiagnosticos = respuesta["value"];
+    });
+
+    //El botón de finalizar consulta se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('FINALIZAR CONSULTA').subscribe((respuesta: boolean) => {
+      this.finalizarConsultas = respuesta["value"];
+    });
+
+    //El botón de ver diagnóstico se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER DIAGNOSTICOS').subscribe((respuesta: boolean) => {
+      this.verDiagnostico = respuesta["value"];
+    });
+
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: regresar.                                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Regresa al menú de listado de consultas.                |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
   regresar() {
     let url: string = 'consultas/lista-consultas';
     //Si viene un estado de consulta en la url.
     this.estadoConsultaUrl ? url = url + "/" + this.estadoConsultaUrl : null;
     this.rutaNavegacion.navigateByUrl(url);
   }
+
+  /*----------------------------------------------------------------------|
+    |  NOMBRE: cancelarConsulta.                                            |
+    |-----------------------------------------------------------------------|
+    |  DESCRIPCIÓN: Método para cancelar una consulta.                      |   
+    |-----------------------------------------------------------------------|
+    |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+    |-----------------------------------------------------------------------|  
+    |  AUTOR: Ricardo Luna.                                                 |
+    |-----------------------------------------------------------------------|
+    |  FECHA: 01/11/2018.                                                   |    
+    |----------------------------------------------------------------------*/
+  cancelarConsulta(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Cancelar consulta.", "¿Está seguro de cancelar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'CANCELADA').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Cancelación exitosa", "La consulta se canceló satisfactoriamente.");
+            window.location.reload();
+          }
+
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: pasarAConsulta.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para iniciar una consulta.                       |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  pasarAConsulta(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Iniciar consulta.", "¿Está seguro de iniciar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'CONSULTA').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Inicio de consulta exitosa", "La consulta se inició satisfactoriamente.");
+            window.location.reload();
+          }
+
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: pasarAPendiente.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para regresar la consulta a pendiente.           |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  pasarAPendiente(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Confirmación.", "¿Está seguro de establecer la consulta en estado pendiente?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'PENDIENTE').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Consulta pendiente", "La consulta se cambió a estado pendiente satisfactoriamente.");
+            window.location.reload();
+          }
+
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: pasarADiagnostico.                                           |
+  |----------------------------------------------------- -----------------|
+  |  DESCRIPCIÓN: Método para pasar la consulta a diagnóstico.            |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  pasarADiagnostico(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Iniciar diagnóstico.", "¿Está seguro de pasar la consulta a diagnóstico?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'DIAGNOSTICO').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se abre la pantalla del listado de diagnósticos de la consulta.
+            this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + consultaId);
+          }
+
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: finalizarConsulta.                                           |
+  |----------------------------------------------------- -----------------|
+  |  DESCRIPCIÓN: Método para finalizar una consulta.                     |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 06/11/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  finalizarConsulta(consultaId: string) {
+
+    this.utilidadesService.confirmacion("Finalizar consulta.", "¿Está seguro de finalizar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.cambiarEstadoConsulta(consultaId, 'FINALIZADA').subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Consulta finalizada", "La consulta se finalizó satisfactoriamente.");
+            window.location.reload();
+          }
+
+        });
+      }
+    });
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarConsulta.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una consulta.                      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 31/10/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarConsulta(consultaId: string) {
+
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Eliminar consulta.", "¿Está seguro de eliminar la consulta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.eliminarConsulta(consultaId).subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Eliminación exitosa", "La consulta se eliminó permanentemente.");
+            this.rutaNavegacion.navigate(['consultas', 'lista-consultas']);
+          }
+        });
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarConsulta.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de editar consulta.      |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/08/2018.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarConsulta(consultaId) {
+
+    let url: string = 'consultas/editar-consulta/' + consultaId;
+    this.rutaNavegacion.navigateByUrl(url);
+
+  }
+
+  /*----------------------------------------------------------------------|
+   |  NOMBRE: verConsulta.                                                 |
+   |-----------------------------------------------------------------------|
+   |  DESCRIPCIÓN: Método que llama al detalle de la consulta.             |    
+   |-----------------------------------------------------------------------|
+   |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+   |-----------------------------------------------------------------------|
+   |  AUTOR: Ricardo Luna.                                                 |
+   |-----------------------------------------------------------------------|
+   |  FECHA: 28/08/2018.                                                   |    
+   |----------------------------------------------------------------------*/
+  verConsulta(consultaId) {
+
+    let url: string = 'consultas/ver-consulta/' + consultaId;
+    this.rutaNavegacion.navigateByUrl(url);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verDiagnosticos.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que envía a la pantalla de ver diagnósticos.     |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 14/08/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  verDiagnosticos(consultaId) {
+    this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + consultaId);
+  }
+
+
 
 }

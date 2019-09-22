@@ -11,6 +11,7 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
-<div class="container">
-  <full-calendar defaultView="dayGridMonth" [plugins]="calendarPlugins"></full-calendar>
+<div *ngIf="calendarOptions" class="container">
+  <ng-fullcalendar  #calendario [options]="calendarOptions" (eventClick)="eventClick($event.detail)" 
+    (initialized)="calendarioCargado()" (dayClick)="dayClick($event.detail)"  (eventRender)="eventrender($event.detail)" (clickButton)="clickButton($event.detail)"></ng-fullcalendar>
 </div>

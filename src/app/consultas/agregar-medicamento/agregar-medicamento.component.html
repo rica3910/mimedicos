@@ -1,0 +1,135 @@
+<!------------------------------------------------------------------
+|NOMBRE: agregar-medicamento.                                      |  
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente HTML que contiene el formulario para      |
+|             agregar un medicamento a la receta.                  |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 18/09/2019.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+<div class="modal-header">
+  <h4 class="modal-title titulo-azul">Agregar medicamento</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('cerrar')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-lg-6 input-group input-group-lg">
+      <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
+      <div class="input-group-append">
+        <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
+          ngbTooltip="Borrar búsqueda.">
+          <i class="material-icons">backspace</i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-6 table-responsive" style="height:300px; overflow:auto">
+      <table class="table table-bordered">
+        <tr class="table-primary">
+          <th rowspan="2" class="align-middle text-center"></th>
+          <th colspan="2" class="text-center">Denominación</th>
+        </tr>
+        <tr class="table-primary">
+          <th class="text-center">Distintiva</th>
+          <th class="text-center">Genérica</th>
+        </tr>
+        <tr>
+          <td class="text-center">
+            <button type="button" class="btn btn-outline-primary" ngbTooltip="Seleccionar medicamento."
+              (click)='seleccionarMedicamento()'>
+              <i class="material-icons">done</i>
+            </button>
+          </td>
+          <td>Aspirina</td>
+          <td>
+            <ul>
+              <li>Acido</li>
+              <li>Antiinflamatario</li>
+              <li>abtibiotico</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-center">
+            <button type="button" class="btn btn-outline-primary" ngbTooltip="Seleccionar medicamento."
+              (click)='seleccionarMedicamento()'>
+              <i class="material-icons">done</i>
+            </button>
+          </td>
+          <td>Aspirina</td>
+          <td>
+            <ul>
+              <li>Acido</li>
+              <li>Antiinflamatario</li>
+              <li>abtibiotico</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-lg-3">
+      <div class="card">
+        <img src="./../../assets/img/logo_completo.png" class="card-img-top" alt="...">
+        <div class="card-body">
+          <h5 class="card-title">Card title</h5>
+          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+            content. This content is a little bit longer.</p>
+          <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="row">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Dosis*</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Dosis" ngbTooltip="Dosis del medicamento.">
+          <div class="input-group-append">
+            <span class="input-group-text">Tabletas</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Frecuencia*</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Frecuencia" ngbTooltip="Frecuencia de la dosificación.">
+          <div class="input-group-append">
+            <span class="input-group-text">Horas</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Duración*</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Duración" ngbTooltip="Duración del tratamiento.">
+          <div class="input-group-append">
+            <span class="input-group-text">Meses</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label for="indicaciones">Indicaciones</label>
+          <textarea class="form-control" id="indicaciones" rows="3" ngbTooltip="Indicaciones."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-azul" autofocus (click)="activeModal.close('ok')"
+    ngbTooltip="Agregar medicamento"><i class="material-icons">playlist_add</i></button>
+</div>

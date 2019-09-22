@@ -31,7 +31,7 @@
     <div class="row">
       <div class="col-lg-2"></div>
       <div class="col-lg-3">
-        <ngb-datepicker [formControl]="fechaControl" (navigate)="date = $event.next" [minDate]='fechaActual'></ngb-datepicker>
+        <ngb-datepicker [formControl]="fechaControl"  #fechaHTML  [minDate]='fechaActual'></ngb-datepicker>
       </div>
       <div class="col-lg-2">
         <h4 class="fuente-azul">&nbsp;&nbsp;&nbsp;Comienzo</h4>

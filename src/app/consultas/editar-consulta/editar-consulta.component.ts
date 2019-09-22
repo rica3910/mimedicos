@@ -1131,7 +1131,7 @@ export class EditarConsultaComponent implements OnInit {
     if (
       fechaActual.getFullYear() >= fechaConsulta.year &&
       fechaActual.getMonth() >= fechaConsulta.month &&
-      fechaActual.getDay() > fechaConsulta.day) {
+      fechaActual.getDate() > fechaConsulta.day) {
       this.utilidadesService.alerta("Fecha inválida", "La fecha debe ser mayor o igual a la fecha de hoy.");
       return;
     }

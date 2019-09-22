@@ -13,8 +13,8 @@
 */
 
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Router, ActivatedRoute } from '@angular/router';
+import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, Observable, merge } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
@@ -120,6 +120,8 @@ export class AltaConsultaComponent implements OnInit {
   pulsarCrear: boolean = false;
   //Objeto del formulario que contendrá a la fecha.
   fechaControl: AbstractControl;
+  //Variable que almacena el control del formulario de la fecha.
+  @ViewChild('fechaHTML') fechaHTML: NgbDatepicker;
   //Objeto del formulario que contendrá a la hora de inicio de la consulta.
   horaInicioControl: AbstractControl;
   //Objeto del formulario que contendrá a la hora de finalización de la consulta.
@@ -147,7 +149,8 @@ export class AltaConsultaComponent implements OnInit {
   |  clinicasService = contiene los métodos de la bd de las clínicas,     |
   |  consultasService = contiene los métodos de la bd de las consultas,   |
   |  productosService = contiene los métodos de la bd de los productos,   |
-  |  autenticarService = contiene los métodos de autenticación.           |                                
+  |  autenticarService = contiene los métodos de autenticación,           |
+  |  rutaActual= Para obtener los parámetros de la url.                   |                                
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -163,7 +166,8 @@ export class AltaConsultaComponent implements OnInit {
     private clinicasService: ClinicasService,
     private consultasService: ConsultasService,
     private productosService: ProductosService,
-    private autenticarService: AutenticarService) {
+    private autenticarService: AutenticarService,
+    private rutaActual: ActivatedRoute) {
 
     //Al calendario se le establece la fecha actual.
     let fechaActual = new Date();
@@ -190,6 +194,7 @@ export class AltaConsultaComponent implements OnInit {
     this.horaFinControl = this.formAltaConsultas.controls['horaFin'];
     this.tipoConsultaControl = this.formAltaConsultas.controls['tipoConsulta'];
     this.estudioControl = this.formAltaConsultas.controls['estudio'];
+
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
     this.esperarService.esperar()
@@ -233,6 +238,43 @@ export class AltaConsultaComponent implements OnInit {
 
 
   ngOnInit() {
+
+    //Obtiene la fecha y la hora de la url.
+    this.rutaActual.paramMap.subscribe(params => {
+
+      //Si exiten la fecha y hora en la url.
+      if (params.get("fecha") && params.get("hora")) {
+
+        //Al calendario se le establece la fecha actual.
+        let fechaActual = new Date();
+
+        let ano = Number(params.get("fecha").substring(4, 10));
+        let mes = Number(params.get("fecha").substring(2, 4));
+        let dia = Number(params.get("fecha").substring(0, 2));
+
+        //Si la fecha introducida en la url es mayor igual al día de hoy.
+        if (fechaActual.getFullYear() >= ano &&
+          fechaActual.getMonth() + 1 >= mes &&
+          fechaActual.getDate() > dia) {
+          null;
+        } else {
+
+          let fecha: NgbDateStruct = { year: ano, month: mes, day: dia};
+          this.fechaControl.setValue(fecha);          
+          this.fechaHTML.navigateTo({year: ano, month: mes})          
+        }
+
+        //Si la hora es válida.
+        if (params.get("hora").search("-") != 0) {
+
+          let hora: NgbTimeStruct = { hour: Number(params.get("hora").substring(0, 2)), minute: Number(params.get("hora").substring(2, 4)), second: 0 };
+          this.horaInicioControl.setValue(hora);
+          this.horaFinControl.setValue(hora);
+        }
+
+      }
+
+    });
 
     //Cuando se cambia el usuario.
     this.usuarioControl.valueChanges.subscribe(() => {
@@ -1043,8 +1085,8 @@ export class AltaConsultaComponent implements OnInit {
     //Si la fecha y  las horas son inválidas.
     if (
       fechaActual.getFullYear() >= fechaConsulta.year &&
-      fechaActual.getMonth() >= fechaConsulta.month &&
-      fechaActual.getDay() > fechaConsulta.day) {
+      fechaActual.getMonth() + 1 >= fechaConsulta.month &&
+      fechaActual.getDate() > fechaConsulta.day) {
       this.utilidadesService.alerta("Fecha inválida", "La fecha debe ser mayor o igual a la fecha de hoy.");
       return;
     }
@@ -1142,6 +1184,8 @@ export class AltaConsultaComponent implements OnInit {
                   if (respuesta["estado"] === "ERROR") {
                     //Muestra una alerta con el porqué del error.
                     this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                    //Se cierra el  modal de espera.
+                    this.esperarService.noEsperar();
                   }
                   else {
 
@@ -1180,6 +1224,8 @@ export class AltaConsultaComponent implements OnInit {
               if (respuesta["estado"] === "ERROR") {
                 //Muestra una alerta con el porqué del error.
                 this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                //Se cierra el  modal de espera.
+                this.esperarService.noEsperar();
               }
               else {
 

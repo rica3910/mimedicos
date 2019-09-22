@@ -1149,6 +1149,49 @@ export class AutenticarService {
   }  
 
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeVerRecetas.                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda ver         |
+  | las recetas de una consulta.                                          |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId: identificador de la consulta.     |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda ver o no la receta respectivamente.  |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/08/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeVerRecetas(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-ver-recetas/${consultaId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede ver las recetas.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí pueda ver las recetas.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }  
+
 
 }
 

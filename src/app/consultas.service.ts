@@ -827,6 +827,43 @@ export class ConsultasService {
     return of(false);
 
   }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaRecetas.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener las recetas de una consulta.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 17/09/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  listaRecetas(consultaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener las recetas.
+      return this.http.get(this.urlApi + `lista-recetas/${consultaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
     
 }
 

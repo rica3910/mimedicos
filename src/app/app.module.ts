@@ -48,11 +48,13 @@ import { DibujoComponent } from './dibujo/dibujo.component';
 import { SignaturePadModule } from 'angular2-signaturepad';
 import { ColorPickerModule } from 'ngx-color-picker';
 import {MatSliderModule} from '@angular/material/slider';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule } from 'ng-fullcalendar';
 import { PRODUCTOS_PROVIDERS } from './productos.service';
 import { FORMULARIOS_PROVIDERS } from './formularios.service';
 import * as $ from 'jquery';
 import { PDFCARTA_PROVIDERS } from './pdfcarta.service';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -77,14 +79,16 @@ const rutas: Routes = [
     CambiarPasswordOlvidadoComponent,    
     PaginaInvalidaComponent, 
     DesplegarImagenComponent, 
-    DibujoComponent    
+    DibujoComponent,
+    AgregarMedicamentoComponent    
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
     DialogoAlertaComponent, 
     DialogoEsperaComponent,
     DesplegarImagenComponent,
-    DibujoComponent],
+    DibujoComponent,
+    AgregarMedicamentoComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -97,7 +101,8 @@ const rutas: Routes = [
     SignaturePadModule,
     ColorPickerModule,
     MatSliderModule,
-    FullCalendarModule
+    FullCalendarModule,
+    NgbTooltipModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,

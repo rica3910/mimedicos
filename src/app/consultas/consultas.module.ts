@@ -35,6 +35,9 @@ import { VerDiagnosticoComponent } from './ver-diagnostico/ver-diagnostico.compo
 import { UsuarioPuedeVerDiagnosticoGuard } from './usuario-puede-ver-diagnostico.guard';
 import { VerConsultaComponent } from './ver-consulta/ver-consulta.component';
 import { UsuarioPuedeVerConsultaGuard } from './usuario-puede-ver-consulta.guard';
+import { ListaRecetasComponent } from './lista-recetas/lista-recetas.component';
+import { UsuarioPuedeVerRecetasGuard } from './usuario-puede-ver-recetas.guard';
+import { AltaRecetaComponent } from './alta-receta/alta-receta.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -42,6 +45,7 @@ export const rutas: Routes = [
   { path: 'lista-consultas', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]},   
   { path: 'lista-consultas/:status', component: ListaConsultasComponent, canActivate: [UsuarioTieneMenuGuard]}, 
   { path: 'alta-consulta', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
+  { path: 'alta-consulta/:fecha/:hora', component: AltaConsultaComponent, canActivate: [UsuarioTieneMenuGuard]},     
   { path: 'editar-consulta/:id', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]},
   { path: 'editar-consulta/:id/:status', component: EditarConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeModificarConsultaGuard]},
   { path: 'ver-consulta/:id', component: VerConsultaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerConsultaGuard]},
@@ -50,6 +54,8 @@ export const rutas: Routes = [
   { path: 'alta-diagnostico/:id', component: AltaDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard]},
   { path: 'editar-diagnostico/:id/:diagnosticoId', component: EditarDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeCrearDiagnosticosGuard, UsuarioPuedeEditarDiagnosticosGuard]},  
   { path: 'ver-diagnostico/:id/:diagnosticoId', component: VerDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticoGuard]},  
+  { path: 'lista-recetas/:id', component: ListaRecetasComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
+  { path: 'alta-receta/:id', component: AltaRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
   { path: '**', redirectTo: 'lista-consultas', pathMatch: 'full'  }  
 ];
 
@@ -72,7 +78,9 @@ export const rutas: Routes = [
     EditarDiagnosticoComponent,
     InfoConsultaComponent,
     VerDiagnosticoComponent,
-    VerConsultaComponent
+    VerConsultaComponent,
+    ListaRecetasComponent,
+    AltaRecetaComponent
   ],
   exports: [ConsultasComponent],
   providers: [
@@ -81,7 +89,8 @@ export const rutas: Routes = [
     UsuarioPuedeVerDiagnosticosGuard,
     UsuarioPuedeCrearDiagnosticosGuard,
     UsuarioPuedeEditarDiagnosticosGuard,
-    UsuarioPuedeVerDiagnosticoGuard  
+    UsuarioPuedeVerDiagnosticoGuard,
+    UsuarioPuedeVerRecetasGuard
   ]
 })
 export class ConsultasModule { }

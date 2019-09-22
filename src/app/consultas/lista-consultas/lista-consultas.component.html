@@ -205,9 +205,8 @@
           <td>{{consulta.nombre_tipo_consulta}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button
-                *ngIf="verConsultas"
-                type="button" class="btn" ngbTooltip="Ver consulta."(click)='verConsulta(consulta.id)'>
+              <button *ngIf="verConsultas" type="button" class="btn" ngbTooltip="Ver consulta."
+                (click)='verConsulta(consulta.id)'>
                 <i class="material-icons">visibility</i>
               </button>
               <button
@@ -237,6 +236,10 @@
               <button *ngIf="finalizarConsultas && consulta.nombre_estado_consulta == 'DIAGNOSTICO'" type="button"
                 class="btn" ngbTooltip="Finalizar la consulta." (click)='finalizarConsulta(consulta.id)'>
                 <i class="material-icons">assignment_turned_in</i>
+              </button>
+              <button *ngIf="verRecetas && consulta.nombre_estado_consulta == 'FINALIZADA'" type="button"
+                class="btn" ngbTooltip="Ver recetas." (click)='verReceta(consulta.id)'>
+                <i class="material-icons">receipt</i>
               </button>
               <button
                 *ngIf="cancelarConsultas && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')"

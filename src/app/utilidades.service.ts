@@ -23,6 +23,7 @@ import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.componen
 import { DibujoComponent } from './dibujo/dibujo.component';
 import { EventEmitter } from 'events';
 import { DialogoConfirmacionComponent } from './dialogo-confirmacion/dialogo-confirmacion.component';
+import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 
 @Injectable()
 export class UtilidadesService {
@@ -538,6 +539,43 @@ export class UtilidadesService {
     //Se retorna el observable.
     return subject.asObservable();
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: agregarMedicamentoModal.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal para añadir un medicamento a la receta.   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: mensaje  = mensaje que contendrá la alerta.   |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 18/09/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  agregarMedicamento(): Observable<any> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<any> = new Subject<null>();
+    
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+    //Modal centrado.
+    modalOption.centered = true;    
+    //Abre el modal de tamaño extra grande.
+    modalOption.size = 'xl' as 'lg';    
+
+    const modalRef = this.modalService.open(AgregarMedicamentoComponent, modalOption);    
+    //Se retorna el botón pulsado.
+    modalRef.result.then((res) => {  
+      console.log(res);    
+      //Se retorna un nulo, ya que no se espera un resultado.         
+      subject.next(null);
+    }, (razon) => {
+      subject.next(null);
+    });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }  
 
 
 }

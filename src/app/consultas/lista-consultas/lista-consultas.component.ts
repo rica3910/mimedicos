@@ -61,6 +61,8 @@ export class ListaConsultasComponent implements OnInit {
   finalizarConsultas: boolean = false;
   //Propiedad que indica si el usuario puede ver disgnósticos.
   verDiagnostico: boolean = false;
+  //Propiedad que indica si el usuario puede ver recetas.
+  verRecetas: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -372,6 +374,11 @@ export class ListaConsultasComponent implements OnInit {
     this.autenticarService.usuarioTieneDetModulo('VER DIAGNOSTICOS').subscribe((respuesta: boolean) => {
       this.verDiagnostico = respuesta["value"];
     });
+
+    //El botón de ver recetas se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER RECETAS').subscribe((respuesta: boolean) => {
+      this.verRecetas = respuesta["value"];
+    });    
 
   }
 
@@ -1194,5 +1201,23 @@ export class ListaConsultasComponent implements OnInit {
   verDiagnosticos(consultaId) {
     this.rutaNavegacion.navigateByUrl('consultas/lista-diagnosticos/' + consultaId);
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verReceta.                                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama a la vista de recetas.                 |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/08/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  verReceta(consultaId) {        
+    
+    let url: string = 'consultas/lista-recetas/' + consultaId;
+    this.rutaNavegacion.navigateByUrl(url);
+  }  
+
 
 }

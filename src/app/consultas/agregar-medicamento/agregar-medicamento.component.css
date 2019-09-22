@@ -1,24 +1,25 @@
 /******************************************************************|
-|NOMBRE: inicio.                                                   | 
+|NOMBRE: agregar-medicamento.                                      | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Se muestran lo estilos de la página de inicio.       |
+|DESCRIPCIÓN: Se muestran lo estilos del modal de agregar          |
+|             medicamento.                                         |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 07/06/2018.                                                |
+|FECHA: 19/09/2019.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-/*Tamaño y color de la letra.*/
-.color-azul{    
-    color: rgb(0, 162, 232);  
-}
+/*Establece el color del botón de confirmación.*/
+.btn-azul{
+    background-color: rgb(0, 162, 232);
+    color: white;
+  }
 
-/*Configuraciones del titulo de los paneles*/
-.panel-titulo{
-    font-size: 20px;  
-}
-
+  /*Establece el color del título del mensaje.*/
+.titulo-azul{
+    color: rgb(0, 162, 232);    
+  }
