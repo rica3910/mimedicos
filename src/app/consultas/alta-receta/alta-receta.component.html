@@ -34,16 +34,17 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Referencias*</span>
         </div>
-        <input type="text" class="form-control input-lg" [formControl]="referenciasControl" #referenciasHTML
-          ngbTooltip="Indicativo o descripción de la receta.">
+        <input type="text" class="form-control input-lg" [formControl]="referenciasControl" #referenciasHTML ngbTooltip="Indicativo o descripción de la receta.">
+      </div>
+      <div *ngIf="pulsarCrear && !referenciasControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">Las referencias son requeridas.
       </div>
     </div>
   </div>
   <br>
   <div class="row">
     <div class="col-lg-1">
-      <button type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom"
-        ngbTooltip="Agregar un medicamento a la receta" (click)="utilidadesService.agregarMedicamento();">
+      <button type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom" ngbTooltip="Agregar un medicamento a la receta"
+        (click)="utilidadesService.agregarMedicamento();">
         <i class="material-icons">add</i>
       </button>
     </div>
@@ -52,8 +53,7 @@
       <div class="input-group input-group-lg">
         <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
         <div class="input-group-append">
-          <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
-            ngbTooltip="Borrar búsqueda.">
+          <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom" ngbTooltip="Borrar búsqueda.">
             <i class="material-icons">backspace</i>
           </button>
         </div>
@@ -63,47 +63,39 @@
   <div class="row">
     <div class="col-lg-12 table-responsive" style="height:250px; overflow:auto">
       <table class="table table-bordered">
-        <tr class="table-primary">
-          <th colspan="2" class="text-center">Denominación</th>
-          <th rowspan="2" class="text-center align-middle">Forma farmacéutica</th>
-          <th rowspan="2" class="text-center align-middle">Presentación</th>
-          <th rowspan="2" class="text-center align-middle">Vía administración</th>
-          <th rowspan="2" class="text-center align-middle">Dósis</th>
-          <th rowspan="2" class="text-center align-middle">Indicaciones</th>
-          <th rowspan="2" class="text-center align-middle">Opciones</th>
-        </tr>
-        <tr class="table-primary">
-          <th class="text-center">Distintiva</th>
-          <th class="text-center">Genérica</th>
-        </tr>
-        <tr>
-          <td>Distental</td>
-          <td>
-            <ul>
-              <li>Bromuro de primavero</li>
-              <li>Bromuro de primavero</li>
-              <li>Bromuro de primavero</li>
-              <li>Bromuro de primavero</li>
-            </ul>
-          </td>
-          <td class="text-center">Tableta</td>
-          <td class="text-center">Caja con 24 tabletas de 100 mg</td>
-          <td class="text-center">Oral</td>
-          <td class="text-center">1 tableta cada 8 hrs. por 3 meses</td>
-          <td class="text-center">Tomar inmediatamente después del desayuno.</td>
-          <td class="text-center">
+        <thead>
+          <tr class="table-primary">
+            <th colspan="2" class="text-center">Denominación</th>
+            <th rowspan="2" class="text-center align-middle">Forma farmacéutica</th>
+            <th rowspan="2" class="text-center align-middle">Presentación</th>
+            <th rowspan="2" class="text-center align-middle">Vía administración</th>
+            <th rowspan="2" class="text-center align-middle">Dósis</th>
+            <th rowspan="2" class="text-center align-middle">Indicaciones</th>
+            <th rowspan="2" class="text-center align-middle">Opciones</th>
+          </tr>
+          <tr class="table-primary">
+            <th class="text-center">Distintiva</th>
+            <th class="text-center">Genérica</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="medicamentos.length > 0">
+          <tr *ngFor="let medicamento of medicamentos">
+            <td>{{medicamento.denominacion}}</td>
+            <td>{{medicamento.forma_farmaceutica}}</td>
+            <td>{{medicamento.presentacion}}</td>
+            <td>{{medicamento.via_administracion}}</td>
+            <td>{{medicamento.dosis}}</td>
+            <td>{{medicamento.indicaciones}}</td>
             <div class="btn-group btn-group-sm" role="group">
-              <button type="button" class="btn btn-sm" ngbTooltip="Eliminar medicamento."
-                (click)='eliminarMedicamento()'>
+              <button type="button" class="btn btn-sm" ngbTooltip="Eliminar medicamento." (click)='eliminarMedicamento()'>
                 <i class="material-icons">cancel</i>
               </button>
-              <button type="button" class="btn btn-sm" ngbTooltip="Editar medicamento."
-                (click)='editarMedicamento()'>
+              <button type="button" class="btn btn-sm" ngbTooltip="Editar medicamento." (click)='editarMedicamento()'>
                 <i class="material-icons">edit</i>
-              </button>              
+              </button>
             </div>
-          </td>
-        </tr>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
