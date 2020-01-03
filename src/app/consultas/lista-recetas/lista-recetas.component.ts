@@ -23,6 +23,15 @@ import { ConsultasService } from './../../consultas.service';
 import { AutenticarService } from './../../autenticar.service';
 import { fromEvent, Subject } from 'rxjs';
 import { switchAll, debounceTime, map } from 'rxjs/operators';
+import * as jspdf from 'jspdf';
+import { RecetaPDFService } from '../../receta-pdf.service';
+import { UserOptions } from 'jspdf-autotable';
+import 'jspdf-autotable';
+import { HookData } from '@angular/core/src/render3/interfaces/view';
+
+interface jsPDFWithPlugin extends jspdf {
+  autoTable: (options: UserOptions) => jspdf;
+}
 
 @Component({
   selector: 'app-lista-recetas',
@@ -90,7 +99,8 @@ export class ListaRecetasComponent implements OnInit {
     private esperarService: EsperarService,
     private utilidadesService: UtilidadesService,
     private consultasService: ConsultasService,
-    private autenticarService: AutenticarService) {
+    private autenticarService: AutenticarService,
+    private recetaPDFService: RecetaPDFService) {
 
     //Obtiene el identificador de la consulta de la url.
     this.rutaActual.paramMap.subscribe(params => {
@@ -139,9 +149,17 @@ export class ListaRecetasComponent implements OnInit {
       //El botón de ver recetas se hará visible solamente si el usuario tiene el privilegio.
       this.autenticarService.usuarioTieneDetModulo('VER RECETA').subscribe(respuesta => {
 
-        this.verRecetas = respuesta["value"];
-        this.verificarVerRecetas = true;
-        this.cargaInicialLista$.next(this.verificarVerRecetas);
+        if (respuesta["value"]) {
+          this.autenticarService.usuarioPuedeVerRecetas(this.consultaId).subscribe(respuesta => {
+            this.verRecetas = respuesta["value"];
+            this.verificarVerRecetas = true;
+            this.cargaInicialLista$.next(this.verificarVerRecetas);
+          });
+        } else {
+          this.verRecetas = respuesta["value"];
+          this.verificarVerRecetas = true;
+          this.cargaInicialLista$.next(this.verificarVerRecetas);
+        }
 
       });
 
@@ -224,7 +242,7 @@ export class ListaRecetasComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 17/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  altaReceta() {    
+  altaReceta() {
     //Se abre la pantalla de alta de recetas.
     this.rutaNavegacion.navigateByUrl('consultas/alta-receta/' + this.consultaId);
   }
@@ -267,7 +285,7 @@ export class ListaRecetasComponent implements OnInit {
 
     //Busca las recetas de la consulta.
     this.consultasService.listaRecetas(this.consultaId).subscribe(respuesta => {
-      
+
       //Detiene la espera, signo de que ya se obtuvo la información.
       this.esperarService.noEsperar();
       //Si hubo un error en la obtención de información.
@@ -300,7 +318,7 @@ export class ListaRecetasComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 17/09/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  regresar() {    
+  regresar() {
     this.rutaNavegacion.navigateByUrl('consultas/lista-consultas/FINALIZADA');
   }
 
@@ -322,7 +340,7 @@ export class ListaRecetasComponent implements OnInit {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.consultasService.eliminarDiagnostico(recetaId).subscribe(respuesta => {
+        this.consultasService.eliminarReceta(recetaId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -352,10 +370,10 @@ export class ListaRecetasComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 17/09/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  verReceta(recetaId: string) {    
+  verReceta(recetaId: string) {
     //Se abre la pantalla de ver receta.
     this.rutaNavegacion.navigateByUrl('consultas/ver-receta/' + this.consultaId + "/" + recetaId);
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: editarReceta.                                                |
@@ -373,6 +391,43 @@ export class ListaRecetasComponent implements OnInit {
     this.rutaNavegacion.navigateByUrl('consultas/editar-receta/' + this.consultaId + "/" + recetaId);
   }
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cancelarReceta.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que cancela una receta.                          |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: recetaId = identificador de la receta.        |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 13/11/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  cancelarReceta(recetaId: string) {
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Cancelar receta.", "¿Está seguro de cancelar la receta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.consultasService.editarReceta(recetaId, "", "CANCELADO").subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Cancelación exitosa", "La receta se canceló exitosamente.");
+            this.buscar();
+          }
+        });
+      }
+    });
+  }
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: infoConsultaLista.                                           |
   |-----------------------------------------------------------------------|
@@ -384,9 +439,172 @@ export class ListaRecetasComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 17/09/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  infoConsultaLista(infoLista: boolean) {    
+  infoConsultaLista(infoLista: boolean) {
     this.verificarInfoConsulta = infoLista;
     this.cargaInicialLista$.next(this.verificarInfoConsulta);
-  }  
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: expedirReceta.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que expide una receta y la presenta en PDF.      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: recetaId = identificador de la receta.        |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 23/12/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  public expedirReceta(recetaId: string) {
+
+    //Se obtiene la información de la consulta.
+    this.consultasService.verConsulta(this.consultaId).subscribe(infoConsulta => {
+
+      //Si NO hubo un error en la obtención de información.
+      if (infoConsulta["estado"] === "OK") {
+
+        //Arreglo que contendrá los medicamentos de la receta.
+        let medicamentos: Array<any> = new Array();
+
+        //Se obtiene la información de la receta y sus medicamentos
+        this.consultasService.verReceta(recetaId).subscribe(infoMedicamento => {
+          if (infoMedicamento["estado"] === "OK") {
+
+          //Se utiliza este arreglo para alamcenar los medicamentos de la receta.
+           let medicamentosSinFormatear: Array<any> = new Array();
+           medicamentosSinFormatear = infoMedicamento["datos"];
+           medicamentosSinFormatear.forEach(medicamentoSinFormatear => {
+             //Se almacenan los medicamentos.
+            medicamentos.push([medicamentoSinFormatear["nombre_medicamento"], medicamentoSinFormatear["presentacion"], medicamentoSinFormatear["nombre_via_administracion"], medicamentoSinFormatear["dosis"], medicamentoSinFormatear["frecuencia"] + " " + medicamentoSinFormatear["frecuencia_unidad_tiempo_abreviatura"], medicamentoSinFormatear["duracion"] + " " + medicamentoSinFormatear["duracion_unidad_tiempo_abreviatura"], medicamentoSinFormatear["indicaciones_uso"]]);
+           });
+            
+          }
+
+        },
+          error => { },
+          () => {
+
+            //Se crea un PDF.
+            let pdf = new jspdf('p', 'mm', 'letter') as jsPDFWithPlugin;
+            //El pdf del servicio es igual al pdf recién creado.
+            this.recetaPDFService.pdf = pdf;
+
+            //Arreglo que dividirá los medicamentos en recetas, de tal forma que quepan en la receta.
+            let medicamentosPorReceta: Array<any> = new Array(Array());
+            //índice de la receta actual.
+            let indiceRecetas: number = 0;
+            //Altura del contenido actual de la receta.
+            let alturaActualContenidoReceta: number = 0;
+            //Altura de las columnas títulos de la tabla.
+            let alturaHeader: number = 0;
+            //Altura total de donde se puede escribir contenido en la receta.
+            const alturaTotalContenidoReceta: number = this.recetaPDFService.getPosicionContenido()["fin"]["y"] - this.recetaPDFService.getPosicionContenido()["inicio"]["y"];
+            //Títulos de la tabla.
+            const titulosTabla: Array<any> = new Array(['Med', 'Presentación', 'V.Admon', 'Dósis', 'Frec', 'Dur', 'Indicaciones']);
+
+            //Primero se va a calcular cuántas recetas van a salir.
+            pdf.autoTable({
+              theme: 'grid',
+              styles: { fontSize: 8 },
+              headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+              head: titulosTabla,
+              body: medicamentos,
+              //La tabla se escribirá en el espacio designado para el contenido en la receta.
+              startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
+              margin: { bottom: 0 },
+              //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
+              willDrawCell: data => {
+
+                //Si es el primer renglón, o sea los títulos.
+                if (data.section == "head") {
+                  //Si es la primera columna.
+                  if (data.column.index == 0) {
+                    //Se obtiene la altura de los títulos de la tabla.
+                    alturaHeader = data.row.height;
+                    //Se acumula la altura que hasta el momento tiene el contenido de la receta.
+                    alturaActualContenidoReceta = alturaHeader;
+                  }
+                }
+                //Si la sección no incluye los títulos de las columnas.
+                else if (data.section == "body") {
+                  //Si es la primera columna de cada renglón.
+                  if (data.column.index == 0) {
+
+                    //Se obtiene el índice del medicamento.
+                    let indiceMedicamento: number = data.row.index;
+                    //Se actualiza la altura del contenido de la receta.
+                    alturaActualContenidoReceta = alturaActualContenidoReceta + data.row.height;
+
+                    //Si ya no hay espacio en la receta.            
+                    if (alturaActualContenidoReceta > alturaTotalContenidoReceta) {
+                      //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
+                      alturaActualContenidoReceta = alturaHeader + data.row.height;
+                      //Se establece el próximo índice, es decir, la próxima receta.
+                      indiceRecetas = indiceRecetas + 1;
+                    }
+
+                    //Si no existe el índice en las recetas guardadas, se crea.
+                    if (!medicamentosPorReceta[indiceRecetas]) {
+                      medicamentosPorReceta[indiceRecetas] = new Array();
+                    }
+
+                    //Se añade el medicamento a la receta.
+                    medicamentosPorReceta[indiceRecetas].push(medicamentos[indiceMedicamento]);
+
+                    //Si es el último medicamento por recorrer.
+                    if (indiceMedicamento >= medicamentos.length - 1) {
+                      //Se recorren las recetas.        
+                      medicamentosPorReceta.forEach((receta, index) => {
+                        //Al primer elemento no se le agrega página, ya que ya se cuenta con una.
+                        if (index != 0) {
+                          pdf.addPage();
+                        }
+                        //Ahora sí. Se crean las recetas correspondientes.
+                        pdf.autoTable({
+                          theme: 'grid',
+                          styles: { fontSize: 8 },
+                          headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                          head: titulosTabla,
+                          body: receta,
+                          startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
+                          margin: { bottom: 0 }
+                        });
+                      });
+                    }
+
+                  }
+                }
+                /*Como la primera llamada es solo para calcular el número de recetas,
+                se retorna falso para que no se escriba nada en el documento.*/
+                return false;
+              }
+            });
+
+
+            //Se arma la información del encabezado.    
+            let formato: Object = {
+              "imagen": infoConsulta["datos"][0]["imagen"],
+              "nombreDoctor": "DR." + infoConsulta["datos"][0]["nombres_usuario"],
+              "especialidad": "" + infoConsulta["datos"][0]["especialidad"],
+              "cedulaProfesional": "CÉDULA PROFESIONAL: " + infoConsulta["datos"][0]["cedula"],
+              "escuela": "" + infoConsulta["datos"][0]["institucion"],
+              "nombrePaciente": "PACIENTE:" + infoConsulta["datos"][0]["nombres_paciente"],
+              "direccion": "" + infoConsulta["datos"][0]["direccion"],
+              "entidad": infoConsulta["datos"][0]["nombre_entidad_federativa"] + "," + infoConsulta["datos"][0]["nombre_municipio"] + ", MÉXICO",
+              "telefonos": "TELÉFONO: " + infoConsulta["datos"][0]["telefono"]
+            }
+
+            //Se escriben el header y el footer.
+            this.recetaPDFService.formato(formato);
+
+            //Se despliega el reporte.
+            pdf.save('receta.pdf');
+          });
+
+      }
+
+    });
+
+  }
 
 }

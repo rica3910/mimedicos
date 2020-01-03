@@ -14,12 +14,13 @@
 
 import { Component, OnInit } from '@angular/core';
 import { AutenticarService } from './autenticar.service';
-import { Observable } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { EsperarService } from './esperar.service';
 import { Router } from '@angular/router';
 import { timer } from 'rxjs/observable/timer';
+
+declare var $: any;
 
 @Component({
   selector: 'app-root',
@@ -39,7 +40,8 @@ export class AppComponent implements OnInit {
   |                                        manipular los modals,          |
   |                         esperar      = contiene los métodos para      |  
   |                                        abrir modals de espera,        |
-  |                     rutaNavegacion   = para manipular las url's       |  
+  |                     rutaNavegacion   = para manipular las url's,      |
+  |     activeModal = contiene los métodos para manipular un modal activo.|  
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -48,7 +50,9 @@ export class AppComponent implements OnInit {
   constructor(private autorizacion: AutenticarService,
     private modal: NgbModal,
     private esperar: EsperarService,
-    private rutaNavegacion: Router) { }
+    private rutaNavegacion: Router,
+    private activeModal: NgbActiveModal) { }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: ngOnInit.                                                    |
@@ -63,14 +67,23 @@ export class AppComponent implements OnInit {
   |----------------------------------------------------------------------*/
   ngOnInit() {
 
+
     //Observador que se ejecuta cada 30 segundos para verificar que el token del usuario sea válido.
     timer(0, 30000).subscribe(t => {
 
       this.autorizacion.estaConectado()
         .subscribe(respuesta => {
+
           //Si el token está inactivo o caduco y el usuario se encuentra logueado.
           if (respuesta !== false && respuesta["estado"] === "ERROR") {
 
+            //Se cierran todos los modals que puedan estar abiertos.                                    
+            if (this.activeModal["constructor"]["__source"]) {
+              if (this.activeModal["constructor"]["__source"] != "DialogoEsperaComponent") {
+                $("ngb-modal-backdrop").remove();
+                $("ngb-modal-window").remove();
+              }
+            }
             //Abre el modal de tamaño chico.
             const modalRef = this.modal.open(DialogoAlertaComponent, { centered: true });
             //Define el título del modal.
@@ -79,7 +92,6 @@ export class AppComponent implements OnInit {
             modalRef.componentInstance.mensaje = respuesta["mensaje"];
             //Define la etiqueta del botón de Aceptar.
             modalRef.componentInstance.etiquetaBotonAceptar = "Aceptar";
-
           }
         });
 

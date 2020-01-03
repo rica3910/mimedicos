@@ -65,7 +65,7 @@ export class ConsultasService {
 
   listaConsultas(
     organizacion: string,
-    clinica: string,      
+    clinica: string,
     desde: string,
     hasta: string,
     paciente: string,
@@ -190,12 +190,12 @@ export class ConsultasService {
     fecha: string,
     horaInicio: string,
     horaFin: string,
-    usuarioAtencionId:string,
+    usuarioAtencionId: string,
     pacienteId: string,
-    clinicaId:string,
+    clinicaId: string,
     tipoConsultaId: string
-    ): Observable<any> {
-   
+  ): Observable<any> {
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       fecha: fecha,
@@ -203,7 +203,7 @@ export class ConsultasService {
       horaFin: horaFin,
       usuarioAtencionId: usuarioAtencionId,
       pacienteId: pacienteId,
-      clinicaId: clinicaId,      
+      clinicaId: clinicaId,
       tipoConsultaId: tipoConsultaId
     });
 
@@ -221,7 +221,7 @@ export class ConsultasService {
       .post(this.urlApi + 'alta-consulta',
         params,
         { headers: headers });
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: editarConsulta.                                              |
@@ -249,12 +249,12 @@ export class ConsultasService {
     fecha: string,
     horaInicio: string,
     horaFin: string,
-    usuarioAtencionId:string,
+    usuarioAtencionId: string,
     pacienteId: string,
-    clinicaId:string,
+    clinicaId: string,
     tipoConsultaId: string
-    ): Observable<any> {
-   
+  ): Observable<any> {
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       consultaId: consultaId,
@@ -263,7 +263,7 @@ export class ConsultasService {
       horaFin: horaFin,
       usuarioAtencionId: usuarioAtencionId,
       pacienteId: pacienteId,
-      clinicaId: clinicaId,      
+      clinicaId: clinicaId,
       tipoConsultaId: tipoConsultaId
     });
 
@@ -281,7 +281,7 @@ export class ConsultasService {
       .post(this.urlApi + 'editar-consulta',
         params,
         { headers: headers });
-  }      
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: cancelarConsulta.                                            |
@@ -301,8 +301,8 @@ export class ConsultasService {
   cambiarEstadoConsulta(
     consultaId: string,
     nombreEstadoConsulta: string
-    ): Observable<any> {
-   
+  ): Observable<any> {
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       consultaId: consultaId,
@@ -323,7 +323,7 @@ export class ConsultasService {
       .post(this.urlApi + 'cambiar-estado-consulta',
         params,
         { headers: headers });
-  }      
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaConsultaEstudio.                                         |
@@ -343,8 +343,8 @@ export class ConsultasService {
   altaConsultaEstudio(
     consultaId: string,
     detProductoId: string
-    ): Observable<any> {
-   
+  ): Observable<any> {
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       consultaId: consultaId,
@@ -365,7 +365,7 @@ export class ConsultasService {
       .post(this.urlApi + 'alta-consulta-estudio',
         params,
         { headers: headers });
-  }      
+  }
 
 
   /*----------------------------------------------------------------------|
@@ -435,31 +435,31 @@ export class ConsultasService {
   |----------------------------------------------------------------------*/
   altaDetDiagnostico(
     diagnosticoId: string,
-    detCampoFormularioId:string,
-    valor:string,
+    detCampoFormularioId: string,
+    valor: string,
     archivo: string): Observable<any> {
-   
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       diagnosticoId: diagnosticoId,
-      detCampoFormularioId: detCampoFormularioId,      
+      detCampoFormularioId: detCampoFormularioId,
       valor: valor,
       archivo: archivo
     });
-    
+
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
     const headers: HttpHeaders = new HttpHeaders({
       'X-API-KEY': this.autorizacion.obtenerToken(),
       'Content-Type': 'application/x-www-form-urlencoded'
-    });    
+    });
 
     //Realiza la petición al servidor.
     return this.http
       .post(this.urlApi + 'alta-det-diagnostico',
-      json,
+        json,
         { headers: headers });
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarConsulta.                                            |
@@ -477,7 +477,7 @@ export class ConsultasService {
   |----------------------------------------------------------------------*/
   eliminarConsulta(consultaId: string): Observable<any> {
     //Arma el json a partir de los parámetros.
-    let json = JSON.stringify({      
+    let json = JSON.stringify({
       consultaId: consultaId
     });
 
@@ -495,7 +495,7 @@ export class ConsultasService {
       .post(this.urlApi + 'eliminar-consulta',
         params,
         { headers: headers });
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: filtroEstadosConsultas.                                      |
@@ -636,7 +636,7 @@ export class ConsultasService {
     //No está conectado.
     return of(false);
 
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarEstudiosConsulta.                                    |
@@ -654,7 +654,7 @@ export class ConsultasService {
   |----------------------------------------------------------------------*/
   eliminarEstudiosConsulta(consultaId: string): Observable<any> {
     //Arma el json a partir de los parámetros.
-    let json = JSON.stringify({      
+    let json = JSON.stringify({
       consultaId: consultaId
     });
 
@@ -672,7 +672,7 @@ export class ConsultasService {
       .post(this.urlApi + 'eliminar-estudios-consulta',
         params,
         { headers: headers });
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: listaDiagnosticos.                                           |
@@ -729,8 +729,8 @@ export class ConsultasService {
   altaDiagnostico(
     consultaId: string,
     formularioId: string
-    ): Observable<any> {
-   
+  ): Observable<any> {
+
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       consultaId: consultaId,
@@ -751,7 +751,7 @@ export class ConsultasService {
       .post(this.urlApi + 'alta-diagnostico',
         params,
         { headers: headers });
-  }    
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarDiagnostico.                                         |
@@ -769,7 +769,7 @@ export class ConsultasService {
   |----------------------------------------------------------------------*/
   eliminarDiagnostico(diagnosticoId: string): Observable<any> {
     //Arma el json a partir de los parámetros.
-    let json = JSON.stringify({      
+    let json = JSON.stringify({
       diagnosticoId: diagnosticoId
     });
 
@@ -787,7 +787,7 @@ export class ConsultasService {
       .post(this.urlApi + 'eliminar-diagnostico',
         params,
         { headers: headers });
-  }     
+  }
 
 
   /*----------------------------------------------------------------------|
@@ -826,7 +826,7 @@ export class ConsultasService {
     //No está conectado.
     return of(false);
 
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: listaRecetas.                                                |
@@ -864,7 +864,388 @@ export class ConsultasService {
 
   }
 
-    
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: listaMedicamentosUsuario.                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener medicamentos del usuario logueado.  |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 02/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  listaMedicamentosUsuario(): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los medicamentos del usuario logueado.
+      return this.http.get(this.urlApi + `lista-medicamentos-usuario`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: unidadesTiempo.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener las unidades de tiempo.             |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: estatus = ACTIVO o INACTIVO.                  |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  unidadesTiempo(estatus): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los medicamentos del usuario logueado.
+      return this.http.get(this.urlApi + `unidades-tiempo/${estatus}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: imagenMedicamento.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para la imagen de un medicamento.                |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: medicamentoId = ACTIVO o INACTIVO.            |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o  ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  imagenMedicamento(medicamentoId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la imagen del  medicamento específicado.
+      return this.http.get(this.urlApi + `imagen-medicamento/${medicamentoId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaReceta.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta una receta.                     | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           | 
+  |  referencias = referencias para identificar a la receta.              |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaReceta(
+    consultaId: string,
+    referencias: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      referencias: referencias
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-receta',
+        json,
+        { headers: headers });
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetReceta.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta el detalle de una receta.       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  recetaId = identificador de la receta,                               | 
+  |  denominacionDistintivaId = identificador del medicamento,            |
+  |  dosis = dosis del medicamento,                                       |
+  |  frecuencia = frecuencia del medicamento,                             |
+  |  frecuenciaUnidadTiempoId = identificador de la unidad de tiempo de la| 
+  |  frecuencia,                                                          |
+  |  duracion = duración del tratamiento,                                 |
+  |  duracionUnidadTiempoId = identificador de la unidad de tiempo de la  |
+  |  duración,                                                            |
+  |  indicacionesUso = indicaciones de uso del medicamento.               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetReceta(
+    recetaId: string,
+    denominacionDistintivaId: string,
+    dosis: string,
+    frecuencia: string,
+    frecuenciaUnidadTiempoId: string,
+    duracion: string,
+    duracionUnidadTiempoId: string,
+    indicacionesUso: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      recetaId: recetaId,
+      denominacionDistintivaId: denominacionDistintivaId,
+      dosis: dosis,
+      frecuencia: frecuencia,
+      frecuenciaUnidadTiempoId: frecuenciaUnidadTiempoId,
+      duracion: duracion,
+      duracionUnidadTiempoId: duracionUnidadTiempoId,
+      indicacionesUso: indicacionesUso
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-det-receta',
+        json,
+        { headers: headers });
+  }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verReceta.                                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver una receta.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: recetaId = identificador de la receta.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 21/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+
+  verReceta(recetaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener una receta.
+      return this.http.get(this.urlApi + `ver-receta/${recetaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+   /*----------------------------------------------------------------------|
+   |  NOMBRE: verMedicamentoSeleccionado.                                  |
+   |-----------------------------------------------------------------------|
+   |  DESCRIPCIÓN: Método para ver un medicamento seleccionado.            |    
+   |-----------------------------------------------------------------------|
+   |  PARÁMETROS DE ENTRADA: detRecetaId = identificador del medicamento.  |   
+   |-----------------------------------------------------------------------|
+   |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+   |                          o ERROR                                      |
+   |                         en caso de que todo esté correcto o no        | 
+   |                         respectivamente.                              |
+   |-----------------------------------------------------------------------|
+   |  AUTOR: Ricardo Luna.                                                 |
+   |-----------------------------------------------------------------------|
+   |  FECHA: 23/10/2019.                                                   |    
+   |----------------------------------------------------------------------*/
+  verMedicamentoSeleccionado(detRecetaId): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los medicamentos del usuario logueado.
+      return this.http.get(this.urlApi + `ver-medicamento-seleccionado/${detRecetaId}`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarMedicamentosReceta.                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar los medicamentos de una receta.    | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  recetaId = identificador de la receta.                               | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/11/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarMedicamentosReceta(
+    recetaId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      recetaId: recetaId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-medicamentos-receta',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: editarReceta.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para editar una receta.                          | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  recetaId = identificador de la receta,                               |
+  |  referencias = referencias de la receta,                              |
+  |  estatus = estatus de la receta.                                      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 12/11/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  editarReceta(
+    recetaId: string,
+    referencias: string,
+    estatus: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      recetaId: recetaId,
+      referencias: referencias,
+      estatus: estatus
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'editar-receta',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarReceta.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar una receta.                        | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  recetaId = identificador de la receta.                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/11/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarReceta(
+    recetaId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      recetaId: recetaId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-receta',
+        json,
+        { headers: headers });
+  }  
 }
 
 

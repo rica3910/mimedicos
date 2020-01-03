@@ -1,11 +1,11 @@
 <!------------------------------------------------------------------
-|NOMBRE: alta-receta.                                              | 
+|NOMBRE: editar-receta.                                            | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Página para dar de alta una receta.                  |
+|DESCRIPCIÓN: Página para dar editar una receta.                   |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 17/09/2019.                                                |
+|FECHA: 24/10/2019.                                               |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -21,12 +21,12 @@
       </button>
     </div>
     <div class="col-lg-8">
-      <h1 class="display-4">Alta de recetas</h1>
+      <h1 class="display-4">Edición de recetas</h1>
     </div>
   </div>
   <app-info-consulta [consultaId]="consultaId" (informacionConsulta)="infoConsulta($event)"></app-info-consulta>
 </div>
-<form [formGroup]="formAltaRecetas" (ngSubmit)="altaReceta()">
+<form [formGroup]="formEditarReceta" (ngSubmit)="editarReceta()">
   <div class="row">
     <div class="col-lg-2"></div>
     <div class="col-lg-8">
@@ -61,8 +61,8 @@
           </button>
         </div>
         <div class="input-group-append">
-          <button *ngIf="medicamentosOriginal.length > 0 && referenciasControl.valid" class="btn btn-success"
-            type="submit" ngbTooltip="Dar de alta la receta.">
+          <button *ngIf="medicamentosServidor.length > 0 && referenciasControl.valid" class="btn btn-success"
+            type="submit" ngbTooltip="Modificar la receta.">
             <i class="material-icons">save</i></button>
         </div>
       </div>
@@ -100,13 +100,13 @@
             <td class="text-center">{{medicamento.presentacion}}</td>
             <td class="text-center">{{medicamento.nombre_via_administracion}}</td>
             <td class="text-center">{{medicamento.dosis}} {{medicamento.nombre_forma_farmaceutica}}</td>
-            <td class="text-center">{{medicamento.frecuencia}} {{medicamento.frecuencia_unidad_tiempo_abreviatura}}
-            </td>
+            <td class="text-center">{{medicamento.frecuencia}} {{medicamento.frecuencia_unidad_tiempo_abreviatura}}</td>
             <td class="text-center">{{medicamento.duracion}} {{medicamento.duracion_unidad_tiempo_abreviatura}}</td>
             <td class="text-center">{{medicamento.indicaciones_uso}}</td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-sm" ngbTooltip="Editar medicamento." (click)='agregarMedicamento(medicamento)'>
+                <button type="button" class="btn btn-sm" ngbTooltip="Editar medicamento."
+                  (click)='agregarMedicamento(medicamento)'>
                   <i class="material-icons">edit</i>
                 </button>
                 <button type="button" class="btn btn-sm" ngbTooltip="Eliminar medicamento."

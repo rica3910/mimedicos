@@ -12,103 +12,143 @@
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 -------------------------------------------------------------------->
-<div class="modal-header">
-  <h4 class="modal-title titulo-azul">Agregar medicamento</h4>
+
+<div class="modal-body">
   <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('cerrar')">
     <span aria-hidden="true">&times;</span>
   </button>
-</div>
-<div class="modal-body">
+  <div class="row" *ngIf="medicamentoSeleccionado">
+    <div class="col-lg-3">
+      <div class="img-mismo-tamano">        
+          <img  [src]="imagenMedicamento">        
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="card-body">
+        <h5 class="card-title">{{nombreMedicamento}}</h5>
+        <p class="card-text">{{presentacionMedicamento}}</p>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="row">
+        <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Duración*</span>
+          </div>
+          <input type="text" [formControl]="duracionControl" #duracionHTML class="form-control" placeholder="Duración"
+            ngbTooltip="Duración del tratamiento.">
+          <div class="input-group-append">
+            <select [formControl]="duracionUnidadTiempoControl">
+              <option *ngFor="let unidadTiempo of unidadesTiempo" value={{unidadTiempo.id}}>{{unidadTiempo.abreviatura}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div *ngIf="pulsarCrear && !duracionControl.valid" class=" alert-danger text-center">
+          La duración del tratamiento es requerida.
+        </div>
+        <div *ngIf="pulsarCrear && !duracionUnidadTiempoControl.valid" class=" alert-danger text-center">
+          La unidad del tiempo de la duración del tratamiento es requerida.
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Dosis*</span>
+          </div>
+          <input type="text" [formControl]="dosisControl" #dosisHTML class="form-control" placeholder="Dosis"
+            ngbTooltip="Dosis del medicamento.">
+          <div class="input-group-append">
+            <span class="input-group-text">{{formaFarmaceutica}}</span>
+          </div>
+        </div>
+        <div *ngIf="pulsarCrear && !dosisControl.valid" class=" alert-danger text-center">
+          La dosis del tratamiento es requerida.
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group input-group-sm mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Frecuencia*</span>
+          </div>
+          <input type="text" [formControl]="frecuenciaControl" #frecuenciaHTML class="form-control"
+            placeholder="Frecuencia" ngbTooltip="Frecuencia de la dosificación.">
+          <div class="input-group-append">
+            <select [formControl]="frecuenciaUnidadTiempoControl">
+              <option *ngFor="let unidadTiempo of unidadesTiempo" value={{unidadTiempo.id}}>{{unidadTiempo.abreviatura}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div *ngIf="pulsarCrear && !frecuenciaControl.valid" class=" alert-danger text-center">
+          La frecuencia del tratamiento es requerida.
+        </div>
+        <div *ngIf="pulsarCrear && !frecuenciaUnidadTiempoControl.valid" class=" alert-danger text-center">
+          La unidad del tiempo de la frecuencia del tratamiento es requerida.
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <label for="indicaciones">Indicaciones</label>
+      <textarea class="form-control" [formControl]="indicacionesControl" #indicacionesHTML rows="3"
+        ngbTooltip="Indicaciones."></textarea>
+    </div>
+  </div>
   <div class="row">
     <div class="col-lg-6 input-group input-group-lg">
-      <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
+      <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda" autofocus>
       <div class="input-group-append">
         <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
           ngbTooltip="Borrar búsqueda.">
           <i class="material-icons">backspace</i>
         </button>
       </div>
+      <div class="input-group-append"
+        *ngIf="duracionControl.valid && duracionUnidadTiempoControl.valid && 
+      dosisControl.valid && frecuenciaControl.valid && frecuenciaUnidadTiempoControl.valid && medicamentoSeleccionado">
+        <button type="button" class="btn btn-success" (click)="agregarMedicamento()" ngbTooltip="Agregar medicamento"><i
+            class="material-icons">playlist_add</i></button>
+      </div>
     </div>
   </div>
   <div class="row">
     <div class="col-lg-12 table-responsive" style="height:300px; overflow:auto">
       <table class="table table-bordered">
-        <tr class="table-primary">
-          <th rowspan="2" class="align-middle text-center"></th>
-          <th colspan="2" class="align-middle text-center">Denominación</th>
-          <th rowspan="2" class="align-middle text-center">Forma farmacéutica</th>
-          <th rowspan="2" class="align-middle text-center">Presentación</th>
-          <th rowspan="2" class="align-middle text-center">Vía administración</th>
-        </tr>
-        <tr class="table-primary">
-          <th class="text-center">Distintiva</th>
-          <th class="text-center">Genérica</th>  
-        </tr>
-        <tr>
-          <td class="text-center">            
-            <button type="button" class="btn btn-outline-primary" ngbTooltip="Seleccionar medicamento."
-              (click)='seleccionarMedicamento()'>
-              <i class="material-icons">done</i>
-            </button>
-          </td>         
-        </tr>
+        <thead>
+          <tr class="table-primary">
+            <th rowspan="2" class="align-middle text-center"></th>
+            <th colspan="2" class="align-middle text-center">Denominación</th>
+            <th rowspan="2" class="align-middle text-center">Forma farmacéutica</th>
+            <th rowspan="2" class="align-middle text-center">Presentación</th>
+            <th rowspan="2" class="align-middle text-center">Vía administración</th>
+          </tr>
+          <tr class="table-primary">
+            <th class="text-center">Distintiva</th>
+            <th class="text-center">Genérica</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="medicamentos.length > 0">
+          <tr *ngFor="let medicamento of medicamentos">
+            <td class="text-center">
+              <button type="button" class="btn btn-outline-primary" ngbTooltip="Seleccionar medicamento."
+                (click)='seleccionarMedicamento(medicamento);'>
+                <i class="material-icons">done</i>
+              </button>
+            </td>
+            <td class="text-center">{{medicamento.nombre_medicamento}}</td>
+            <td>
+              <ul>
+                <li *ngFor="let generico of medicamento.nombre_generico">
+                  {{generico}}
+                </li>
+              </ul>
+            </td>
+            <td class="text-center">{{medicamento.nombre_forma_farmaceutica}}</td>
+            <td class="text-center">{{medicamento.presentacion}}</td>
+            <td class="text-center">{{medicamento.nombre_via_administracion}}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
-    <div class="col-lg-3">
-      <div class="card">
-        <img src="./../../assets/img/logo_completo.png" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-            content. This content is a little bit longer.</p>
-          <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3">
-      <div class="row">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Dosis*</span>
-          </div>
-          <input type="text" class="form-control" placeholder="Dosis" ngbTooltip="Dosis del medicamento.">
-          <div class="input-group-append">
-            <span class="input-group-text">Tabletas</span>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Frecuencia*</span>
-          </div>
-          <input type="text" class="form-control" placeholder="Frecuencia" ngbTooltip="Frecuencia de la dosificación.">
-          <div class="input-group-append">
-            <span class="input-group-text">Horas</span>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Duración*</span>
-          </div>
-          <input type="text" class="form-control" placeholder="Duración" ngbTooltip="Duración del tratamiento.">
-          <div class="input-group-append">
-            <span class="input-group-text">Meses</span>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-lg-12">
-          <label for="indicaciones">Indicaciones</label>
-          <textarea class="form-control" id="indicaciones" rows="3" ngbTooltip="Indicaciones."></textarea>
-        </div>
-      </div>
-    </div>
   </div>
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-azul" autofocus (click)="activeModal.close('ok')"
-    ngbTooltip="Agregar medicamento"><i class="material-icons">playlist_add</i></button>
 </div>

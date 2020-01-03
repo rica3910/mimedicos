@@ -1,0 +1,94 @@
+<!------------------------------------------------------------------
+|NOMBRE: ver-receta.                                               | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para ver una receta.                          |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 21/10/20189.                                               |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de recetas."
+        (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Ver receta</h1>
+    </div>
+  </div>
+  <app-info-consulta [consultaId]="consultaId" (informacionConsulta)="infoConsulta($event)"></app-info-consulta>
+</div>
+<div class="row">
+  <div class="col-lg-2"></div>
+  <div class="col-lg-8 text-center">
+    <strong>Estatus: </strong> {{estatusReceta}}
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-2"></div>
+  <div class="col-lg-8 text-center">
+    <strong>Referencias: </strong>{{referencias}}
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-lg-3"></div>
+  <div class="col-lg-5">
+    <div class="input-group input-group-lg">
+      <input type="text" #buscarInfoHTML class="form-control" placeholder="Búsqueda">
+      <div class="input-group-append">
+        <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
+          ngbTooltip="Borrar búsqueda.">
+          <i class="material-icons">backspace</i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-12 table-responsive" style="height:250px; overflow:auto">
+    <table class="table table-bordered table-sm">
+      <thead>
+        <tr class="table-primary">
+          <th colspan="2" class="text-center">Denominación</th>
+          <th rowspan="2" class="text-center align-middle">Presentación</th>
+          <th rowspan="2" class="text-center align-middle">Vía administración</th>
+          <th rowspan="2" class="text-center align-middle">Dósis</th>
+          <th rowspan="2" class="text-center align-middle">Frecuencia</th>
+          <th rowspan="2" class="text-center align-middle">Duración</th>
+          <th rowspan="2" class="text-center align-middle">Indicaciones</th>
+        </tr>
+        <tr class="table-primary">
+          <th class="text-center">Distintiva</th>
+          <th class="text-center">Genérica</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="medicamentos.length > 0">
+        <tr *ngFor="let medicamento of medicamentos">
+          <td class="text-center">{{medicamento.nombre_medicamento}}</td>
+          <td>
+            <ul>
+              <li *ngFor="let generico of medicamento.nombre_generico">
+                {{generico}}
+              </li>
+            </ul>
+          </td>
+          <td class="text-center">{{medicamento.presentacion}}</td>
+          <td class="text-center">{{medicamento.nombre_via_administracion}}</td>
+          <td class="text-center">{{medicamento.dosis}} {{medicamento.nombre_forma_farmaceutica}}</td>
+          <td class="text-center">{{medicamento.frecuencia}} {{medicamento.frecuencia_unidad_tiempo_abreviatura}}</td>
+          <td class="text-center">{{medicamento.duracion}} {{medicamento.duracion_unidad_tiempo_abreviatura}}</td>
+          <td class="text-center">{{medicamento.indicaciones_uso}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

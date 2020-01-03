@@ -1,37 +1,27 @@
 /******************************************************************|
-|NOMBRE: agregar-medicamento.                                      | 
+|NOMBRE: ver-receta.                                               | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Se muestran lo estilos del modal de agregar          |
-|             medicamento.                                         |
+|DESCRIPCIÓN: Se muestran lo estilos para ver una receta.          |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 19/09/2019.                                                |
+|FECHA: 21/10/2019.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-/*Establece el color del botón de confirmación.*/
-.btn-azul{
-    background-color: rgb(0, 162, 232);
-    color: white;
-  }
-
-  /*Establece el color del título del mensaje.*/
-.titulo-azul{
-    color: rgb(0, 162, 232);    
-  }
-
-  .img-mismo-tamano {
-    width:100%; 
-    height:150px;
+/*Color de fuente azul.*/
+.fuente-azul{
+    color:  rgb(0, 162, 232);
   }
   
-  .img-mismo-tamano img {
-    width:100%; 
-    height:100%; 
-  }
-
+  /*Clase para el color de los botones y color de fuente.*/
+  .btn-azul{
+      background-color: rgb(0, 162, 232);
+      color: white;    
+    }
   
+ 
+    

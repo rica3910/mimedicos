@@ -16,7 +16,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AUTH_PROVIDERS } from './autenticar.service';
@@ -55,6 +55,7 @@ import * as $ from 'jquery';
 import { PDFCARTA_PROVIDERS } from './pdfcarta.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
+import { PDF_RECETA_PROVIDERS } from './receta-pdf.service';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -64,7 +65,7 @@ const rutas: Routes = [
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },     
   { path: 'consultas', component: ConsultasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasConsultas },
-  { path: '**', component: PaginaInvalidaComponent, canActivate: [UsuarioIngresadoGuard] }    
+  { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
 @NgModule({
@@ -80,7 +81,7 @@ const rutas: Routes = [
     PaginaInvalidaComponent, 
     DesplegarImagenComponent, 
     DibujoComponent,
-    AgregarMedicamentoComponent    
+    AgregarMedicamentoComponent 
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
@@ -118,7 +119,9 @@ const rutas: Routes = [
     CONSULTAS_PROVIDERS,
     PRODUCTOS_PROVIDERS,
     FORMULARIOS_PROVIDERS,
-    PDFCARTA_PROVIDERS
+    PDFCARTA_PROVIDERS,
+    PDF_RECETA_PROVIDERS,
+    NgbActiveModal
   ],
   bootstrap: [AppComponent]
 })

@@ -1,11 +1,11 @@
 /******************************************************************|
-|NOMBRE: AltaRecetaComponent.                                      | 
+|NOMBRE: editarRecetaComponent.                                    | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Componente que inserta una receta a la consulta.     |
+|DESCRIPCIÓN: Componente que edita una receta.                     |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 17/09/2019.                                                |
+|FECHA: 24/10/2019.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -26,17 +26,19 @@ import { switchAll, debounceTime, map, find } from 'rxjs/operators';
 import { AgregarMedicamentoComponent } from '../agregar-medicamento/agregar-medicamento.component';
 
 @Component({
-  selector: 'app-alta-receta',
-  templateUrl: './alta-receta.component.html',
-  styleUrls: ['./alta-receta.component.css']
+  selector: 'app-editar-receta',
+  templateUrl: './editar-receta.component.html',
+  styleUrls: ['./editar-receta.component.css']
 })
-export class AltaRecetaComponent implements OnInit {
+export class EditarRecetaComponent implements OnInit {
 
   //Identificador de la consulta. Tomada de la url.
   consultaId: string;
-  //Objeto que contendrá el formulario de alta de las recetas.
-  formAltaRecetas: FormGroup;
-  //Propiedad para cuando se oprime el botón de crear receta.
+  //Identificador de la receta. Tomada de la url.
+  recetaId: string;
+  //Objeto que contendrá el formulario de edición de la receta.
+  formEditarReceta: FormGroup;
+  //Propiedad para cuando se oprime el botón de editar receta.
   pulsarCrear: boolean = false;
   //Indica que ya se verificó que la información de la consulta está lista.
   verificarInfoConsulta: boolean = false;
@@ -50,8 +52,8 @@ export class AltaRecetaComponent implements OnInit {
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
   //Almacena los medicamentos y sus indicaciones (se utiliza para filtrar).
   medicamentos: Array<any> = [];
-  //Almacena los medicamentos previamente añadidos a la receta.
-  medicamentosOriginal: Array<any> = [];
+  //Almacena los medicamentos obtenidos del servidor.
+  medicamentosServidor: Array<any> = [];
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -74,20 +76,49 @@ export class AltaRecetaComponent implements OnInit {
     private esperarService: EsperarService,
     private fb: FormBuilder,
     private utilidadesService: UtilidadesService,
-    private rutaActual: ActivatedRoute,    
+    private rutaActual: ActivatedRoute,
     private consultasService: ConsultasService) {
 
     //Se agregan las validaciones al formulario.
-    this.formAltaRecetas = fb.group({
+    this.formEditarReceta = fb.group({
       'referencias': ['', Validators.required]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
-    this.referenciasControl = this.formAltaRecetas.controls['referencias'];
+    this.referenciasControl = this.formEditarReceta.controls['referencias'];
 
     //Obtiene el identificador de la consulta de la url.
     this.rutaActual.paramMap.subscribe(params => {
       this.consultaId = params.get("id");
+      this.recetaId = params.get("recetaId");
+
+      //Se cargan los medicamentos de la receta.
+      //Inicia la espera.
+      this.esperarService.esperar();
+
+      this.consultasService.verReceta(this.recetaId).subscribe(respuesta => {
+        //Detiene la espera, signo de que ya se obtuvo la información.
+        this.esperarService.noEsperar();
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Se retorna a la lista de recetas.
+          this.regresar();
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacena la referencia (como es la misma en todos los registros, solo se toma la primera).
+          respuesta["datos"]["length"] > 0 ? this.referenciasControl.setValue(respuesta["datos"][0]["referencias"]) : null;
+
+          //Se almacenan los medicamentos.
+          this.medicamentos = respuesta["datos"];
+          this.medicamentosServidor = respuesta["datos"];
+          //Le da un focus al elemento de búsqueda.
+          this.buscarInfoHTML.nativeElement.focus();
+
+        }
+      });
+
     });
 
   }
@@ -99,7 +130,7 @@ export class AltaRecetaComponent implements OnInit {
       //Extrae el valor de la búsqueda.
       .pipe(map((e: any) => e.target.value))
       //Se realiza la búsqueda.
-      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.medicamentosOriginal)))
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.medicamentosServidor)))
       //Se utiliza para obtener solo la búsqueda más reciente.
       .pipe(switchAll())
       //Se actualiza la información del arreglo.
@@ -166,24 +197,24 @@ export class AltaRecetaComponent implements OnInit {
       //limpia el cuadro de texto.
       this.buscarInfoHTML.nativeElement.value = "";
       //Actualiza la información con la original.
-      this.medicamentos = this.medicamentosOriginal;
+      this.medicamentos = this.medicamentosServidor;
     }
     //Le da un focus al elemento de búsqueda.
     this.buscarInfoHTML.nativeElement.focus();
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaReceta.                                                  |
+  |  NOMBRE: editarReceta.                                                |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para dar de alta una receta.                     | 
+  |  DESCRIPCIÓN: Método para editar una receta.                          | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 22/09/2019.                                                   |    
+  |  FECHA: 24/10/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  altaReceta() {
+  editarReceta() {
 
-    //Se pulsa el botón  de dar de alta consulta.
+    //Se pulsa el botón de editar consulta.
     this.pulsarCrear = true;
 
     /*Si los elementos del formulario estáticos requeridos no están llenos, 
@@ -194,7 +225,7 @@ export class AltaRecetaComponent implements OnInit {
     }
 
     //Si no se agregó ningún medicamento.
-    if (this.medicamentosOriginal.length == 0) {
+    if (this.medicamentosServidor.length == 0) {
       this.utilidadesService.alerta("Sin medicamentos", "Agregue por lo menos un medicamento a la receta.").subscribe();
       return;
     }
@@ -202,48 +233,61 @@ export class AltaRecetaComponent implements OnInit {
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
-    this.consultasService.altaReceta(this.consultaId, this.referenciasControl.value).subscribe(respuesta => {
+    //Se edita la receta (solo las referencias).
+    this.consultasService.editarReceta(this.recetaId, this.referenciasControl.value, "").subscribe(respuestaEditarReceta => {
+
       //Si hubo un error en la obtención de información.
-      if (respuesta["estado"] === "ERROR") {
+      if (respuestaEditarReceta["estado"] === "ERROR") {
         //Muestra una alerta con el porqué del error.
-        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        this.utilidadesService.alerta("Error", respuestaEditarReceta["mensaje"]);
       }
       else {
 
-        //Se obtiene el identificador de la receta recién creado.
-        let recetaId: string = respuesta["mensaje"];   
+        //Se eliminan los medicamentos de la receta.
+        this.consultasService.eliminarMedicamentosReceta(this.recetaId).subscribe(respuesta => {
 
-        //Indica que el almacenamiento de los medicamentos ya terminó.
-        let medicamentosAlmacenados$: Subject<string> = new Subject<string>();
-        //Almacena los medicamentos que se han guardado.
-        let medicamentosGuardados: Array<string> = new Array();
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          else {
 
-        //Se recorren los medicamentos agregados para grabarlos.
-        this.medicamentosOriginal.forEach((medicamento, indice) => {
-          //Se dan de alta los medicamentos de la receta.
-          this.consultasService.altaDetReceta(
-            recetaId, medicamento.id, medicamento.dosis,
-            medicamento.frecuencia, medicamento.frecuencia_unidad_tiempo_id, medicamento.duracion,
-            medicamento.duracion_unidad_tiempo_id, medicamento.indicaciones_uso).
-            subscribe(respuestaDetReceta => {              
-              medicamentosAlmacenados$.next(medicamento.id);              
-          });
-        });
+            //Indica que el almacenamiento de los medicamentos ya terminó.
+            let medicamentosAlmacenados$: Subject<string> = new Subject<string>();
+            //Almacena los medicamentos que se han guardado.
+            let medicamentosGuardados: Array<string> = new Array();
 
-        medicamentosAlmacenados$.subscribe(medicamentoId => {          
-          medicamentosGuardados.push(medicamentoId);
-          //Si ya se almacenaron todos los medicamentos en la base de datos, se detiene la espera.
-          if(medicamentosGuardados.length == this.medicamentosOriginal.length){
-            this.esperarService.noEsperar();
-            medicamentosAlmacenados$.unsubscribe();
-            //Se retorna a la lista de recetas.                         
-            this.utilidadesService.alerta("Receta creada", "La receta fue creada satisfactoriamente.").subscribe(() => {
-              this.regresar();
+            //Se recorren los medicamentos agregados para grabarlos.
+            this.medicamentosServidor.forEach((medicamento, indice) => {
+              //Se dan de alta los medicamentos de la receta.
+              this.consultasService.altaDetReceta(
+                this.recetaId, medicamento.id, medicamento.dosis,
+                medicamento.frecuencia, medicamento.frecuencia_unidad_tiempo_id, medicamento.duracion,
+                medicamento.duracion_unidad_tiempo_id, medicamento.indicaciones_uso).
+                subscribe(respuestaDetReceta => {
+                  medicamentosAlmacenados$.next(medicamento.id);
+                });
             });
+
+            medicamentosAlmacenados$.subscribe(medicamentoId => {
+              medicamentosGuardados.push(medicamentoId);
+              //Si ya se almacenaron todos los medicamentos en la base de datos, se detiene la espera.
+              if (medicamentosGuardados.length == this.medicamentosServidor.length) {
+                this.esperarService.noEsperar();
+                medicamentosAlmacenados$.unsubscribe();
+                //Se retorna a la lista de recetas.                         
+                this.utilidadesService.alerta("Receta modificada", "La receta se actualizó satisfactoriamente.").subscribe(() => {
+                  this.regresar();
+                });
+              }
+            });
+
           }
         });
 
       }
+
     });
 
   }
@@ -268,9 +312,9 @@ export class AltaRecetaComponent implements OnInit {
           this.limpiarCampoBusqueda();
 
           //Se elimina el medicamento del arreglo.
-          let indice = this.medicamentosOriginal.findIndex(elemento => elemento["indice_arreglo"] == indiceArreglo);
-          this.medicamentosOriginal.splice(indice, 1);
-          this.medicamentos = this.medicamentosOriginal;
+          let indice = this.medicamentosServidor.findIndex(elemento => elemento["indice_arreglo"] == indiceArreglo);
+          this.medicamentosServidor.splice(indice, 1);
+          this.medicamentos = this.medicamentosServidor;
         }
       });
     }
@@ -279,9 +323,9 @@ export class AltaRecetaComponent implements OnInit {
       this.limpiarCampoBusqueda();
 
       //Se elimina el medicamento del arreglo.
-      let indice = this.medicamentosOriginal.findIndex(elemento => elemento["indice_arreglo"] == indiceArreglo);
-      this.medicamentosOriginal.splice(indice, 1);
-      this.medicamentos = this.medicamentosOriginal;
+      let indice = this.medicamentosServidor.findIndex(elemento => elemento["indice_arreglo"] == indiceArreglo);
+      this.medicamentosServidor.splice(indice, 1);
+      this.medicamentos = this.medicamentosServidor;
     }
 
   }
@@ -301,7 +345,7 @@ export class AltaRecetaComponent implements OnInit {
 
       //Si el medicamento es válido. Se agrega a la receta.
       if (medicamento) {
-
+      
         //Se prepara el medicamento para agregarlo a la receta.
         let medicamentoAAgregar = ({
           id: medicamento.medicamento.id,
@@ -318,9 +362,9 @@ export class AltaRecetaComponent implements OnInit {
           duracion_unidad_tiempo_abreviatura: medicamento.duracion_unidad_tiempo_abreviatura,
           duracion_unidad_tiempo_id: medicamento.duracion_unidad_tiempo_id,
           indicaciones_uso: medicamento.indicaciones_uso,
-          indice_arreglo: this.medicamentosOriginal.length
+          indice_arreglo: this.medicamentosServidor.length
         });
-      
+
         //Si se está editando un medicamento.
         if (medicamentoAEditar) {
           //Se elimina el registro para poder insertar el nuevo regisstro editado.
@@ -328,20 +372,20 @@ export class AltaRecetaComponent implements OnInit {
         }
 
         //Si el medicamento ya está agregado a la receta-
-        if (this.utilidadesService.existeElementoArreglo("id", medicamento.medicamento.id, this.medicamentosOriginal)) {
+        if (this.utilidadesService.existeElementoArreglo("id", medicamento.medicamento.id, this.medicamentosServidor)) {
           this.utilidadesService.confirmacion("Medicamento existente", "El medicamento ya está agregado a la receta. ¿Desea agregarlo de nuevo?").subscribe(respuesta => {
             //Se agrega el medicamento.
             if (respuesta == "Aceptar") {
-              this.medicamentosOriginal.push(medicamentoAAgregar);
-              this.medicamentos = this.medicamentosOriginal;
+              this.medicamentosServidor.push(medicamentoAAgregar);
+              this.medicamentos = this.medicamentosServidor;
             }
           })
         }
         //Si el medicamento es nuevo.
         else {
           //Se agrega el medicamento.
-          this.medicamentosOriginal.push(medicamentoAAgregar);
-          this.medicamentos = this.medicamentosOriginal;
+          this.medicamentosServidor.push(medicamentoAAgregar);
+          this.medicamentos = this.medicamentosServidor;
         }
 
 

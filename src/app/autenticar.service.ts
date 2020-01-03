@@ -1193,6 +1193,51 @@ export class AutenticarService {
   }  
 
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeEditarReceta.                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda editar      |
+  | una receta en específico.                                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: recetaId: identificador de la receta.         |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda editar o no la receta respectivamente|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 24/10/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeEditarReceta(recetaId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-editar-receta/${recetaId}`, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no puede editar las receta.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí pueda editar la receta.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }  
+
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

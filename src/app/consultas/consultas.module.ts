@@ -38,6 +38,9 @@ import { UsuarioPuedeVerConsultaGuard } from './usuario-puede-ver-consulta.guard
 import { ListaRecetasComponent } from './lista-recetas/lista-recetas.component';
 import { UsuarioPuedeVerRecetasGuard } from './usuario-puede-ver-recetas.guard';
 import { AltaRecetaComponent } from './alta-receta/alta-receta.component';
+import { VerRecetaComponent } from './ver-receta/ver-receta.component';
+import { EditarRecetaComponent } from './editar-receta/editar-receta.component';
+import { UsuarioPuedeEditarRecetaGuard } from './usuario-puede-editar-receta.guard';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -56,6 +59,8 @@ export const rutas: Routes = [
   { path: 'ver-diagnostico/:id/:diagnosticoId', component: VerDiagnosticoComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerDiagnosticoGuard]},  
   { path: 'lista-recetas/:id', component: ListaRecetasComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
   { path: 'alta-receta/:id', component: AltaRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
+  { path: 'ver-receta/:id/:recetaId', component: VerRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
+  { path: 'editar-receta/:id/:recetaId', component: EditarRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard, UsuarioPuedeEditarRecetaGuard]},  
   { path: '**', redirectTo: 'lista-consultas', pathMatch: 'full'  }  
 ];
 
@@ -80,7 +85,9 @@ export const rutas: Routes = [
     VerDiagnosticoComponent,
     VerConsultaComponent,
     ListaRecetasComponent,
-    AltaRecetaComponent
+    AltaRecetaComponent,
+    VerRecetaComponent,
+    EditarRecetaComponent
   ],
   exports: [ConsultasComponent],
   providers: [
@@ -90,7 +97,8 @@ export const rutas: Routes = [
     UsuarioPuedeCrearDiagnosticosGuard,
     UsuarioPuedeEditarDiagnosticosGuard,
     UsuarioPuedeVerDiagnosticoGuard,
-    UsuarioPuedeVerRecetasGuard
+    UsuarioPuedeVerRecetasGuard,
+    UsuarioPuedeEditarRecetaGuard
   ]
 })
 export class ConsultasModule { }
