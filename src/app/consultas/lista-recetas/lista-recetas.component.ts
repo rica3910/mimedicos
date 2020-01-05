@@ -286,6 +286,8 @@ export class ListaRecetasComponent implements OnInit {
     //Busca las recetas de la consulta.
     this.consultasService.listaRecetas(this.consultaId).subscribe(respuesta => {
 
+      console.log(respuesta);
+
       //Detiene la espera, signo de que ya se obtuvo la información.
       this.esperarService.noEsperar();
       //Si hubo un error en la obtención de información.
@@ -457,153 +459,189 @@ export class ListaRecetasComponent implements OnInit {
   |----------------------------------------------------------------------*/
   public expedirReceta(recetaId: string) {
 
-    //Se obtiene la información de la consulta.
-    this.consultasService.verConsulta(this.consultaId).subscribe(infoConsulta => {
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Expedir receta.", "¿Está seguro de expedir la receta?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
 
-      //Si NO hubo un error en la obtención de información.
-      if (infoConsulta["estado"] === "OK") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        //Se obtiene la información de la consulta.
+        this.consultasService.verConsulta(this.consultaId).subscribe(infoConsulta => {
 
-        //Arreglo que contendrá los medicamentos de la receta.
-        let medicamentos: Array<any> = new Array();
+          //Si NO hubo un error en la obtención de información.
+          if (infoConsulta["estado"] === "OK") {
 
-        //Se obtiene la información de la receta y sus medicamentos
-        this.consultasService.verReceta(recetaId).subscribe(infoMedicamento => {
-          if (infoMedicamento["estado"] === "OK") {
+            //Arreglo que contendrá los medicamentos de la receta.
+            let medicamentos: Array<any> = new Array();
 
-          //Se utiliza este arreglo para alamcenar los medicamentos de la receta.
-           let medicamentosSinFormatear: Array<any> = new Array();
-           medicamentosSinFormatear = infoMedicamento["datos"];
-           medicamentosSinFormatear.forEach(medicamentoSinFormatear => {
-             //Se almacenan los medicamentos.
-            medicamentos.push([medicamentoSinFormatear["nombre_medicamento"], medicamentoSinFormatear["presentacion"], medicamentoSinFormatear["nombre_via_administracion"], medicamentoSinFormatear["dosis"], medicamentoSinFormatear["frecuencia"] + " " + medicamentoSinFormatear["frecuencia_unidad_tiempo_abreviatura"], medicamentoSinFormatear["duracion"] + " " + medicamentoSinFormatear["duracion_unidad_tiempo_abreviatura"], medicamentoSinFormatear["indicaciones_uso"]]);
-           });
-            
+            //Se obtiene la información de la receta y sus medicamentos
+            this.consultasService.verReceta(recetaId).subscribe(infoMedicamento => {
+              if (infoMedicamento["estado"] === "OK") {
+
+                //Se utiliza este arreglo para alamcenar los medicamentos de la receta.
+                let medicamentosSinFormatear: Array<any> = new Array();
+                medicamentosSinFormatear = infoMedicamento["datos"];
+                medicamentosSinFormatear.forEach(medicamentoSinFormatear => {
+                  //Se almacenan los medicamentos.
+                  medicamentos.push([medicamentoSinFormatear["nombre_medicamento"], medicamentoSinFormatear["presentacion"], medicamentoSinFormatear["nombre_via_administracion"], medicamentoSinFormatear["dosis"], medicamentoSinFormatear["frecuencia"] + " " + medicamentoSinFormatear["frecuencia_unidad_tiempo_abreviatura"], medicamentoSinFormatear["duracion"] + " " + medicamentoSinFormatear["duracion_unidad_tiempo_abreviatura"], medicamentoSinFormatear["indicaciones_uso"]]);
+                });
+
+              }
+
+            },
+              error => { },
+              () => {
+
+                if (medicamentos.length == 0) {
+                  //Se finaliza la espera.
+                  this.esperarService.noEsperar();
+                  this.utilidadesService.alerta("Receta sin medicamentos", "La receta no contiene medicamentos.");
+
+                }
+                else {
+
+                  //Se crea un PDF.
+                  let pdf = new jspdf('p', 'mm', 'letter') as jsPDFWithPlugin;
+                  //El pdf del servicio es igual al pdf recién creado.
+                  this.recetaPDFService.pdf = pdf;
+
+                  //Arreglo que dividirá los medicamentos en recetas, de tal forma que quepan en la receta.
+                  let medicamentosPorReceta: Array<any> = new Array(Array());
+                  //índice de la receta actual.
+                  let indiceRecetas: number = 0;
+                  //Altura del contenido actual de la receta.
+                  let alturaActualContenidoReceta: number = 0;
+                  //Altura de las columnas títulos de la tabla.
+                  let alturaHeader: number = 0;
+                  //Altura total de donde se puede escribir contenido en la receta.
+                  const alturaTotalContenidoReceta: number = this.recetaPDFService.getPosicionContenido()["fin"]["y"] - this.recetaPDFService.getPosicionContenido()["inicio"]["y"];
+                  //Títulos de la tabla.
+                  const titulosTabla: Array<any> = new Array(['Med', 'Presentación', 'V.Admon', 'Dósis', 'Frec', 'Dur', 'Indicaciones']);
+
+                  //Primero se va a calcular cuántas recetas van a salir.
+                  pdf.autoTable({
+                    theme: 'grid',
+                    styles: { fontSize: 8 },
+                    headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                    head: titulosTabla,
+                    body: medicamentos,
+                    //La tabla se escribirá en el espacio designado para el contenido en la receta.
+                    startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
+                    margin: { bottom: 0 },
+                    //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
+                    willDrawCell: data => {
+
+                      //Si es el primer renglón, o sea los títulos.
+                      if (data.section == "head") {
+                        //Si es la primera columna.
+                        if (data.column.index == 0) {
+                          //Se obtiene la altura de los títulos de la tabla.
+                          alturaHeader = data.row.height;
+                          //Se acumula la altura que hasta el momento tiene el contenido de la receta.
+                          alturaActualContenidoReceta = alturaHeader;
+                        }
+                      }
+                      //Si la sección no incluye los títulos de las columnas.
+                      else if (data.section == "body") {
+                        //Si es la primera columna de cada renglón.
+                        if (data.column.index == 0) {
+
+                          //Se obtiene el índice del medicamento.
+                          let indiceMedicamento: number = data.row.index;
+                          //Se actualiza la altura del contenido de la receta.
+                          alturaActualContenidoReceta = alturaActualContenidoReceta + data.row.height;
+
+                          //Si ya no hay espacio en la receta.            
+                          if (alturaActualContenidoReceta > alturaTotalContenidoReceta) {
+                            //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
+                            alturaActualContenidoReceta = alturaHeader + data.row.height;
+                            //Se establece el próximo índice, es decir, la próxima receta.
+                            indiceRecetas = indiceRecetas + 1;
+                          }
+
+                          //Si no existe el índice en las recetas guardadas, se crea.
+                          if (!medicamentosPorReceta[indiceRecetas]) {
+                            medicamentosPorReceta[indiceRecetas] = new Array();
+                          }
+
+                          //Se añade el medicamento a la receta.
+                          medicamentosPorReceta[indiceRecetas].push(medicamentos[indiceMedicamento]);
+
+                          //Si es el último medicamento por recorrer.
+                          if (indiceMedicamento >= medicamentos.length - 1) {
+                            //Se recorren las recetas.        
+                            medicamentosPorReceta.forEach((receta, index) => {
+                              //Al primer elemento no se le agrega página, ya que ya se cuenta con una.
+                              if (index != 0) {
+                                pdf.addPage();
+                              }
+                              //Ahora sí. Se crean las recetas correspondientes.
+                              pdf.autoTable({
+                                theme: 'grid',
+                                styles: { fontSize: 8 },
+                                headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                                head: titulosTabla,
+                                body: receta,
+                                startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
+                                margin: { bottom: 0 }
+                              });
+                            });
+                          }
+
+                        }
+                      }
+                      /*Como la primera llamada es solo para calcular el número de recetas,
+                      se retorna falso para que no se escriba nada en el documento.*/
+                      return false;
+                    }
+                  });
+
+
+                  //Se arma la información del encabezado.    
+                  let formato: Object = {
+                    "imagen": infoConsulta["datos"][0]["imagen"],
+                    "nombreDoctor": "DR." + infoConsulta["datos"][0]["nombres_usuario"],
+                    "especialidad": "" + infoConsulta["datos"][0]["especialidad"],
+                    "cedulaProfesional": "CÉDULA PROFESIONAL: " + infoConsulta["datos"][0]["cedula"],
+                    "escuela": "" + infoConsulta["datos"][0]["institucion"],
+                    "nombrePaciente": "PACIENTE:" + infoConsulta["datos"][0]["nombres_paciente"],
+                    "direccion": "" + infoConsulta["datos"][0]["direccion"],
+                    "entidad": infoConsulta["datos"][0]["nombre_entidad_federativa"] + "," + infoConsulta["datos"][0]["nombre_municipio"] + ", MÉXICO",
+                    "telefonos": "TELÉFONO: " + infoConsulta["datos"][0]["telefono"]
+                  }
+
+                  //Se escriben el header y el footer.
+                  this.recetaPDFService.formato(formato);
+
+                  //Se despliega el reporte.
+                  pdf.save('receta.pdf');
+
+                  this.consultasService.editarReceta(recetaId, "", "EXPEDIDO").subscribe(respuesta => {
+                    //Se finaliza la espera.
+                    this.esperarService.noEsperar();
+                    //Si hubo un error.
+                    if (respuesta["estado"] === "ERROR") {
+                      //Muestra una alerta con el porqué del error.
+                      this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+                    }
+                    //Si todo salió bien.
+                    else {
+                      //Se actualizan los datos.            
+                      this.utilidadesService.alerta("Expedición exitosa", "La receta se expidió exitosamente.");
+                      this.buscar();
+                    }
+                  });
+                }
+              });
+
           }
 
-        },
-          error => { },
-          () => {
-
-            //Se crea un PDF.
-            let pdf = new jspdf('p', 'mm', 'letter') as jsPDFWithPlugin;
-            //El pdf del servicio es igual al pdf recién creado.
-            this.recetaPDFService.pdf = pdf;
-
-            //Arreglo que dividirá los medicamentos en recetas, de tal forma que quepan en la receta.
-            let medicamentosPorReceta: Array<any> = new Array(Array());
-            //índice de la receta actual.
-            let indiceRecetas: number = 0;
-            //Altura del contenido actual de la receta.
-            let alturaActualContenidoReceta: number = 0;
-            //Altura de las columnas títulos de la tabla.
-            let alturaHeader: number = 0;
-            //Altura total de donde se puede escribir contenido en la receta.
-            const alturaTotalContenidoReceta: number = this.recetaPDFService.getPosicionContenido()["fin"]["y"] - this.recetaPDFService.getPosicionContenido()["inicio"]["y"];
-            //Títulos de la tabla.
-            const titulosTabla: Array<any> = new Array(['Med', 'Presentación', 'V.Admon', 'Dósis', 'Frec', 'Dur', 'Indicaciones']);
-
-            //Primero se va a calcular cuántas recetas van a salir.
-            pdf.autoTable({
-              theme: 'grid',
-              styles: { fontSize: 8 },
-              headStyles: { halign: 'center', fillColor: [0, 0, 0] },
-              head: titulosTabla,
-              body: medicamentos,
-              //La tabla se escribirá en el espacio designado para el contenido en la receta.
-              startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
-              margin: { bottom: 0 },
-              //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
-              willDrawCell: data => {
-
-                //Si es el primer renglón, o sea los títulos.
-                if (data.section == "head") {
-                  //Si es la primera columna.
-                  if (data.column.index == 0) {
-                    //Se obtiene la altura de los títulos de la tabla.
-                    alturaHeader = data.row.height;
-                    //Se acumula la altura que hasta el momento tiene el contenido de la receta.
-                    alturaActualContenidoReceta = alturaHeader;
-                  }
-                }
-                //Si la sección no incluye los títulos de las columnas.
-                else if (data.section == "body") {
-                  //Si es la primera columna de cada renglón.
-                  if (data.column.index == 0) {
-
-                    //Se obtiene el índice del medicamento.
-                    let indiceMedicamento: number = data.row.index;
-                    //Se actualiza la altura del contenido de la receta.
-                    alturaActualContenidoReceta = alturaActualContenidoReceta + data.row.height;
-
-                    //Si ya no hay espacio en la receta.            
-                    if (alturaActualContenidoReceta > alturaTotalContenidoReceta) {
-                      //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
-                      alturaActualContenidoReceta = alturaHeader + data.row.height;
-                      //Se establece el próximo índice, es decir, la próxima receta.
-                      indiceRecetas = indiceRecetas + 1;
-                    }
-
-                    //Si no existe el índice en las recetas guardadas, se crea.
-                    if (!medicamentosPorReceta[indiceRecetas]) {
-                      medicamentosPorReceta[indiceRecetas] = new Array();
-                    }
-
-                    //Se añade el medicamento a la receta.
-                    medicamentosPorReceta[indiceRecetas].push(medicamentos[indiceMedicamento]);
-
-                    //Si es el último medicamento por recorrer.
-                    if (indiceMedicamento >= medicamentos.length - 1) {
-                      //Se recorren las recetas.        
-                      medicamentosPorReceta.forEach((receta, index) => {
-                        //Al primer elemento no se le agrega página, ya que ya se cuenta con una.
-                        if (index != 0) {
-                          pdf.addPage();
-                        }
-                        //Ahora sí. Se crean las recetas correspondientes.
-                        pdf.autoTable({
-                          theme: 'grid',
-                          styles: { fontSize: 8 },
-                          headStyles: { halign: 'center', fillColor: [0, 0, 0] },
-                          head: titulosTabla,
-                          body: receta,
-                          startY: this.recetaPDFService.getPosicionContenido()["inicio"]["y"],
-                          margin: { bottom: 0 }
-                        });
-                      });
-                    }
-
-                  }
-                }
-                /*Como la primera llamada es solo para calcular el número de recetas,
-                se retorna falso para que no se escriba nada en el documento.*/
-                return false;
-              }
-            });
-
-
-            //Se arma la información del encabezado.    
-            let formato: Object = {
-              "imagen": infoConsulta["datos"][0]["imagen"],
-              "nombreDoctor": "DR." + infoConsulta["datos"][0]["nombres_usuario"],
-              "especialidad": "" + infoConsulta["datos"][0]["especialidad"],
-              "cedulaProfesional": "CÉDULA PROFESIONAL: " + infoConsulta["datos"][0]["cedula"],
-              "escuela": "" + infoConsulta["datos"][0]["institucion"],
-              "nombrePaciente": "PACIENTE:" + infoConsulta["datos"][0]["nombres_paciente"],
-              "direccion": "" + infoConsulta["datos"][0]["direccion"],
-              "entidad": infoConsulta["datos"][0]["nombre_entidad_federativa"] + "," + infoConsulta["datos"][0]["nombre_municipio"] + ", MÉXICO",
-              "telefonos": "TELÉFONO: " + infoConsulta["datos"][0]["telefono"]
-            }
-
-            //Se escriben el header y el footer.
-            this.recetaPDFService.formato(formato);
-
-            //Se despliega el reporte.
-            pdf.save('receta.pdf');
-          });
+        });
 
       }
-
     });
+
+
 
   }
 
