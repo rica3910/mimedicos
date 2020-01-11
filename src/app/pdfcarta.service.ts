@@ -41,13 +41,13 @@ export class PDFCartaService {
   //Variable que se utilizará para manipular el reporte o documento.
   public pdf: jspdf;
 
-  /*----------------------------------------------------------------------|
+/*----------------------------------------------------------------------|
 |  NOMBRE: constructor.                                                 |
 |-----------------------------------------------------------------------|
 |  DESCRIPCIÓN: Método constructor del componente.                      |          
 |-----------------------------------------------------------------------|
 |  PARÁMETROS DE ENTRADA: utilidadesService = se utiliza para utilizar  |
-|  métodos genéricos.                                                   |
+|  métodos genéricos.
 |-----------------------------------------------------------------------|
 |  AUTOR: Ricardo Luna.                                                 |
 |-----------------------------------------------------------------------|
@@ -211,10 +211,7 @@ export class PDFCartaService {
   |----------------------------------------------------------------------*/
   public getEspacioEntreRenglones() {
     return this.espacioEntreRenglones;
-  }
-
-
-
+  }  
 
 }
 

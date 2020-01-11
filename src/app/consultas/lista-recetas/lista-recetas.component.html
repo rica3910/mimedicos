@@ -55,7 +55,7 @@
       <table class="table table-striped table-bordered">
         <thead>
           <tr>            
-            <th class="text-center">Fecha</th>
+            <th class="text-center">Fecha creación</th>
             <th class="text-center">Estatus</th>
             <th class="text-center">Referencias</th>
             <th class="text-center">Opciones</th>
@@ -64,7 +64,8 @@
         <tbody *ngIf="recetas.length > 0">
           <tr *ngFor="let receta of recetas">            
             <td>{{receta.fecha}}</td>
-            <td>{{receta.estatus}}</td>
+            <td *ngIf="receta.estatus != 'EXPEDIDO'">{{receta.estatus}}</td>
+            <td *ngIf="receta.estatus == 'EXPEDIDO'">{{receta.estatus}} {{receta.fecha_expedicion}}</td>
             <td>{{receta.referencias}}</td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
@@ -74,13 +75,13 @@
                 <button *ngIf="editarRecetas && autenticarService.usuarioPuedeEditarReceta(receta.id) && receta.estatus == 'ABIERTO'" type="button" class="btn" ngbTooltip="Editar receta." (click)='editarReceta(receta.id)'>
                   <i class="material-icons">edit</i>
                 </button>
-                <button *ngIf="expedirRecetas && receta.estatus == 'ABIERTO'" type="button" class="btn" ngbTooltip="Expedir receta." (click)='expedirReceta(receta.id)'>
+                <button *ngIf="expedirRecetas && autenticarService.usuarioPuedeEditarReceta(receta.id) && receta.estatus == 'ABIERTO' && receta.medicamentos > 0" type="button" class="btn" ngbTooltip="Expedir receta." (click)='expedirReceta(receta.id)'>
                   <i class="material-icons">assignment_turned_in</i>
                 </button>                  
                 <button *ngIf="cancelarRecetas && autenticarService.usuarioPuedeEditarReceta(receta.id) && receta.estatus == 'ABIERTO'" type="button" class="btn" ngbTooltip="Cancelar receta." (click)='cancelarReceta(receta.id)'>
                   <i class="material-icons">cancel</i>
                 </button>                
-                <button *ngIf="eliminarRecetas && (receta.estatus == 'ABIERTO' || receta.estatus == 'CANCELADO')" type="button" class="btn" ngbTooltip="Eliminar Receta."
+                <button *ngIf="eliminarRecetas && autenticarService.usuarioPuedeEditarReceta(receta.id) && (receta.estatus == 'ABIERTO' || receta.estatus == 'CANCELADO')" type="button" class="btn" ngbTooltip="Eliminar Receta."
                   (click)='eliminarReceta(receta.id)'>
                   <i class="material-icons">delete_forever</i>
                 </button>

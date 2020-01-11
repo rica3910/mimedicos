@@ -29,7 +29,7 @@
 <div class="row">
   <div class="col-lg-2"></div>
   <div class="col-lg-8 text-center">
-    <strong>Estatus: </strong> {{estatusReceta}}
+    <strong>Estatus: </strong>{{estatusReceta}} {{fechaExpedicion}}
   </div>
 </div>
 <div class="row">
@@ -48,6 +48,29 @@
         <button class="btn btn-azul" type="button" (click)="limpiarCampoBusqueda()" placement="bottom"
           ngbTooltip="Borrar búsqueda.">
           <i class="material-icons">backspace</i>
+        </button>
+        <button *ngIf="editarRecetas && usuarioPuedeEditarReceta && estatusReceta == 'ABIERTO'" type="button"
+          class="btn btn-secondary" ngbTooltip="Editar receta." (click)='editarReceta()'>
+          <i class="material-icons">edit</i>
+        </button>
+        <button
+          *ngIf="expedirRecetas && usuarioPuedeEditarReceta && estatusReceta == 'ABIERTO' && medicamentos.length > 0"
+          type="button" class="btn btn-secondary" ngbTooltip="Expedir receta." (click)='expedirReceta()'>
+          <i class="material-icons">assignment_turned_in</i>
+        </button>
+        <button
+          *ngIf="estatusReceta == 'EXPEDIDO'"
+          type="button" class="btn btn-secondary" ngbTooltip="Imprimir receta." (click)='imprimirReceta()'>
+          <i class="material-icons">insert_drive_file</i>
+        </button>
+        <button *ngIf="cancelarRecetas && usuarioPuedeEditarReceta && estatusReceta == 'ABIERTO'" type="button"
+          class="btn btn-secondary" ngbTooltip="Cancelar receta." (click)='cancelarReceta()'>
+          <i class="material-icons">cancel</i>
+        </button>
+        <button
+          *ngIf="eliminarRecetas && usuarioPuedeEditarReceta && (estatusReceta == 'ABIERTO' || estatusReceta == 'CANCELADO')"
+          type="button" class="btn btn-secondary" ngbTooltip="Eliminar Receta." (click)='eliminarReceta()'>
+          <i class="material-icons">delete_forever</i>
         </button>
       </div>
     </div>
