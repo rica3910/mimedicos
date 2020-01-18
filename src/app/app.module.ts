@@ -38,6 +38,7 @@ import { UsuarioTieneMenuGuard } from './usuario-tiene-menu.guard';
 import { UTILIDADES_PROVIDERS } from './utilidades.service';
 import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
 import { rutas as  rutasConsultas, ConsultasModule } from './consultas/consultas.module';
+import { rutas as  rutasCobros, CobrosModule } from './cobros/cobros.module';
 import { ORGANIZACIONES_PROVIDERS } from './organizaciones.service';
 import { CLINICAS_PROVIDERS } from './clinicas.service';
 import { USUARIOS_PROVIDERS } from './usuarios.service';
@@ -56,6 +57,7 @@ import { PDFCARTA_PROVIDERS } from './pdfcarta.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 import { PDF_RECETA_PROVIDERS } from './receta-pdf.service';
+import { CobrosComponent } from './cobros/cobros.component';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -65,6 +67,7 @@ const rutas: Routes = [
   { path: 'inicio', component: InicioComponent, canActivate: [UsuarioIngresadoGuard] },  
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },     
   { path: 'consultas', component: ConsultasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasConsultas },
+  { path: 'cobros', component: CobrosComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasCobros },
   { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
@@ -103,7 +106,8 @@ const rutas: Routes = [
     ColorPickerModule,
     MatSliderModule,
     FullCalendarModule,
-    NgbTooltipModule
+    NgbTooltipModule,
+    CobrosModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,
