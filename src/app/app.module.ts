@@ -58,6 +58,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 import { PDF_RECETA_PROVIDERS } from './receta-pdf.service';
 import { CobrosComponent } from './cobros/cobros.component';
+import { COBROS_PROVIDERS } from './cobros.service';
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -123,6 +124,7 @@ const rutas: Routes = [
     CONSULTAS_PROVIDERS,
     PRODUCTOS_PROVIDERS,
     FORMULARIOS_PROVIDERS,
+    COBROS_PROVIDERS,
     PDFCARTA_PROVIDERS,
     PDF_RECETA_PROVIDERS,
     NgbActiveModal
