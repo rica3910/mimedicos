@@ -1,0 +1,210 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-cobro.                                               | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para dar de alta cobros.                      |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 05/02/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-4">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de cobros."
+        (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Alta de cobros</h1>
+    </div>
+  </div>
+  <div class="row">
+    <br>
+  </div>
+  <form [formGroup]="formAltaCobros" (ngSubmit)="altaCobro($event)">
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica*</span>
+          </div>
+          <select class="form-control" [formControl]="clinicaControl" #clinicaHTML ngbTooltip="Seleccionar una clínica."
+            (change)="cambiarClinica()">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+          clínica es Requerida.</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Médico*</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="usuarioControl" [ngbTypeahead]="buscarUsuario"
+            (focus)="focusBuscarUsuario$.next($event.target.value)"
+            (click)="clickBuscarUsuario$.next($event.target.value)" #usuarioHTML #usuarioNG="ngbTypeahead"
+            ngbTooltip="Seleccionar médico de atención." [resultFormatter]="formatoUsuarios"
+            [inputFormatter]="formatoUsuarios" />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoUsuario()"
+              placement="bottom" ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="pulsarCrear && !usuarioControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Usuario es Requerido.</div>
+      </div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Paciente</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="pacienteControl" [ngbTypeahead]="buscarPaciente"
+            (focus)="focusBuscarPaciente$.next($event.target.value)"
+            (click)="clickBuscarPaciente$.next($event.target.value)" #pacienteHTML #pacienteNG="ngbTypeahead"
+            ngbTooltip="Seleccionar paciente." [resultFormatter]="formatoPacientes"
+            [inputFormatter]="formatoPacientes" />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoPaciente()"
+              placement="bottom" ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-lg-5"></div>
+      <div class="col-lg-6">
+        <div class="input-group input-group-lg">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Producto</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="productoControl" [ngbTypeahead]="buscarProducto"
+            (focus)="focusBuscarProducto$.next($event.target.value)"
+            (click)="clickBuscarProducto$.next($event.target.value)" #productoHTML #productooNG="ngbTypeahead"
+            ngbTooltip="Seleccionar producto." [resultFormatter]="formatoProductos" [inputFormatter]="formatoProductos">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary btn-sm" type="button" (click)="limpiarCampoProducto()"
+              placement="bottom" ngbTooltip="Borrar contenido.">
+              <i class="material-icons">backspace</i>
+            </button>
+            <button class="btn btn-azul btn-sm" type="button" (click)="agregarProducto()" placement="bottom"
+              ngbTooltip="Agregar producto.">
+              <i class="material-icons">add</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-lg-4">
+        <table class="table table-bordered">
+          <tr>
+            <th>Subtotal</th>
+            <td class="text-right">{{subtotal | currency}}</td>
+          </tr>
+          <tr>
+            <th>Descuento</th>
+            <td class="text-right">
+              <div class="input-group">
+                <input type="text" [formControl]="porcentajeDescuentoControl" #porcentajeDescuentoHTML
+                  class="form-control input-text-right" ngbTooltip="Porcentaje de descuento." value="">
+                <div class="input-group-append">
+                  <span class="input-group-text">%</span>
+                </div>
+                <div class="input-group-prepend">
+                  <span class="input-group-text">$</span>
+                </div>
+                <input type="text" [formControl]="descuentoControl" #descuentoHTML
+                  (blur)="utilidadesService.inputDinero(descuentoControl)" class="form-control"
+                  ngbTooltip="Cantidad de descuento." value="">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>IVA ({{iva}}%)</th>
+            <td class="text-right">{{(subtotal - descuentoControl.value) * (iva/100) | currency}}</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <td class="text-right">
+              {{(subtotal - descuentoControl.value)  + ((subtotal - descuentoControl.value) * (iva/100)) | currency}}
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-lg-8">
+        <table class="table table-bordered">
+          <tr>
+            <th class="text-center" colspan="6">Productos</th>
+          </tr>
+          <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">Descripción</th>
+            <th class="text-center">Precio bruto</th>
+            <th class="text-center">IVA</th>
+            <th class="text-center">Precio neto</th>
+            <th class="text-center"></th>
+          </tr>
+          <tr *ngFor="let productoACobrar of productosACobrar; let i = index" [attr.data-index]="i">
+            <td class="text-center">{{i + 1}}</td>
+            <td class="text-center">{{productoACobrar.nombre}}</td>
+            <td class="text-center">{{productoACobrar.precio_bruto_formato}}</td>
+            <td class="text-center">{{productoACobrar.iva}}</td>
+            <td class="text-center">{{productoACobrar.precio_neto_formato}}</td>
+            <td class="text-center">
+              <button type="button" class="btn btn-danger btn-sm"
+                (click)="quitarProducto(i, productoACobrar.precio_bruto)" ngbTooltip="Quitar producto.">Quitar</button>
+            </td>
+          </tr>
+          <tr *ngIf="productosACobrar.length > 0">
+            <th class="text-center" colspan="4">
+              <h4>{{totalProductosACobrar | currency}}</h4>
+            </th>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-lg-2"></div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Tipo de pago*</span>
+          </div>
+          <select class="form-control" [formControl]="clinicaControl" #clinicaHTML
+            ngbTooltip="Seleccionar una tipo de pago.">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+          clínica es Requerida.</div>
+      </div>
+      <div class="btn-group-lg" role="group">
+        <button class="btn btn-azul"  type="submit" ngbTooltip="Crear o dar de alta un cobro.">Cobrar</button>
+        <button class="btn btn-azul" type="submit" ngbTooltip="Abonar a un cobro.">Abonar</button>
+        <button class="btn btn-azul" type="submit" ngbTooltip="Solo guardar el cobro">Guardar</button>
+      </div>  
+    </div>
+  </form>
+</div>
