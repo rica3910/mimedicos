@@ -25,8 +25,9 @@ import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
 import { ConsultasService } from '../../consultas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
-import { ProductosService } from '../../productos.service';
 import { AutenticarService } from '../../autenticar.service';
+import { EstudiosService } from '../../estudios.service';
+
 
 @Component({
   selector: 'app-alta-consulta',
@@ -148,7 +149,7 @@ export class AltaConsultaComponent implements OnInit {
   |  utilidadesService = Contiene métodos genéricos y útiles,             |
   |  clinicasService = contiene los métodos de la bd de las clínicas,     |
   |  consultasService = contiene los métodos de la bd de las consultas,   |
-  |  productosService = contiene los métodos de la bd de los productos,   |
+  |  estudiosService = contiene los métodos de la bd de los estudios,     |
   |  autenticarService = contiene los métodos de autenticación,           |
   |  rutaActual= Para obtener los parámetros de la url.                   |                                
   |-----------------------------------------------------------------------|
@@ -165,7 +166,7 @@ export class AltaConsultaComponent implements OnInit {
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
     private consultasService: ConsultasService,
-    private productosService: ProductosService,
+    private estudiosService: EstudiosService,
     private autenticarService: AutenticarService,
     private rutaActual: ActivatedRoute) {
 
@@ -578,7 +579,7 @@ export class AltaConsultaComponent implements OnInit {
       let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
 
       //Si el paciente no es válido. Se borra.
-      if (!paciente.id) {
+      if (this.pacienteControl.value.length != 0 && !paciente.id) {
         //Se limpia el campo del paciente.
         this.pacienteControl.setValue("");
       }
@@ -592,7 +593,7 @@ export class AltaConsultaComponent implements OnInit {
       this.esperarService.esperar();
 
       //Se obtienen los productos o servicios del usuario seleccionado.
-      this.filtroEstudios(usuario.id);
+      this.filtroEstudios(usuario.id, this.clinicaControl.value);
 
       //Se obtienen los pacientes que tienen asignado al usario seleccionado.
       this.pacientesTienenUsuarioSeleccionado(this.pacientesServidor, usuario.id).
@@ -655,16 +656,17 @@ export class AltaConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para llenar el filtro de estudios.               | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: usuarioId = identificador del usuario.        |
+  |  PARÁMETROS DE ENTRADA: usuarioId = identificador del usuario,        |
+                            clinicaId = identidicador de la clínica.      |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 26/09/2018.                                                   |    
+  |  FECHA: 14/02/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstudios(usuarioId: string) {
+  filtroEstudios(usuarioId: string, clinicaId: string) {
 
     //Intenta obtener los servicios/estudios del usuario ingresado.
-    this.productosService.filtroServicios(usuarioId, "ACTIVO")
+    this.estudiosService.filtroEstudios(usuarioId, "ACTIVO", clinicaId)
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -1263,10 +1265,10 @@ export class AltaConsultaComponent implements OnInit {
   |----------------------------------------------------------------------*/
   private _altaEstudioConsulta(consultaId: string, campos: any[], iteracion: number) {
 
-    let detProductoId: string = campos[iteracion].id;
+    let estudioId: string = campos[iteracion].id;
 
     //Se intenta dar de alta el detalle de la consulta.
-    this.consultasService.altaConsultaEstudio(consultaId, detProductoId)
+    this.consultasService.altaEstudioConsulta(consultaId, estudioId)
       .subscribe(respuesta => {
 
         //Si hubo un error en la obtención de información.

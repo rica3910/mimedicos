@@ -124,6 +124,39 @@ export class CobrosService {
   }
 
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: filtroTiposCobros                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener los tipos de cobros.                |      
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 06/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  filtroTiposCobros(): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los tipos de cobros.
+      return this.http.get(this.urlApi + 'filtro-tipos-cobros', { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
 }
 
 

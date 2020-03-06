@@ -59,6 +59,9 @@ import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agr
 import { PDF_RECETA_PROVIDERS } from './receta-pdf.service';
 import { CobrosComponent } from './cobros/cobros.component';
 import { COBROS_PROVIDERS } from './cobros.service';
+import { ESTUDIOS_PROVIDERS } from './estudios.service';
+import { AgregarCantidadProductoComponent } from './cobros/agregar-cantidad-producto/agregar-cantidad-producto.component';
+
 
 //Constante que contiene las rutas que tendrá el sistema.
 const rutas: Routes = [    
@@ -85,7 +88,8 @@ const rutas: Routes = [
     PaginaInvalidaComponent, 
     DesplegarImagenComponent, 
     DibujoComponent,
-    AgregarMedicamentoComponent 
+    AgregarMedicamentoComponent,
+    AgregarCantidadProductoComponent 
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
@@ -93,7 +97,8 @@ const rutas: Routes = [
     DialogoEsperaComponent,
     DesplegarImagenComponent,
     DibujoComponent,
-    AgregarMedicamentoComponent],
+    AgregarMedicamentoComponent,
+    AgregarCantidadProductoComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -128,7 +133,8 @@ const rutas: Routes = [
     COBROS_PROVIDERS,
     PDFCARTA_PROVIDERS,
     PDF_RECETA_PROVIDERS,
-    NgbActiveModal
+    NgbActiveModal,
+    ESTUDIOS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

@@ -12,7 +12,7 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, Observable, merge, pipe, fromEvent } from 'rxjs';
@@ -20,7 +20,7 @@ import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 import { FormGroup, FormBuilder, AbstractControl, Validators } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, map, switchAll } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, switchAll, observeOn } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
@@ -28,7 +28,8 @@ import { ProductosService } from '../../productos.service';
 import { AutenticarService } from '../../autenticar.service';
 import { CobrosService } from '../../cobros.service';
 import { EventEmitter } from 'protractor';
-import { ThrowStmt } from '@angular/compiler';
+import { AgregarCantidadProductoComponent } from '../agregar-cantidad-producto/agregar-cantidad-producto.component';
+import { ArrayType } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-alta-cobro',
@@ -50,14 +51,9 @@ export class AltaCobroComponent implements OnInit {
   //Registros de pacientes que provienen del servidor que no se filtrarán.
   pacientesServidor: { id: string, nombres_paciente: string }[];
   //Registros de productos  que se verán en la vista en el campo de búsqueda de productos.
-  productos: { id: string, nombre_producto: string, precio_neto: string, precio_neto_formato: string }[];
-  //Registros de productos que están almacenados en el servidor y que no serán filtrados.
-  productosServidor: { id: string, nombre_producto: string, precio_neto: string, precio_neto_formato: string }[];
+  productos: { id: string, nombre_producto: string, descripcion: string, precio_neto: string, precio_neto_formato: string, precio_bruto: string, precio_bruto_formato: string, cantidad: string, stock: string }[] = [];
   //Registros de los productos.
-  productosACobrar: { id: string, nombre_producto: string, precio_neto: string, precio_neto_formato: string }[] = new Array();
-  //Precio total de los productos a cobrar.
-  totalProductosACobrar: number = 0;
-
+  productosACobrar: { id: string, nombre_producto: string, descripcion: string, precio_neto: string, precio_neto_formato: string, precio_bruto: string, precio_bruto_formato: string, cantidad: string, stock: string }[] = new Array();
   /*Variable que sirve para cuando se le de clic o focus al usuario
   se ejecute el método buscar usuario.*/
   @ViewChild('usuarioNG') usuarioNG: NgbTypeahead;
@@ -77,6 +73,8 @@ export class AltaCobroComponent implements OnInit {
   @ViewChild('clinicaHTML') clinicaHTML: ElementRef;
   //Variable que almacena el control del formulario del descuento.
   @ViewChild('descuentoHTML') descuentoHTML: ElementRef;
+  //Variable que almacena el control del formulario del tipo de cobro.
+  @ViewChild('tipoCobroHTML') tipoCobroHTML: ElementRef;
   //Variable que almacena el control del formulario del descuento.
   @ViewChild('porcentajeDescuentoHTML') porcentajeDescuentoHTML: ElementRef;
   //Variable que reacciona al focus del campo buscar usuario.
@@ -96,11 +94,15 @@ export class AltaCobroComponent implements OnInit {
   //Formato que se utilizará para presentar la información en el cuadro de texto de pacientes.
   formatoPacientes = (value: any) => value.nombres_paciente;
   //Formato que se utilizará para presentar la información en el cuadro de texto de productos.
-  formatoProductos = (value: any) => value.nombre_producto ? value.nombre_producto + " - " + value.precio_neto_formato : "";
+  formatoProductos = (value: any) => value.nombre_producto ? value.nombre_producto + " - " + value.precio_neto_formato + " - " + value.descripcion : "";
+  //Indica si el valor del IVA ya fue obtenido.
+  ivaInicioListo: boolean = false;
   //Indica si el filtro de usuarios ya se cargó.
   usuariosListos: boolean = false;
   //Indica si el filtro de pacientes ya se cargó.
   pacientesInicioListo: boolean = false;
+  //Indica si  ya se verificó que el usuario pueda dar descuentos.
+  verificarUsuarioPuedeDarDescuentos: boolean = false;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
   //Objeto que contendrá el formulario de alta de los cobros.
@@ -124,11 +126,21 @@ export class AltaCobroComponent implements OnInit {
   //Objeto del formulario que contendrá el porcentaje de descuento.
   porcentajeDescuentoControl: AbstractControl;
   //Subtotal del cobro (sin impuestos).
-  subtotal: number = 1000;
+  subtotal: number = 0;
   //Iva.
   iva: number = 16;
   //Total del cobro.
   total: number = 1116;
+  //Registros de tipo de cobros que se verán en la vista en el campo tipos de cobro.
+  tipoCobros: Array<JSON> = new Array();
+  //Indica si el filtro de tipos de cobros está listo.
+  tiposCobrosListo: boolean = false;
+  //Objeto del formulario que contendrá al tipo de cobro.
+  tipoCobroControl: AbstractControl;
+  //Indica si el usuario logueado puede dar descuentos.
+  usuarioPuedeDarDescuentos: boolean = false;
+  //Indica si los inputs de descuento son válidos.
+  verificarInputsDescuentos: boolean = false;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -161,10 +173,11 @@ export class AltaCobroComponent implements OnInit {
     private fb: FormBuilder,
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
-    private cobrosServicce: CobrosService,
+    private cobrosService: CobrosService,
     private productosService: ProductosService,
     private autenticarService: AutenticarService,
     private rutaActual: ActivatedRoute) {
+
 
     //Se agregan las validaciones al formulario de alta de cobros.
     this.formAltaCobros = fb.group({
@@ -173,7 +186,8 @@ export class AltaCobroComponent implements OnInit {
       'clinica': ['', [Validators.required]],
       'producto': ['', Validators.required],
       'descuento': ['', [this.utilidadesService.decimalValidator, Validators.max(this.subtotal), Validators.min(0)]],
-      'porcentajeDescuento': ['', [this.utilidadesService.decimalValidator, Validators.max(100), Validators.min(0)]]
+      'porcentajeDescuento': ['', [this.utilidadesService.decimalValidator, Validators.max(100), Validators.min(0)]],
+      'tipoCobro': ['', [Validators.required]],
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -183,25 +197,60 @@ export class AltaCobroComponent implements OnInit {
     this.productoControl = this.formAltaCobros.controls['producto'];
     this.descuentoControl = this.formAltaCobros.controls['descuento'];
     this.porcentajeDescuentoControl = this.formAltaCobros.controls['porcentajeDescuento'];
+    this.tipoCobroControl = this.formAltaCobros.controls['tipoCobro'];
 
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
-    this.esperarService.esperar()
-
+    this.esperarService.esperar();
+    //Se obtiene el IVA de la  base de datos.
+    this.obtenerIva();
     //Se cargan los pacientes en su filtro.
     this.filtroPacientes();
     //Se cargan las clínicas en su filtro.
     this.filtroClinicas();
     //Se cargan los usuarios.
     this.filtroUsuarios();
+    //Se verifica que el usuario logueado pueda dar descuentos.
+    this.usuarioPuedeDarDescuento();
+    //Se cargan los tipos de cobros.
+    this.filtroTiposCobros();
+
+  }
+
+  ngOnInit() {
+
+    //Cuando se cambia el usuario.
+    this.usuarioControl.valueChanges.subscribe(() => {
+      //Se actualiza la información del paciente.
+      this.cambiarUsuario();
+    });
+
+    //Cuando se cambia el paciente.
+    this.pacienteControl.valueChanges.subscribe(() => {
+      //Se actualiza la información del usuario.
+      this.cambiarPaciente();
+    });
+
+    //Cuando se cambia el descuento.
+    this.descuentoControl.statusChanges.subscribe(() => {
+      this.activarValidacionesDescuentos();
+    });
+
+    //Cuando se cambia el porcentaje de descuento.
+    this.porcentajeDescuentoControl.statusChanges.subscribe(() => {
+      this.activarValidacionesDescuentos();
+    });
 
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe((valor: boolean) => {
 
       //Si todos los filtros e información están listos.
-      if (this.usuariosListos &&
+      if (this.ivaInicioListo &&
+        this.usuariosListos &&
         this.pacientesInicioListo &&
-        this.clinicasInicioListas) {
+        this.clinicasInicioListas &&
+        this.verificarUsuarioPuedeDarDescuentos &&
+        this.tiposCobrosListo) {
 
         //Se actualizan los usuarios pertenecientes a la clínica seleccionada.   
         let usuariosConClinicaSeleccionada: Array<any> = new Array();
@@ -216,66 +265,10 @@ export class AltaCobroComponent implements OnInit {
             //Se detiene la espera.    
             this.esperarService.noEsperar();
           });
+
       }
 
     });
-
-  }
-
-  ngOnInit() {
-
-
-    //El descuento solo aceptará números.
-    this.utilidadesService.inputNumerico(this.descuentoHTML, true, this.descuentoControl);
-    //El porcentaje del descuento solo aceptará números.
-    this.utilidadesService.inputNumerico(this.porcentajeDescuentoHTML, true, this.porcentajeDescuentoControl);
-
-    //Cuando se cambia el usuario.
-    this.usuarioControl.valueChanges.subscribe(() => {
-      //Se actualiza la información del paciente.
-      this.cambiarUsuario();
-    });
-
-
-    //Cuando se cambia el paciente.
-    this.pacienteControl.valueChanges.subscribe(() => {
-      //Se actualiza la información del usuario.
-      this.cambiarPaciente();
-    });
-
-    //Cuando se cambia el descuento.    
-    fromEvent(this.descuentoHTML.nativeElement, 'keyup').subscribe(() => {
-      //Si el descuento es mayor que el subtotal.
-      if (this.descuentoControl.value > this.subtotal) {
-        this.utilidadesService.alerta("Descuento no permitido", "El descuento debe ser menor o igual al subtotal.").subscribe(() => {
-          this.descuentoControl.setValue("");
-          this.porcentajeDescuentoControl.setValue("");
-          this.descuentoHTML.nativeElement.focus();
-        });
-      }
-      //Si el descuento es válido.
-      else {
-        //Se actualiza el porcentaje del descuento.
-        this.porcentajeDescuentoControl.setValue(Math.round(this.descuentoControl.value / this.subtotal * 100) + "");
-      }
-    });
-
-    //Cuando se cambia el porcentaje del descuento.    
-    fromEvent(this.porcentajeDescuentoHTML.nativeElement, 'keyup').subscribe(() => {
-      //Si el porcentaje del descuento es mayor a 100.
-      if (this.porcentajeDescuentoControl.value > 100) {
-        this.utilidadesService.alerta("Descuento no permitido", "El porcentaje del descuento debe ser menor o igual a 100.").subscribe(() => {
-          this.porcentajeDescuentoControl.setValue("");
-          this.descuentoControl.setValue("");
-          this.porcentajeDescuentoHTML.nativeElement.focus();
-        });
-      }
-      else {
-        //Se actualiza el descuento.
-        this.descuentoControl.setValue(Math.round(this.porcentajeDescuentoControl.value / 100 * this.subtotal) + "");
-      }
-    });
-
 
   }
 
@@ -314,6 +307,44 @@ export class AltaCobroComponent implements OnInit {
       });
 
   }
+
+  /*----------------------------------------------------------------------|
+   |  NOMBRE: filtroTiposCobros.                                           |
+   |-----------------------------------------------------------------------|
+   |  DESCRIPCIÓN: Método para llenar el filtro de tipos cobros.           | 
+   |-----------------------------------------------------------------------|
+   |  AUTOR: Ricardo Luna.                                                 |
+   |-----------------------------------------------------------------------|
+   |  FECHA: 06/03/2020.                                                   |    
+   |----------------------------------------------------------------------*/
+  filtroTiposCobros() {
+
+    //Intenta obtener los tipos de los cobros.
+    this.cobrosService.filtroTiposCobros()
+      .subscribe((respuesta) => {
+
+
+        //Si hubo un error en la obtención de información.
+        if (respuesta["estado"] === "ERROR") {
+          //Muestra una alerta con el porqué del error.
+          this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+        }
+        //Si todo salió bien.
+        else {
+
+          //Se almacenan los tipos de cobros.
+          this.tipoCobros = respuesta["datos"];
+          //Se inicializa el select con el primer valor encontrado.
+          this.tipoCobroControl.setValue(respuesta["datos"][0]["id"] ? respuesta["datos"][0]["id"] : "");
+        }
+
+        //Indica que el filtro de tipos cobros ya se cargó.
+        this.tiposCobrosListo = true;
+        this.cargaInicialLista$.next(this.tiposCobrosListo);
+      });
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: cambiarPaciente.                                             |
@@ -548,6 +579,7 @@ export class AltaCobroComponent implements OnInit {
   |----------------------------------------------------------------------*/
   cambiarUsuario() {
 
+
     //Se limpian los productos.
     this.productoControl.setValue("");
     this.productos = new Array();
@@ -564,10 +596,11 @@ export class AltaCobroComponent implements OnInit {
       let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
 
       //Si el paciente no es válido. Se borra.
-      if (!paciente.id) {
+      if (this.pacienteControl.value.length != 0 && !paciente.id) {
         //Se limpia el campo del paciente.
         this.pacienteControl.setValue("");
       }
+
 
       //Se inicializan los pacientes.
       this.pacientes = new Array();
@@ -577,7 +610,7 @@ export class AltaCobroComponent implements OnInit {
       //Se inicia la espera.
       this.esperarService.esperar();
 
-      //Se obtienen los productos o servicios del usuario seleccionado.
+      //Se obtienen los productos del usuario seleccionado.
       this.filtroProductos(usuario.id);
 
       //Se obtienen los pacientes que tienen asignado al usario seleccionado.
@@ -587,9 +620,10 @@ export class AltaCobroComponent implements OnInit {
           return pacientesAFiltrar;
         })).
         toPromise().then(pacientes => {
+
           this.pacientes = pacientes;
-          //Se detiene la espera.
           this.esperarService.noEsperar();
+
         });
 
     }
@@ -650,7 +684,7 @@ export class AltaCobroComponent implements OnInit {
   filtroProductos(usuarioId: string) {
 
     //Intenta obtener los productos del usuario ingresado.
-    this.productosService.filtroServicios(usuarioId, "ACTIVO")
+    this.productosService.filtroProductos(usuarioId, "ACTIVO", this.clinicaControl.value)
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -822,6 +856,36 @@ export class AltaCobroComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerIva.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener el iva de la base de datos.         |      
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  obtenerIva() {
+    this.utilidadesService.obtenerIva().subscribe((respuesta) => {
+
+      this.ivaInicioListo = true;
+      this.cargaInicialLista$.next(this.ivaInicioListo);
+
+      //Si hubo un error en la obtención de información.
+      if (respuesta["estado"] === "ERROR") {
+        //Muestra una alerta con el porqué del error.
+        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+      }
+      //Si todo salió bien.
+      else {
+
+        //Se establece el IVA.
+        this.iva = respuesta["IVA"];
+
+      }
+    });
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: filtroClinicas.                                              |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para llenar el filtro de clínicas.               |      
@@ -882,10 +946,14 @@ export class AltaCobroComponent implements OnInit {
   |----------------------------------------------------------------------*/
   agregarProducto() {
 
-    //Se obtiene el producto seleccionado.
-    let producto: { id: string, nombre_producto: string, precio_neto: string, precio_neto_formato: string } = this.productoControl.value;
+    //Se vacía el descuento.
+    this.porcentajeDescuentoControl.setValue("");
+    this.descuentoControl.setValue("");
 
-    //Si viene algo escrito en el estudio pero no es un registro de  base de datos.
+    //Se obtiene el producto seleccionado.
+    let producto: { id: string, nombre_producto: string, descripcion: string, precio_neto: string, precio_neto_formato: string, precio_bruto: string, precio_bruto_formato: string, cantidad: string, stock: string } = this.productoControl.value;
+
+    //Si viene algo escrito en el producto pero no es un registro de  base de datos.
     if (!producto.id) {
       this.utilidadesService.alerta("Producto inválido", "Seleccione un producto válido.").subscribe(() => {
         this.productoHTML.nativeElement.focus();
@@ -893,24 +961,36 @@ export class AltaCobroComponent implements OnInit {
       return;
     }
 
+    //Si el producto ya existe.
     if (this.productosACobrar.filter(productoACobrar => productoACobrar.id == producto.id).length > 0) {
-      this.utilidadesService.confirmacion("Producto existente.", "El producto ya existe. ¿Desea agregarlo de nuevo?").subscribe(respuesta => {
-        if (respuesta == "Aceptar") {
-          //Se almacena el registro en el arreglo de productos a cobrar.
-          this.productosACobrar.push(producto);
-          //Se limpia el campo.
-          this.productoControl.setValue("");
-          //Se le suma el precio del producto al total.
-          this.totalProductosACobrar = this.totalProductosACobrar + Number(producto.precio_neto);
-        }
-      });
-    } else {
-      //Se almacena el registro en el arreglo de productos a cobrar.
-      this.productosACobrar.push(producto);
-      //Se limpia el campo.
-      this.productoControl.setValue("");
-      //Se le suma el precio del cobro al total.
-      this.totalProductosACobrar = this.totalProductosACobrar + Number(producto.precio_neto);
+      this.utilidadesService.alerta("Producto existente.", "El producto ya existe en la lista de productos.");
+    }
+    //Si el producto no existe.
+    else {
+
+      //Si no hay stock del producto
+      if (Number(producto.stock) <= 0) {
+        this.utilidadesService.alerta("Producto agotado.", "No hay producto disponible en el inventario.");
+      }
+      //Si sí hay stock.
+      else {
+
+        this.utilidadesService.agregarCantidadProducto(AgregarCantidadProductoComponent, producto).subscribe((procucto) => {
+
+          //Si se agregó un producto.
+          if (producto) {
+            //Se almacena el registro en el arreglo de productos a cobrar.
+            this.productosACobrar.push(producto);
+            //Se limpia el campo.
+            this.productoControl.setValue("");
+            //Se le suma el precio del cobro al total.      
+            this.subtotal = this.subtotal + (Number(producto.precio_bruto) * Number(producto.cantidad));
+          }
+
+        });
+
+      }
+
     }
 
   }
@@ -920,7 +1000,7 @@ export class AltaCobroComponent implements OnInit {
   |  NOMBRE: quitarProducto.                                                 |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: index = posición de arreglo a quitar,         |
-  |  precioBurto = precio que se le quitará al total.                     |    
+  |  precioNeto = precio que se le quitará al total.                     |    
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para quitar un producto al arreglo de productos  |
   |  a cobrar.                                                            | 
@@ -929,12 +1009,36 @@ export class AltaCobroComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 26/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  quitarProducto(index, precioneto) {
+  quitarProducto(index, precioNeto) {
+
+    //Se vacía el descuento.
+    this.porcentajeDescuentoControl.setValue("");
+    this.descuentoControl.setValue("");
 
     //Se elimina  el producto seleccionado.
     this.productosACobrar.splice(index, 1);
-    //Se le quita el precio del producto al total.
-    this.totalProductosACobrar = this.totalProductosACobrar - Number(precioneto);
+    //Se le quita el precio del producto al total.    
+    this.subtotal = this.subtotal - Number(precioNeto);
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeDarDescuento.                                    |  
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Verifica que un usuario pueda dar descuentos.           | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeDarDescuento() {
+
+    this.autenticarService.usuarioPuedeDarDescuentos().subscribe((respuesta) => {
+      this.usuarioPuedeDarDescuentos = respuesta["value"];
+      this.verificarUsuarioPuedeDarDescuentos = true;
+      this.cargaInicialLista$.next(this.verificarUsuarioPuedeDarDescuentos);
+    });
+
 
   }
 
@@ -1022,8 +1126,6 @@ export class AltaCobroComponent implements OnInit {
   |----------------------------------------------------------------------*/
   altaCobro(evento: EventEmitter) {
 
-    console.log(evento);
-
     //Se pulsa el botón  de dar de alta cobro.
     this.pulsarCrear = true;
 
@@ -1035,12 +1137,15 @@ export class AltaCobroComponent implements OnInit {
     } else if (this.clinicaControl.invalid) {
       this.clinicaHTML.nativeElement.focus();
       return;
+    } else if (this.tipoCobroControl.invalid) {
+      this.tipoCobroHTML.nativeElement.focus();
+      return;
     }
 
     let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
     //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
     if (usuario && !usuario.id) {
-      this.utilidadesService.alerta("Usuario inválido", "Seleccione un usuario válido.").subscribe(() => {
+      this.utilidadesService.alerta("Médico inválido", "Seleccione un médico válido.").subscribe(() => {
         this.usuarioHTML.nativeElement.focus();
       });
       return
@@ -1164,6 +1269,70 @@ export class AltaCobroComponent implements OnInit {
 
     });*/
 
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: activarValidacionesDescuentos.                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para activar las validaciones de los decuentos.  |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 21/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  activarValidacionesDescuentos() {
+
+    //Solo se disparará el evento cuando los elementos del descuento estén inválidos.
+    if (!this.descuentoHTML || !this.porcentajeDescuentoHTML) {
+      this.verificarInputsDescuentos = false;
+    }
+
+    //Si el usuario puede dar descuentos, entonces se activan los campos corresponmdientes.
+    if (!this.verificarInputsDescuentos && this.usuarioPuedeDarDescuentos && this.productosACobrar.length > 0 && this.descuentoHTML && this.porcentajeDescuentoHTML) {
+
+      //Se utiliza para que no se dispare tantas veces el evento.
+      this.verificarInputsDescuentos = true;
+
+      //El descuento solo aceptará números.
+      this.utilidadesService.inputNumerico(this.descuentoHTML, true, this.descuentoControl);
+      //El porcentaje del descuento solo aceptará números.
+      this.utilidadesService.inputNumerico(this.porcentajeDescuentoHTML, true, this.porcentajeDescuentoControl);
+
+      //Cuando se cambia el descuento.    
+      fromEvent(this.descuentoHTML.nativeElement, 'keyup').subscribe(() => {
+        //Si el descuento es mayor que el subtotal.
+        if (this.descuentoControl.value > this.subtotal) {
+          this.utilidadesService.alerta("Descuento no permitido", "El descuento debe ser menor o igual al subtotal.").subscribe(() => {
+            this.descuentoControl.setValue("");
+            this.porcentajeDescuentoControl.setValue("");
+            this.descuentoHTML.nativeElement.focus();
+          });
+        }
+        //Si el descuento es válido.
+        else {
+          //Se actualiza el porcentaje del descuento.
+          this.porcentajeDescuentoControl.setValue(Math.round(this.descuentoControl.value / this.subtotal * 100) + "");
+        }
+      });
+
+      //Cuando se cambia el porcentaje del descuento.    
+      fromEvent(this.porcentajeDescuentoHTML.nativeElement, 'keyup').subscribe(() => {
+        //Si el porcentaje del descuento es mayor a 100.
+        if (this.porcentajeDescuentoControl.value > 100) {
+          this.utilidadesService.alerta("Descuento no permitido", "El porcentaje del descuento debe ser menor o igual a 100.").subscribe(() => {
+            this.porcentajeDescuentoControl.setValue("");
+            this.descuentoControl.setValue("");
+            this.porcentajeDescuentoHTML.nativeElement.focus();
+          });
+        }
+        else {
+          //Se actualiza el descuento.
+          this.descuentoControl.setValue(Math.round(this.porcentajeDescuentoControl.value / 100 * this.subtotal) + "");
+        }
+      });
+
+    }
 
   }
 

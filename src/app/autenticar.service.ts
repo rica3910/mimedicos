@@ -1237,6 +1237,88 @@ export class AutenticarService {
   }  
 
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioTieneEstudio.                                         |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para saber si el usuario tiene un estudio.       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: usuarioId: identificador del usuario,         |
+  |                         estudioId: identificador del estudio.         |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario tenga o no el estudio respectivamente.     |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioTieneEstudio(usuarioId: string, estudioId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + 'usuario-tiene-estudio/' + usuarioId + '/' + estudioId, { headers: headers })
+        .pipe(map(respuesta => {
+
+          //Si el usuario no tiene el estudio.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí tiene asignado el estudio.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeDarDescuentos.                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario dar descuentos.   |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda ver o no la consulta respectivamente.|  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeDarDescuentos(): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-dar-descuentos`, { headers: headers })
+        .pipe(map(respuesta => {
+    
+          //Si el usuario no puede dar descuentos.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí pueda dar descuentos.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }    
 
 }
 

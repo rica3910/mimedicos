@@ -1,12 +1,12 @@
 /******************************************************************|
-|NOMBRE: Productos.                                                | 
+|NOMBRE: Estudios.                                                 | 
 |------------------------------------------------------------------|
 |DESCRIPCIÓN: Servicio que contiene los métodos para el mto. de    |
-|servicios.                                                        |
+|estudios.                                                         |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 26/09/2018.                                                |
+|FECHA: 14/02/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -19,7 +19,7 @@ import { Observable, of } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
 
 @Injectable()
-export class ProductosService {
+export class EstudiosService {
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -33,20 +33,20 @@ export class ProductosService {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 26/08/2018.                                                   |    
+  |  FECHA: 14/02/2020.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private http: HttpClient,
     @Inject('URL_API_BACKEND') private urlApi: string,
     private autorizacion: AutenticarService) { }
 
     /*----------------------------------------------------------------------|
-    |  NOMBRE: filtroProductos.                                             |
+    |  NOMBRE: filtroEstudios.                                              |
     |-----------------------------------------------------------------------|
-    |  DESCRIPCIÓN: Método para obtener productos                           |
-    |  activos del usuario logueado y del usuario dado como parámetro.      |
+    |  DESCRIPCIÓN: Método para obtener los servicios y/o estudios          |
+    |  activos del usuario logueado.                                        |
     |-----------------------------------------------------------------------|
     |  PARÁMETROS DE ENTRADA:                                               |
-    |  usuarioId = id. del usuario al que se buscarán los productos.        |  
+    |  usuarioId = identificador del usuario al que se buscarán los estudios|  
     |  estatus = indica el estatus de los registros: ACTIVO o INACTIVO,     |
     |  clinicaId = identificador de la clínica.                             |   
     |-----------------------------------------------------------------------|
@@ -57,30 +57,30 @@ export class ProductosService {
     |-----------------------------------------------------------------------|
     |  AUTOR: Ricardo Luna.                                                 |
     |-----------------------------------------------------------------------|
-    |  FECHA: 18/02/2020.                                                   |    
+    |  FECHA: 23/09/2018.                                                   |    
     |----------------------------------------------------------------------*/
-    filtroProductos(usuarioId: string, estatus: string = "ACTIVO", clinicaId: string): Observable<any> {
+    filtroEstudios(usuarioId: string, estatus: string = "ACTIVO", clinicaId: string): Observable<any> {
 
-      //Si está conectado, entonces el token sí existe.
-      if (this.autorizacion.obtenerToken() !== null) {
-  
-        //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
-        const headers: HttpHeaders = new HttpHeaders({
-          'X-API-KEY': this.autorizacion.obtenerToken()
-        });
-  
-        //Envía la petición al servidor backend para obtener los productos.
-        return this.http.get(this.urlApi + 'filtro-productos/' + usuarioId + "/" + estatus + "/" + clinicaId, { headers: headers });
-      }
-      //No está conectado.
-      return of(false);
-  
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los estudios.
+      return this.http.get(this.urlApi + 'filtro-estudios/' + usuarioId + "/" + estatus + "/" + clinicaId, { headers: headers });
     }
-  
+    //No está conectado.
+    return of(false);
+
+  }
+
 
 }
 
 //Constante que se utilizará para inyectar el servicio.
-export const PRODUCTOS_PROVIDERS: Array<any> = [
-  { provide: ProductosService, useClass: ProductosService }
+export const ESTUDIOS_PROVIDERS: Array<any> = [
+  { provide: EstudiosService, useClass: EstudiosService }
 ];

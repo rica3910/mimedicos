@@ -12,7 +12,8 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Injectable, ElementRef } from '@angular/core';
+import { Injectable, ElementRef, Inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, Subject } from 'rxjs';
 import { FormControl, FormControlName, AbstractControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
@@ -25,6 +26,7 @@ import { EventEmitter } from 'events';
 import { DialogoConfirmacionComponent } from './dialogo-confirmacion/dialogo-confirmacion.component';
 import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 import { CurrencyPipe } from '@angular/common';
+import { AutenticarService } from './autenticar.service';
 
 @Injectable()
 export class UtilidadesService {
@@ -35,13 +37,20 @@ export class UtilidadesService {
   |  DESCRIPCIÓN: Método constructor del componente.                      |          
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  modalService = contiene los métodos para manipular modals,           |                            
+  |  modalService = contiene los métodos para manipular modals,           |
+  |  http  = para hacer peticiones http al backend,                       |
+  |  urlApi= url de la aplicación backend,                                |
+  |  autorizacion = contiene los métodos para saber                       |
+  |  si un usuario está conectado.                                        |                            
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal,
+    private http: HttpClient,
+    @Inject('URL_API_BACKEND') private urlApi: string,
+    private autorizacion: AutenticarService) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: filtrarDatos.                                                |
@@ -245,7 +254,7 @@ export class UtilidadesService {
           }
         });
         //Se retorna la cadena formateada.
-        input.nativeElement.value = cadenaFormada;
+        input.nativeElement? input.nativeElement.value = cadenaFormada : null;
         if (control) {
           control.setValue(cadenaFormada);
         }
@@ -259,7 +268,7 @@ export class UtilidadesService {
       //Se subscribe al evento.
       .subscribe((cadena: string) => {
         //Genera un evento de teclazo para que validar que sea número la cadena pegada.
-        input.nativeElement.dispatchEvent(new Event('keyup'));
+        input.nativeElement? input.nativeElement.dispatchEvent(new Event('keyup')): null;
       });
   }
 
@@ -585,24 +594,98 @@ export class UtilidadesService {
     return subject.asObservable();
   }
 
-   /*----------------------------------------------------------------------|
-   |  NOMBRE: inputDinero.                                                 |
-   |-----------------------------------------------------------------------|
-   |  DESCRIPCIÓN: Método que formatea una caja de texto en dinero.        |
-   |-----------------------------------------------------------------------|
-   |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
-   |                         formateará,                                   |
-   |  incluirSignoPesos = Se usa si se desea incluir el signo de pesos.    |
-   |-----------------------------------------------------------------------|
-   |  AUTOR: Ricardo Luna.                                                 |
-   |-----------------------------------------------------------------------|
-   |  FECHA: 07/02/2020.                                                   |    
-   |----------------------------------------------------------------------*/
-   inputDinero(control: AbstractControl, incluirSignoPesos: boolean = false) {
-    control.setValue(new CurrencyPipe("EN").transform(control.value, incluirSignoPesos ? "$" : " "));    
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: inputDinero.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que formatea una caja de texto en dinero.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: formControl = Elemento del formulario que se  |
+  |                         formateará,                                   |
+  |  incluirSignoPesos = Se usa si se desea incluir el signo de pesos.    |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  inputDinero(control: AbstractControl, incluirSignoPesos: boolean = false) {
+    control.setValue(new CurrencyPipe("EN").transform(control.value, incluirSignoPesos ? "$" : " "));
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: obtenerIva.                                                  |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener el iva registrado en la bd.         |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  obtenerIva(): Observable<any> {
 
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener la información.
+      return this.http.get(this.urlApi + `obtener-iva`, { headers: headers });
+
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: agregarCantidadProducto.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal para añadir la cantidad de un producto al |
+  |  cobro.                                                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: clase  = clase u objeto que se abrirá,        |
+  |  producto = producto al que se le establecerá la cantidad.            |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  agregarCantidadProducto(componente, producto): Observable<any> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<any> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+    //Modal centrado.
+    modalOption.centered = true;
+    //Abre el modal de tamaño extra grande.
+    modalOption.size = "sm";
+
+    const modalRef = this.modalService.open(componente, modalOption);
+    //Define el título del modal.
+    modalRef.componentInstance.producto = producto;
+
+    //Se retorna el botón pulsado.
+    modalRef.result.then((producto) => {
+      //Se retorna el producto seleccionado.
+      producto ? subject.next(producto) : subject.next(null);
+    },
+      (reason) => {
+        subject.next(null)
+      });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }  
+  
 }
 
 //Constante que se utilizará para inyectar el servicio.

@@ -326,13 +326,13 @@ export class ConsultasService {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: altaConsultaEstudio.                                         |
+  |  NOMBRE: altaEstudioConsulta.                                         |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para dar de alta un estudio en una consulta.     | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
   |  consultaId = identificador de la consulta,                           |
-  |  deProductoId = identificador del producto.                           |                           
+  |  estudioId = identificador del estudio.                               |                           
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
@@ -340,15 +340,15 @@ export class ConsultasService {
   |-----------------------------------------------------------------------|
   |  FECHA: 01/10/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  altaConsultaEstudio(
+  altaEstudioConsulta(
     consultaId: string,
-    detProductoId: string
+    estudioId: string
   ): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       consultaId: consultaId,
-      detProductoId: detProductoId
+      estudioId: estudioId
     });
 
     //Le concatena la palabra "json=" al json armado.
@@ -362,7 +362,7 @@ export class ConsultasService {
 
     //Realiza la petición al servidor.
     return this.http
-      .post(this.urlApi + 'alta-consulta-estudio',
+      .post(this.urlApi + 'alta-estudio-consulta',
         params,
         { headers: headers });
   }

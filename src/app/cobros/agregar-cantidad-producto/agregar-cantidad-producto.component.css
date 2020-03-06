@@ -1,0 +1,28 @@
+/******************************************************************|
+|NOMBRE: agregar-cantidad-producto.                                | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Se muestran lo estilos del modal de agregar          |
+|             cantidad de producto a un cobro.                     |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 19/02/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+/*Establece el color del botón de confirmación.*/
+.btn-azul{
+    background-color: rgb(0, 162, 232);
+    color: white;
+  }
+
+  /*Establece el color del título del mensaje.*/
+.titulo-azul{
+    color: rgb(0, 162, 232);    
+  }
+
+
+  

@@ -25,8 +25,8 @@ import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
 import { ConsultasService } from '../../consultas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
-import { ProductosService } from '../../productos.service';
 import { AutenticarService } from '../../autenticar.service';
+import { EstudiosService } from '../../estudios.service';
 
 @Component({
   selector: 'app-editar-consulta',
@@ -150,7 +150,7 @@ export class EditarConsultaComponent implements OnInit {
     |  utilidadesService = Contiene métodos genéricos y útiles,             |
     |  clinicasService = contiene los métodos de la bd de las clínicas,     |
     |  consultasService = contiene los métodos de la bd de las consultas,   |
-    |  productosService = contiene los métodos de la bd de los productos,   |
+    |  estudiosService = contiene los métodos de la bd de los estudios,     |
     |  rutaActual: Para obtener los parámetros de la url,                   |
     |  autenticarService = contiene los métodos de autenticación.           |                                
     |-----------------------------------------------------------------------|
@@ -167,7 +167,7 @@ export class EditarConsultaComponent implements OnInit {
     private utilidadesService: UtilidadesService,
     private clinicasService: ClinicasService,
     private consultasService: ConsultasService,
-    private productosService: ProductosService,
+    private estudiosService: EstudiosService,
     private rutaActual: ActivatedRoute,
     private autenticarService: AutenticarService) {
 
@@ -302,7 +302,7 @@ export class EditarConsultaComponent implements OnInit {
 
                 respuesta["datos"].forEach(estudio => {
 
-                  estudio = { id: estudio["det_producto_id"], nombre_estudio: estudio["nombre"], precio_neto: estudio["precio_neto"], precio_neto_formato: estudio["precio_neto_formato"] };
+                  estudio = { id: estudio["estudio_id"], nombre_estudio: estudio["nombre"], precio_neto: estudio["precio_neto"], precio_neto_formato: estudio["precio_neto_formato"] };
 
                   //Se almacena el registro en el arreglo de estudios a programar.
                   this.estudiosAProgramar.push(estudio);
@@ -496,7 +496,7 @@ export class EditarConsultaComponent implements OnInit {
       let paciente: { id: string, nombres_paciente: string } = this.pacienteControl.value;
 
       //Si el paciente no es válido. Se borra.
-      if (!paciente.id) {
+      if (this.pacienteControl.value.length != 0 && !paciente.id) {
         //Se limpia el campo del paciente.
         this.pacienteControl.setValue("");
       }
@@ -510,7 +510,7 @@ export class EditarConsultaComponent implements OnInit {
       this.esperarService.esperar();
 
       //Se obtienen los productos o servicios del usuario seleccionado.
-      this.filtroEstudios(usuario.id);
+      this.filtroEstudios(usuario.id, this.clinicaControl.value);
 
       //Se obtienen los pacientes que tienen asignado al usario seleccionado.
       this.pacientesTienenUsuarioSeleccionado(this.pacientesServidor, usuario.id).
@@ -657,16 +657,17 @@ export class EditarConsultaComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para llenar el filtro de estudios.               | 
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: usuarioId = identificador del usuario.        |
+  |  PARÁMETROS DE ENTRADA: usuarioId = identificador del usuario,        |
+  |  clinicaId = identificador de la clínica.                             |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 26/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  filtroEstudios(usuarioId: string) {
+  filtroEstudios(usuarioId: string, clinicaId: string) {
 
     //Intenta obtener los servicios/estudios del usuario ingresado.
-    this.productosService.filtroServicios(usuarioId, "TODOS")
+    this.estudiosService.filtroEstudios(usuarioId, "TODOS", clinicaId)
       .subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -1337,10 +1338,10 @@ export class EditarConsultaComponent implements OnInit {
   |----------------------------------------------------------------------*/
   private _altaEstudioConsulta(consultaId: string, campos: any[], iteracion: number) {
 
-    let detProductoId: string = campos[iteracion].id;
+    let estudioId: string = campos[iteracion].id;
 
     //Se intenta dar de alta el detalle de la consulta.
-    this.consultasService.altaConsultaEstudio(consultaId, detProductoId)
+    this.consultasService.altaEstudioConsulta(consultaId, estudioId)
       .subscribe(respuesta => {
 
         //Si hubo un error en la obtención de información.
