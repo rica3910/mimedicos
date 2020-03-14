@@ -77,6 +77,8 @@ export class AltaCobroComponent implements OnInit {
   @ViewChild('tipoCobroHTML') tipoCobroHTML: ElementRef;
   //Variable que almacena el control del formulario del descuento.
   @ViewChild('porcentajeDescuentoHTML') porcentajeDescuentoHTML: ElementRef;
+  //Variable que almacena el control del formulario de los comentarios.
+  @ViewChild('comentariosHTML') comentariosHTML: ElementRef;
   //Variable que reacciona al focus del campo buscar usuario.
   focusBuscarUsuario$ = new Subject<string>();
   //Variable que reacciona al darle clic al campo buscar usuario.
@@ -125,6 +127,8 @@ export class AltaCobroComponent implements OnInit {
   descuentoControl: AbstractControl;
   //Objeto del formulario que contendrá el porcentaje de descuento.
   porcentajeDescuentoControl: AbstractControl;
+  //Objeto del formulario que contendrá los comentarios.
+  comentariosControl: AbstractControl;
   //Subtotal del cobro (sin impuestos).
   subtotal: number = 0;
   //Iva.
@@ -188,6 +192,7 @@ export class AltaCobroComponent implements OnInit {
       'descuento': ['', [this.utilidadesService.decimalValidator, Validators.max(this.subtotal), Validators.min(0)]],
       'porcentajeDescuento': ['', [this.utilidadesService.decimalValidator, Validators.max(100), Validators.min(0)]],
       'tipoCobro': ['', [Validators.required]],
+      'comentarios': ['']
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
@@ -198,6 +203,7 @@ export class AltaCobroComponent implements OnInit {
     this.descuentoControl = this.formAltaCobros.controls['descuento'];
     this.porcentajeDescuentoControl = this.formAltaCobros.controls['porcentajeDescuento'];
     this.tipoCobroControl = this.formAltaCobros.controls['tipoCobro'];
+    this.comentariosControl = this.formAltaCobros.controls['comentarios'];
 
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
@@ -963,6 +969,7 @@ export class AltaCobroComponent implements OnInit {
 
     //Si el producto ya existe.
     if (this.productosACobrar.filter(productoACobrar => productoACobrar.id == producto.id).length > 0) {
+      this.productoControl.setValue("");
       this.utilidadesService.alerta("Producto existente.", "El producto ya existe en la lista de productos.");
     }
     //Si el producto no existe.
@@ -1114,6 +1121,23 @@ export class AltaCobroComponent implements OnInit {
       });
 
   }
+
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cobrar.                                                      |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cobrar.                                     | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 09/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  cobrar() {
+
+    console.log("nene");
+
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaCobro.                                                   |
