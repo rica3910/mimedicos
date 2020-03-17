@@ -132,9 +132,9 @@ export class AltaCobroComponent implements OnInit {
   //Subtotal del cobro (sin impuestos).
   subtotal: number = 0;
   //Iva.
-  iva: number = 16;
+  iva: number = 0;
   //Total del cobro.
-  total: number = 1116;
+  total: number = 0;
   //Registros de tipo de cobros que se verán en la vista en el campo tipos de cobro.
   tipoCobros: Array<JSON> = new Array();
   //Indica si el filtro de tipos de cobros está listo.
@@ -1004,10 +1004,10 @@ export class AltaCobroComponent implements OnInit {
 
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: quitarProducto.                                                 |
+  |  NOMBRE: quitarProducto.                                              |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: index = posición de arreglo a quitar,         |
-  |  precioNeto = precio que se le quitará al total.                     |    
+  |  precioNeto = precio que se le quitará al total.                      |    
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para quitar un producto al arreglo de productos  |
   |  a cobrar.                                                            | 
@@ -1123,6 +1123,99 @@ export class AltaCobroComponent implements OnInit {
   }
 
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verificarProdoductosInventario.                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para verificar que los productos y sus cantidades|
+  |  existan en el inventario.                                            | 
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verificarProdoductosInventario(): Observable<string> {
+
+    //Almacena los procesos que se hacen en la verificación de los productos.
+    let procesos: Subject<string> = new Subject<string>();
+
+    this.productosACobrar && this.productosACobrar.length > 0 ? siguienteProducto(this.productosACobrar, 0, this.cobrosService) : null;
+
+    //Función recursiva.
+    function siguienteProducto(productos: any[], indice: number, cobrosService: CobrosService): any {
+      if (indice < productos.length) {
+
+        //Se busca que haya productos suficientes en el inventario.
+        cobrosService.verificarProductosInventario(productos[indice]["id"], productos[indice]["cantidad"]).subscribe((respuesta) => {
+
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            procesos.error(respuesta["mensaje"]);
+            procesos.complete();
+          }
+          //Si todo salió bien.
+          else {
+            procesos.next(respuesta["mensaje"]);
+            siguienteProducto(productos, indice + 1, cobrosService);
+          }
+
+        });
+
+      } else {
+        procesos.complete();
+      }
+    }
+
+    return procesos;
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaProductosCobro                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta los productos del cobro.        |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: cobroId = identificador del cobro.            |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 16/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaProductosCobro(cobroId: string): Observable<string> {
+
+    //Almacena los procesos que se hacen en la verificación de los productos.
+    let procesos: Subject<string> = new Subject<string>();
+
+    this.productosACobrar && this.productosACobrar.length > 0 ? siguienteProducto(this.productosACobrar, 0, this.cobrosService) : null;
+
+    //Función recursiva.
+    function siguienteProducto(productos: any[], indice: number, cobrosService: CobrosService): any {
+      if (indice < productos.length) {
+
+        //Se busca que haya productos suficientes en el inventario.
+        cobrosService.altaProductosCobro(cobroId, productos[indice]["id"], productos[indice]["cantidad"]).subscribe((respuesta) => {
+
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            procesos.error(respuesta["mensaje"]);
+            procesos.complete();
+          }
+          //Si todo salió bien.
+          else {
+            procesos.next(respuesta["mensaje"]);
+            siguienteProducto(productos, indice + 1, cobrosService);
+          }
+
+        });
+
+      } else {
+        procesos.complete();
+      }
+    }
+
+    return procesos;
+  }
+
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: cobrar.                                                      |
   |-----------------------------------------------------------------------|
@@ -1130,25 +1223,9 @@ export class AltaCobroComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 09/03/2020.                                                   |    
+  |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
   cobrar() {
-
-    console.log("nene");
-
-  }
-
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: altaCobro.                                                   |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para dar de alta un cobro.                       | 
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 01/09/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  altaCobro(evento: EventEmitter) {
 
     //Se pulsa el botón  de dar de alta cobro.
     this.pulsarCrear = true;
@@ -1195,104 +1272,155 @@ export class AltaCobroComponent implements OnInit {
     //Se abre el modal de espera.
     this.esperarService.esperar();
 
-    /*this.consultasService.usuarioConsultaFechaOcupada("0", this.usuarioControl.value.id, this.utilidadesService.formatearFecha(fechaConsulta, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false), this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false)).subscribe(respuesta => {
+    //Primero se verifica que haya productos suficientes en el inventario.
+    this.verificarProdoductosInventario().toPromise().then(() => {
+      //Se da de alta el cobro.
+      this.cobrosService.altaCobro(this.clinicaControl.value, this.subtotal + "", this.comentariosControl.value).subscribe(respuestaAltaCobro => {
+        //Si hubo un error en el alta de cobro.
+        if (respuestaAltaCobro["estado"] === "ERROR") {
+          //Se detiene la espera.
+          this.esperarService.noEsperar();
+          //Se muestra la alerta.
+          this.utilidadesService.alerta("Error alta de cobro", respuestaAltaCobro["mensaje"]);
+        }
+        //Si el alta del cobro fue satisfactoria.
+        else {
+          //Se obtiene el identificador del cobro.
+          let cobroId = respuestaAltaCobro["mensaje"];
+          //Se intenta dar de alta la bitácora del cobro.
+          this.cobrosService.altaBitacoraCobro(cobroId, "ABIERTO").subscribe(respuestaAltaBitacoraCobro => {
+            //Si hubo un error en el alta de la bitácora del cobro
+            if (respuestaAltaBitacoraCobro["estado"] === "ERROR") {
+              //Se detiene la espera.
+              this.esperarService.noEsperar();
+              //Se muestra la alerta.
+              this.utilidadesService.alerta("Error alta bitácora cobro", respuestaAltaBitacoraCobro["mensaje"]);
+            }
+            //Si el alta de la bitácora del cobro fue satisfactoria.
+            else {             
+              /*Se intenta dar de alta el detalle del cobro. Para este caso, o sea para el pago de una sola
+              exhibición solo habrá un registro.*/
+              this.cobrosService.altaDetCobro(cobroId, this.tipoCobroControl.value, this.subtotal + "", "").subscribe(respuestaAltaDetCobro => {
+                //Si hubo un error en el alta del detalle del cobro.
+                if (respuestaAltaDetCobro["estado"] === "ERROR") {
+                  //Se detiene la espera.
+                  this.esperarService.noEsperar();
+                  //Se muestra la alerta.
+                  this.utilidadesService.alerta("Error alta detalle cobro", respuestaAltaDetCobro["mensaje"]);
+                }
+                //Si el alta del detalle del cobro es satisfactorio.
+                else {
+                  //Se obtiene el identificador del detalle cobro.
+                  let detCobroId = respuestaAltaDetCobro["mensaje"];
+                  //Se intenta dar de alta la bitácora del detalle del cobro.
+                  this.cobrosService.altaBitacoraDetCobro(detCobroId, "COBRADO").subscribe(respuestaAltaBitacoraDetCobro => {
+                    //Si hubo un error en el alta de la bitácora del detalle del cobro.
+                    if (respuestaAltaBitacoraDetCobro["estado"] === "ERROR") {
+                      //Se detiene la espera.
+                      this.esperarService.noEsperar();
+                      //Se muestra la alerta.
+                      this.utilidadesService.alerta("Error bitácora detalle cobro", respuestaAltaBitacoraDetCobro["mensaje"]);
+                    }
+                    //Si el alta de la bitácora del detalle del cobro es satisfactorio.
+                    else {
+                      //Se intentan dar de alta los productos del cobro.
+                      this.altaProductosCobro(cobroId).toPromise().then(() => {
 
-      //Se cierra el  modal de espera.
-      this.esperarService.noEsperar();
+                        //Se utiliza para verificar que los procesos para dar de alta el descuento del cobro ya terminaron.
+                        let procesosDescuentoCobro: Subject<string> = new Subject<string>();
 
-      //Si hubo un error en la obtención de información.
-      if (respuesta["estado"] === "ERROR") {
-        //Muestra una alerta con el porqué del error.
-        this.utilidadesService.alerta("Error", respuesta["mensaje"]);
-      }
-      //Si todo salió bien.
-      else {
+                        //Si se dieron de alta los productos al cobro satisfactoriamente.
+                        //Si se dio de alta un descuento.
+                        if (this.descuentoControl.value && this.descuentoControl.value.trim().length > 0) {
+                          //Se intenta dar de alta el descuento del cobro.
+                          this.cobrosService.altaDescuentoCobro(cobroId, this.descuentoControl.value).subscribe(respuestaAltaDescuentoCobro => {
+                            //Si hubo un error en el alta del descuento del cobro.
+                            if (respuestaAltaDescuentoCobro["estado"] === "ERROR") {
+                              //Se detiene la espera.
+                              this.esperarService.noEsperar();                              
+                              procesosDescuentoCobro.error(respuestaAltaDescuentoCobro["mensaje"]);
+                              procesosDescuentoCobro.complete();
+                            }
+                            //Si el descuento del cobro se dio de alta satisfactoriamente.       
+                            else {
+                              procesosDescuentoCobro.complete();
+                            }
+                          });
+                        }
+                        //Si no hay un descuento en el cobro.
+                        else {
+                          procesosDescuentoCobro.complete();
+                        }
 
-        //Si tiene una o más consultas a esa misma hora.
-        if (respuesta["mensaje"] !== "OK") {
-          this.utilidadesService.confirmacion("Agenda ocupada.", respuesta["mensaje"]).subscribe(respuesta => {
+                        //Si ya se terminó el proceso de alta del descuento del cobro.
+                        procesosDescuentoCobro.toPromise().then(() => {
 
-            //Si desea continuar.
-            if (respuesta == "Aceptar") {
+                          //Si el paciente es valido.
+                          if (paciente && paciente.id) {
+                            //Se intenta dar de alta el paciente al cobro.
+                            this.cobrosService.altaPacienteCobro(cobroId, paciente.id).subscribe(respuestaAltaPacienteCobro => {
+                              //Si hubo un error en el alta del paciente del cobro.
+                              if (respuestaAltaPacienteCobro["estado"] === "ERROR") {
+                                //Se detiene la espera.
+                                this.esperarService.noEsperar();
+                                //Se muestra la alerta.
+                                this.utilidadesService.alerta("Error alta paciente cobro", respuestaAltaPacienteCobro["mensaje"]);
+                              }
+                              //Si el paciente del cobro se dio de alta satisfactoriamente.       
+                              else {
+                                //Se termina el proceso del alta del cobro.
+                                this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+                                  //Se retorna al listado de cobros.
+                                  this.regresar();
+                                });
+                              }
+                            });
+                          }
+                          //Si no hay un paciente válido.
+                          else {
+                            //Se termina el proceso del alta del cobro.
+                            this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+                              //Se retorna al listado de cobros.
+                              this.regresar();
+                            });
+                          }
 
-              //Se abre el modal de espera.
-              this.esperarService.esperar();
+                        })
+                          //Si hubo un error al dar de alta el descuento del cobro.
+                          .catch(error => {
+                            //Se detiene la espera.
+                            this.esperarService.noEsperar();
+                            //Se muestra la alerta.
+                            this.utilidadesService.alerta("Error alta descuento cobro", error);
+                          });
 
-              //Se da de alta la consulta.
-              this.consultasService.altaConsulta(
-                this.utilidadesService.formatearFecha(fechaConsulta, false),
-                this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
-                this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
-                this.usuarioControl.value.id,
-                this.pacienteControl.value.id,
-                this.clinicaControl.value,
-                this.tipoConsultaControl.value).
-                subscribe(respuesta => {
+                      })
+                        //Si hay algún error en el alta de un producto a un cobro.
+                        .catch(error => {
+                          //Se detiene la espera.
+                          this.esperarService.noEsperar();
+                          //Se muestra la alerta.
+                          this.utilidadesService.alerta("Error alta productos cobro", error);
+                        });
+                    }
 
-                  //Si hubo un error en la obtención de información.
-                  if (respuesta["estado"] === "ERROR") {
-                    //Muestra una alerta con el porqué del error.
-                    this.utilidadesService.alerta("Error", respuesta["mensaje"]);
-                    //Se cierra el  modal de espera.
-                    this.esperarService.noEsperar();
-                  }
-                  else {
+                  });
+                }
 
-                    //Se obtiene el identificador de la consulta recién creado.
-                    let consultaId: string = respuesta["mensaje"];
-
-                    //Se dan de alta los estudios.
-                    this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
-
-                  }
-
-                });
-
+              });
             }
           });
-
-        }
-        //Si no tiene consultas en la fecha y hora dadas.
-        else {
-
-          //Se abre el modal de espera.
-          this.esperarService.esperar();
-
-          //Se da de alta la consulta.
-          this.consultasService.altaConsulta(
-            this.utilidadesService.formatearFecha(fechaConsulta, false),
-            this.utilidadesService.formatearFechaHora(fechaConsulta, horaInicio, false),
-            this.utilidadesService.formatearFechaHora(fechaConsulta, horaFin, false),
-            this.usuarioControl.value.id,
-            this.pacienteControl.value.id,
-            this.clinicaControl.value,
-            this.tipoConsultaControl.value).
-            subscribe(respuesta => {
-
-              //Si hubo un error en la obtención de información.
-              if (respuesta["estado"] === "ERROR") {
-                //Muestra una alerta con el porqué del error.
-                this.utilidadesService.alerta("Error", respuesta["mensaje"]);
-                //Se cierra el  modal de espera.
-                this.esperarService.noEsperar();
-              }
-              else {
-
-                //Se obtiene el identificador de la consulta recién creado.
-                let consultaId: string = respuesta["mensaje"];
-
-                //Se dan de alta los estudios.
-                this._altaEstudioConsulta(consultaId, this.estudiosAProgramar, 0);
-
-              }
-
-            });
         }
 
-      }
-
-    });*/
-
+      });
+    })
+      //Si surgió un error en el inventario de productos.
+      .catch(error => {
+        //Se detiene la espera.
+        this.esperarService.noEsperar();
+        //Se muestra la alerta.
+        this.utilidadesService.alerta("Error verificación de productos", error);
+      });
 
   }
 
@@ -1336,7 +1464,7 @@ export class AltaCobroComponent implements OnInit {
         //Si el descuento es válido.
         else {
           //Se actualiza el porcentaje del descuento.
-          this.porcentajeDescuentoControl.setValue(Math.round(this.descuentoControl.value / this.subtotal * 100) + "");
+          this.porcentajeDescuentoControl.setValue(this.descuentoControl.value / this.subtotal * 100 + "");
         }
       });
 
@@ -1352,62 +1480,12 @@ export class AltaCobroComponent implements OnInit {
         }
         else {
           //Se actualiza el descuento.
-          this.descuentoControl.setValue(Math.round(this.porcentajeDescuentoControl.value / 100 * this.subtotal) + "");
+          this.descuentoControl.setValue(this.porcentajeDescuentoControl.value / 100 * this.subtotal + "");
         }
       });
 
     }
 
-  }
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: _altaEstudioConsulta.                                        |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para dar de alta un estudio en una consulta.     |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:                                               |
-  |  consultaId = identificador de la consulta,                           |
-  |  campos = campos que se insertarán,                                   |
-  |  iteracion = iteración o registro que sigue para insertar.            |   
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 01/10/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  private _altaEstudioConsulta(consultaId: string, campos: any[], iteracion: number) {
-
-    /*let detProductoId: string = campos[iteracion].id;
-
-    //Se intenta dar de alta el detalle de la consulta.
-    this.consultasService.altaConsultaEstudio(consultaId, detProductoId)
-      .subscribe(respuesta => {
-
-        //Si hubo un error en la obtención de información.
-        if (respuesta["estado"] === "ERROR") {
-          //Si hubo un error en alguno de los detalles, se borra toda la información de la consulta.
-          this.esperarService.noEsperar();
-          this.utilidadesService.alerta("Error", respuesta["mensaje"]).subscribe(() => {
-            //Se retorna a la lista de consultas.
-            this.regresar();
-            return;
-          });
-        }
-        //Si la inserción fue correcta.
-        else {
-          //Si no es el último registro.
-          if (iteracion < campos.length - 1) {
-            this._altaEstudioConsulta(consultaId, campos, iteracion + 1);
-          }
-          //Si ya es el último registro, se despliega alerta de éxito.
-          else {
-            this.esperarService.noEsperar();
-            this.utilidadesService.alerta("Consulta creada", "La consulta se dio de alta satisfactoriamente.").subscribe(() => {
-              //Se retorna a la lista de consultas.
-              this.regresar();
-            });
-          }
-        }
-      });*/
   }
 
 }

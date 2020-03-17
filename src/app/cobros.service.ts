@@ -157,6 +157,324 @@ export class CobrosService {
 
   }  
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verificarProductosInventario                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para verificar los productos           |
+  |  del inventario.                                                      |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  productoId = identificador del producto,                             |
+  |  cantidad   = cantidad del producto.                                  |       
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verificarProductosInventario(productoId, cantidad): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los registros.
+      return this.http.get(this.urlApi + `verificar-productos-inventario/${productoId}/${cantidad}`, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaCobro.                                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un cobro.                       | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  clinicaId = identificador de la clínica,                             | 
+  |  total = total del cobro,                                             |                            
+  |  observaciones = observaciones del cobro.                             |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaCobro(
+    clinicaId: string,
+    total: string,
+    observaciones: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      clinicaId: clinicaId,
+      total: total,
+      observaciones: observaciones
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-cobro',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaBitacoraCobro.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta la bitácora de un cobro.        | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro,                                   | 
+  |  nombreEstadoCobro = nombre del estado del cobro.                     |                            
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaBitacoraCobro(
+    cobroId: string,
+    nombreEstadoCobro: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId,
+      nombreEstadoCobro: nombreEstadoCobro
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-bitacora-cobro',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDetCobro.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para dar de alta en la bitácora de un  |
+  |  cobro.                                                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro,                                   | 
+  |  tipoCobroId = identificador del tipo de cobro,                       |
+  |  total = total de la partida del cobro,                               |
+  |  observaciones = observaciones de la partida.                         |                            
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDetCobro(
+    cobroId: string,
+    tipoCobroId: string,
+    total: string,
+    observaciones: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId,
+      tipoCobroId: tipoCobroId,
+      total: total,
+      observaciones: observaciones
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-det-cobro',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaBitacoraDetCobro.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para dar de alta en el detalle de la   |
+  |  bitácora de un cobro.                                                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  detCobroId = identificador del detalle del cobro,                    | 
+  |  estatus = estatus del detalle del cobro.                             |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaBitacoraDetCobro(
+    detCobroId: string,
+    estatus: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      detCobroId: detCobroId,
+      estatus: estatus
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-bitacora-det-cobro',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaProductosCobro.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para dar de alta los productos         |
+  |  en un cobro.                                                         |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro,                                   | 
+  |  productoId = identificador del producto,                             |
+  |  cantidad = cantidad del producto.                                    |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaProductosCobro(
+    cobroId: string,
+    productoId: string,
+    cantidad: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId,
+      productoId: productoId,
+      cantidad: cantidad
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-productos-cobro',
+        json,
+        { headers: headers });
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaDescuentoCobro.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para dar de alta un descuento al cobro.|
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro,                                   | 
+  |  descuento = descuento que se le dará al cobro.                       |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaDescuentoCobro(
+    cobroId: string,
+    descuento: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId,
+      descuento: descuento
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-descuento-cobro',
+        json,
+        { headers: headers });
+  }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaPacienteCobro.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para dar de alta un paciente al cobro. |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro,                                   | 
+  |  pacienteId = identificador del paciente.                             |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaPacienteCobro(
+    cobroId: string,
+    pacienteId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId,
+      pacienteId: pacienteId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-paciente-cobro',
+        json,
+        { headers: headers });
+  }  
+
 }
 
 
