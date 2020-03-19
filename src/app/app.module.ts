@@ -61,6 +61,8 @@ import { CobrosComponent } from './cobros/cobros.component';
 import { COBROS_PROVIDERS } from './cobros.service';
 import { ESTUDIOS_PROVIDERS } from './estudios.service';
 import { AgregarCantidadProductoComponent } from './cobros/agregar-cantidad-producto/agregar-cantidad-producto.component';
+import { PARAMETROS_PROVIDERS } from './parametros.service';
+import { COBRO_RECIBO_PROVIDERS } from './cobro-recibo.service';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -134,7 +136,9 @@ const rutas: Routes = [
     PDFCARTA_PROVIDERS,
     PDF_RECETA_PROVIDERS,
     NgbActiveModal,
-    ESTUDIOS_PROVIDERS
+    ESTUDIOS_PROVIDERS,
+    PARAMETROS_PROVIDERS,
+    COBRO_RECIBO_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

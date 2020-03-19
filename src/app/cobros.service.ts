@@ -15,8 +15,9 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { AutenticarService } from './autenticar.service';
+import { NgbModalOptions, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 /*----------------------------------------------------------------------|
@@ -27,7 +28,8 @@ import { AutenticarService } from './autenticar.service';
 |  PARÁMETROS DE ENTRADA: http  = para hacer peticiones http al backend,|
 |                         urlApi= url de la aplicación backend,         |
 |                         autorizacion = contiene los métodos para saber|
-|                                        si un usuario está conectado   |
+|                                        si un usuario está conectado,  |
+|           modalService = contiene los métodos para manipular modals.  |
 |-----------------------------------------------------------------------|
 |  AUTOR: Ricardo Luna.                                                 |
 |-----------------------------------------------------------------------|
@@ -38,7 +40,8 @@ export class CobrosService {
 
   constructor(private http: HttpClient,
     @Inject('URL_API_BACKEND') private urlApi: string,
-    private autorizacion: AutenticarService) { }
+    private autorizacion: AutenticarService,
+    private modalService: NgbModal) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: listaCobros.                                                 |
@@ -474,6 +477,82 @@ export class CobrosService {
         json,
         { headers: headers });
   }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarCobro.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para eliminar un cobro.                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro.                                   |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 17/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarCobro(cobroId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-cobro',
+        json,
+        { headers: headers });
+  }    
+
+/*----------------------------------------------------------------------|
+  |  NOMBRE: agregarCantidadProducto.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal para añadir la cantidad de un producto al |
+  |  cobro.                                                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: clase  = clase u objeto que se abrirá,        |
+  |  producto = producto al que se le establecerá la cantidad.            |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 19/02/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  agregarCantidadProducto(componente, producto): Observable<any> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<any> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+    //Modal centrado.
+    modalOption.centered = true;
+    //Abre el modal de tamaño extra grande.
+    modalOption.size = "sm";
+
+    const modalRef = this.modalService.open(componente, modalOption);
+    //Define el título del modal.
+    modalRef.componentInstance.producto = producto;
+
+    //Se retorna el botón pulsado.
+    modalRef.result.then((producto) => {
+      //Se retorna el producto seleccionado.
+      producto ? subject.next(producto) : subject.next(null);
+    },
+      (reason) => {
+        subject.next(null)
+      });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }    
 
 }
 

@@ -13,20 +13,16 @@
 */
 
 import { Injectable, ElementRef, Inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, Subject } from 'rxjs';
-import { FormControl, FormControlName, AbstractControl } from '@angular/forms';
+import { FormControl, AbstractControl } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { map, debounceTime } from "rxjs/operators";
-import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal, NgbModalRef } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct, NgbTimeStruct, NgbModalOptions, NgbModal } from '../../node_modules/@ng-bootstrap/ng-bootstrap';
 import { DesplegarImagenComponent } from './desplegar-imagen/desplegar-imagen.component';
 import { DialogoAlertaComponent } from './dialogo-alerta/dialogo-alerta.component';
 import { DibujoComponent } from './dibujo/dibujo.component';
-import { EventEmitter } from 'events';
 import { DialogoConfirmacionComponent } from './dialogo-confirmacion/dialogo-confirmacion.component';
-import { AgregarMedicamentoComponent } from './consultas/agregar-medicamento/agregar-medicamento.component';
 import { CurrencyPipe } from '@angular/common';
-import { AutenticarService } from './autenticar.service';
 
 @Injectable()
 export class UtilidadesService {
@@ -37,20 +33,13 @@ export class UtilidadesService {
   |  DESCRIPCIÓN: Método constructor del componente.                      |          
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  modalService = contiene los métodos para manipular modals,           |
-  |  http  = para hacer peticiones http al backend,                       |
-  |  urlApi= url de la aplicación backend,                                |
-  |  autorizacion = contiene los métodos para saber                       |
-  |  si un usuario está conectado.                                        |                            
+  |  modalService = contiene los métodos para manipular modals.           |                         
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 03/09/2018.                                                   |    
   |----------------------------------------------------------------------*/
-  constructor(private modalService: NgbModal,
-    private http: HttpClient,
-    @Inject('URL_API_BACKEND') private urlApi: string,
-    private autorizacion: AutenticarService) { }
+  constructor(private modalService: NgbModal) { }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: filtrarDatos.                                                |
@@ -611,81 +600,6 @@ export class UtilidadesService {
     control.setValue(new CurrencyPipe("EN").transform(control.value, incluirSignoPesos ? "$" : " "));
   }
 
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: obtenerIva.                                                  |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para obtener el iva registrado en la bd.         |  
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
-  |                          o ERROR                                      |
-  |                         en caso de que todo esté correcto o no        | 
-  |                         respectivamente.                              |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 19/02/2020.                                                   |    
-  |----------------------------------------------------------------------*/
-  obtenerIva(): Observable<any> {
-
-    //Si está conectado, entonces el token sí existe.
-    if (this.autorizacion.obtenerToken() !== null) {
-
-      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
-      const headers: HttpHeaders = new HttpHeaders({
-        'X-API-KEY': this.autorizacion.obtenerToken()
-      });
-
-      //Envía la petición al servidor backend para obtener la información.
-      return this.http.get(this.urlApi + `obtener-iva`, { headers: headers });
-
-    }
-    //No está conectado.
-    return of(false);
-
-  }  
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: agregarCantidadProducto.                                     |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Abre el modal para añadir la cantidad de un producto al |
-  |  cobro.                                                               |
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: clase  = clase u objeto que se abrirá,        |
-  |  producto = producto al que se le establecerá la cantidad.            |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 19/02/2020.                                                   |    
-  |----------------------------------------------------------------------*/
-  agregarCantidadProducto(componente, producto): Observable<any> {
-
-    //Se utiliza para esperar a que se pulse el botón aceptar.
-    let subject: Subject<any> = new Subject<null>();
-
-    //Arreglo de opciones para personalizar el modal.
-    let modalOption: NgbModalOptions = {};
-    //Modal centrado.
-    modalOption.centered = true;
-    //Abre el modal de tamaño extra grande.
-    modalOption.size = "sm";
-
-    const modalRef = this.modalService.open(componente, modalOption);
-    //Define el título del modal.
-    modalRef.componentInstance.producto = producto;
-
-    //Se retorna el botón pulsado.
-    modalRef.result.then((producto) => {
-      //Se retorna el producto seleccionado.
-      producto ? subject.next(producto) : subject.next(null);
-    },
-      (reason) => {
-        subject.next(null)
-      });
-
-    //Se retorna el observable.
-    return subject.asObservable();
-  }  
-  
 }
 
 //Constante que se utilizará para inyectar el servicio.

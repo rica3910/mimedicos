@@ -204,9 +204,9 @@
     <br>
     <div class="row">      
       <div *ngIf="productosACobrar.length > 0" class="btn-group-lg" role="group">
-        <button  class="btn btn-azul" type="button" ngbTooltip="Cobrar un cobro." (click)="cobrar()">Cobrar</button>
+        <button  class="btn btn-azul" type="button" ngbTooltip="Cobrar un cobro." (click)="cobrar('COBRADO')">Cobrar</button>
         <button *ngIf="pacienteControl.value['id']" class="btn btn-azul" type="button" ngbTooltip="Abonar a un cobro.">Abonar</button>
-        <button *ngIf="pacienteControl.value['id']" class="btn btn-azul" type="button" ngbTooltip="Solo guardar el cobro">Guardar</button>
+        <button  class="btn btn-azul" type="button" ngbTooltip="Solo guardar el cobro" (click)="cobrar('ABIERTO')">Guardar</button>
       </div>
     </div>
   </form>
