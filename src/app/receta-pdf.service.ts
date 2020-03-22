@@ -83,7 +83,7 @@ export class RecetaPDFService {
   |-----------------------------------------------------------------------|
   |  FECHA: 24/12/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  public formato(pFormato: object) {
+  private formato(pFormato: object) {
 
     //Indica la posición en Y actual.
     let posicionYActual: number = 15;

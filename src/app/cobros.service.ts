@@ -554,6 +554,42 @@ export class CobrosService {
     return subject.asObservable();
   }    
 
+ /*----------------------------------------------------------------------|
+  |  NOMBRE: verResumenCobro                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para ver el resumen y totales del cobro|  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  cobroId = identificador del cobro.                                   |     
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 15/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verResumenCobro(cobroId): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los registros.
+      return this.http.get(this.urlApi + `ver-resumen-cobro/${cobroId}`, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }  
+
+
 }
 
 

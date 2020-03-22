@@ -12,25 +12,24 @@
 | #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
 */
 
-import { Component, OnInit, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter, NgbTimeStruct, NgbDateStruct, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, Observable, merge, pipe, fromEvent } from 'rxjs';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
+import { NgbTypeahead, NgbModal, NgbDatepickerI18n, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, Observable, merge, fromEvent } from 'rxjs';
 import { UsuariosService } from '../../usuarios.service';
 import { PacientesService } from '../../pacientes.service';
 import { EsperarService } from '../../esperar.service';
 import { FormGroup, FormBuilder, AbstractControl, Validators } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, map, switchAll, observeOn } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { ClinicasService } from '../../clinicas.service';
 import { I18n, CustomDatePicker, FormatDatePicker } from '../../custom-date-picker';
 import { ProductosService } from '../../productos.service';
 import { AutenticarService } from '../../autenticar.service';
 import { CobrosService } from '../../cobros.service';
-import { EventEmitter } from 'protractor';
 import { AgregarCantidadProductoComponent } from '../agregar-cantidad-producto/agregar-cantidad-producto.component';
-import { ArrayType } from '@angular/compiler/src/output/output_ast';
 import { ParametrosService } from '../../parametros.service';
+import { CobroReciboService } from './../../cobro-recibo.service';
 
 @Component({
   selector: 'app-alta-cobro',
@@ -164,8 +163,8 @@ export class AltaCobroComponent implements OnInit {
   |  cobrosServicce = contiene los métodos de la bd de los cobros,        |
   |  productosService = contiene los métodos de la bd de los productos,   |
   |  autenticarService = contiene los métodos de autenticación,           |
-  |  rutaActual= Para obtener los parámetros de la url,                   |
-  |  parametrosService = contiene los métodos para la obtención de params.|                                
+  |  parametrosService = contiene los métodos para la obtención de params,|
+  |  cobrosReciboService = contiene los métodos para el recibo del cobro. |                              
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -182,8 +181,8 @@ export class AltaCobroComponent implements OnInit {
     private cobrosService: CobrosService,
     private productosService: ProductosService,
     private autenticarService: AutenticarService,
-    private rutaActual: ActivatedRoute,
-    private parametrosService: ParametrosService) {
+    private parametrosService: ParametrosService,
+    private cobroReciboService: CobroReciboService) {
 
 
     //Se agregan las validaciones al formulario de alta de cobros.
@@ -1235,7 +1234,7 @@ export class AltaCobroComponent implements OnInit {
   cobrar(estatus: string) {
 
     //La alerta o confirmación cambiará según la petición. Si solo se guarda el cobro o también se cobra.
-    let mensajeConfirmacion: string = estatus == "ABIERTO" ? "¿Está seguro de guardar el cobro?" : "¿Está seguro de realizar el cobro?";    
+    let mensajeConfirmacion: string = estatus == "ABIERTO" ? "¿Está seguro de guardar el cobro?" : "¿Está seguro de realizar el cobro?";
 
     this.utilidadesService.confirmacion("Confirmación de cobro", mensajeConfirmacion).subscribe(respuesta => {
       //Se agrega el medicamento.
@@ -1335,7 +1334,7 @@ export class AltaCobroComponent implements OnInit {
                       //Se obtiene el identificador del detalle cobro.
                       let detCobroId = respuestaAltaDetCobro["mensaje"];
                       //Se intenta dar de alta la bitácora del detalle del cobro.
-                      this.cobrosService.altaBitacoraDetCobro(detCobroId, "COBRADO").subscribe(respuestaAltaBitacoraDetCobro => {
+                      this.cobrosService.altaBitacoraDetCobro(detCobroId, estatus).subscribe(respuestaAltaBitacoraDetCobro => {
                         //Si hubo un error en el alta de la bitácora del detalle del cobro.
                         if (respuestaAltaBitacoraDetCobro["estado"] === "ERROR") {
 
@@ -1402,6 +1401,8 @@ export class AltaCobroComponent implements OnInit {
 
                                     //El cobro queda abierto si solo se guarda.
                                     if (estatus == "ABIERTO") {
+                                      //Se detiene la espera.
+                                      this.esperarService.noEsperar();
                                       //Se termina el proceso del alta del cobro.
                                       this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
                                         //Se retorna al listado de cobros.
@@ -1425,10 +1426,13 @@ export class AltaCobroComponent implements OnInit {
                                         }
                                         //Si el alta de la bitácora del cobro fue satisfactoria.
                                         else {
+                                          //Se detiene la espera.
+                                          this.esperarService.noEsperar();
                                           //Se termina el proceso del alta del cobro.
                                           this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+                                            this.cobroReciboService.imprimirRecibo(cobroId);
                                             //Se retorna al listado de cobros.
-                                            this.regresar();
+                                            //this.regresar();
                                           });
                                         }
                                       });
@@ -1442,6 +1446,8 @@ export class AltaCobroComponent implements OnInit {
 
                                 //El cobro queda abierto si solo se guarda.
                                 if (estatus == "ABIERTO") {
+                                  //Se detiene la espera.
+                                  this.esperarService.noEsperar();
                                   //Se termina el proceso del alta del cobro.
                                   this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
                                     //Se retorna al listado de cobros.
@@ -1465,10 +1471,14 @@ export class AltaCobroComponent implements OnInit {
                                     }
                                     //Si el alta de la bitácora del cobro fue satisfactoria.
                                     else {
+
+                                      //Se detiene la espera.
+                                      this.esperarService.noEsperar();                            
                                       //Se termina el proceso del alta del cobro.
                                       this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+                                        this.cobroReciboService.imprimirRecibo(cobroId);
                                         //Se retorna al listado de cobros.
-                                        this.regresar();
+                                        //this.regresar();
                                       });
                                     }
                                   });
