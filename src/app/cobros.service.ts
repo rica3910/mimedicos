@@ -215,14 +215,20 @@ export class CobrosService {
   |----------------------------------------------------------------------*/
   altaCobro(
     clinicaId: string,
-    total: string,
-    observaciones: string): Observable<any> {
+    tipoCobroId: string,
+    productos: string,    
+    observaciones: string,
+    descuento: string,
+    pacienteId: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
       clinicaId: clinicaId,
-      total: total,
-      observaciones: observaciones
+      tipoCobroId: tipoCobroId,
+      productos: productos,
+      observaciones: observaciones,
+      descuento: descuento,
+      pacienteId: pacienteId
     });
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
@@ -253,7 +259,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaBitacoraCobro(
+  /*altaBitacoraCobro(
     cobroId: string,
     nombreEstadoCobro: string): Observable<any> {
 
@@ -274,7 +280,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-bitacora-cobro',
         json,
         { headers: headers });
-  }
+  }*/
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaDetCobro.                                                |
@@ -294,7 +300,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaDetCobro(
+  /*altaDetCobro(
     cobroId: string,
     tipoCobroId: string,
     total: string,
@@ -319,7 +325,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-det-cobro',
         json,
         { headers: headers });
-  }
+  }*/
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaBitacoraDetCobro.                                        |
@@ -337,7 +343,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaBitacoraDetCobro(
+  /*altaBitacoraDetCobro(
     detCobroId: string,
     estatus: string): Observable<any> {
 
@@ -358,7 +364,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-bitacora-det-cobro',
         json,
         { headers: headers });
-  }
+  }*/
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaProductosCobro.                                          |
@@ -377,7 +383,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaProductosCobro(
+  /*altaProductosCobro(
     cobroId: string,
     productoId: string,
     cantidad: string): Observable<any> {
@@ -400,7 +406,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-productos-cobro',
         json,
         { headers: headers });
-  }
+  }*/
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaDescuentoCobro.                                          |
@@ -417,7 +423,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaDescuentoCobro(
+  /*altaDescuentoCobro(
     cobroId: string,
     descuento: string): Observable<any> {
 
@@ -438,7 +444,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-descuento-cobro',
         json,
         { headers: headers });
-  }  
+  }  */
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaPacienteCobro.                                           |
@@ -455,7 +461,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  altaPacienteCobro(
+  /*altaPacienteCobro(
     cobroId: string,
     pacienteId: string): Observable<any> {
 
@@ -476,7 +482,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-paciente-cobro',
         json,
         { headers: headers });
-  }  
+  }  */
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: eliminarCobro.                                               |
@@ -492,7 +498,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 17/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  eliminarCobro(cobroId: string): Observable<any> {
+  /*eliminarCobro(cobroId: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
@@ -510,7 +516,7 @@ export class CobrosService {
       .post(this.urlApi + 'eliminar-cobro',
         json,
         { headers: headers });
-  }    
+  }    */
 
 /*----------------------------------------------------------------------|
   |  NOMBRE: agregarCantidadProducto.                                     |
@@ -588,6 +594,77 @@ export class CobrosService {
     return of(false);
 
   }  
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verHistorialCobrosReciboCobro.                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para obtener el historial de cobros de |
+  |  un cobro para el recibo de cobro.                                    |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  cobroId = identificador del cobro.                                   |     
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verHistorialCobrosReciboCobro(cobroId): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los registros.
+      return this.http.get(this.urlApi + `ver-historial-cobros-recibo-cobro/${cobroId}`, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verProductosReciboCobro.                                     |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para obtener los productos de un cobro.|  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |  
+  |  cobroId = identificador del cobro.                                   |     
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+  |                          o ERROR                                      |
+  |                         en caso de que todo esté correcto o no        | 
+  |                         respectivamente.                              |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verProductosReciboCobro(cobroId): Observable<any> {
+
+    //Si está conectado, entonces el token sí existe.
+    if (this.autorizacion.obtenerToken() !== null) {
+
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.autorizacion.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend para obtener los registros.
+      return this.http.get(this.urlApi + `ver-productos-recibo-cobro/${cobroId}`, { headers: headers });
+    }
+    //No está conectado.
+    return of(false);
+
+  }      
 
 
 }

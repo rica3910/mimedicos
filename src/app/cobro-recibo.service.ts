@@ -22,6 +22,7 @@ import { UserOptions } from 'jspdf-autotable';
 import 'jspdf-autotable';
 import { Subject, Observable } from 'rxjs';
 import { CobrosService } from './cobros.service';
+import { error } from 'util';
 
 interface jsPDFWithPlugin extends jspdf {
   autoTable: (options: UserOptions) => jspdf;
@@ -40,7 +41,7 @@ export class CobroReciboService {
     },
     fin: {
       x: 10,
-      y: 110
+      y: 205
     }
   };
 
@@ -51,7 +52,7 @@ export class CobroReciboService {
   }
 
   //Variable que se utilizará para manipular el reporte o documento.
-  public pdf: jspdf;
+  private pdf: jsPDFWithPlugin;
 
   /*----------------------------------------------------------------------|
 |  NOMBRE: constructor.                                                 |
@@ -108,9 +109,13 @@ export class CobroReciboService {
       this.pdf.setFontSize(14);
       this.pdf.text("RECIBO DE PAGO", this.pdf.internal.pageSize.width / 2, posicionYActual, null, null, 'center');
 
-      //Fecha.            
+      //Número de página.
       this.pdf.setFontStyle("normal");
       this.pdf.setFontSize(this.tamanoLetraNormal);
+      this.pdf.text(this.pdf.internal.getCurrentPageInfo().pageNumber + "/" + this.pdf.internal.getNumberOfPages(), this.margenDocumento["ancho"], posicionYActual, null, null, "right");      
+      posicionYActual = posicionYActual + 5;
+
+      //Fecha.                 
       this.pdf.text(pFormato["fecha"], this.margenDocumento["ancho"], posicionYActual, null, null, "right");
       posicionYActual = posicionYActual + 5;
 
@@ -128,11 +133,68 @@ export class CobroReciboService {
       this.pdf.setLineWidth(0.5);
       posicionXActual = 10;
       this.pdf.line(posicionXActual, posicionYActual, this.margenDocumento["ancho"], posicionYActual);
-      posicionYActual = posicionYActual + 5;
+      posicionYActual = posicionYActual + 10;
+
+      //Historial de pagos.
+      this.pdf.setFontStyle("bold");
+      this.pdf.setFontSize(12);
+      this.pdf.text("HISTORIAL DE PAGOS", this.pdf.internal.pageSize.width / 2, posicionYActual, null, null, 'center');
+      this.pdf.setFontStyle("normal");
+      this.pdf.setFontSize(this.tamanoLetraNormal);
+
+      //Títulos de la tabla de totales.
+      const totales: Array<any> = new Array();
+      totales.push(new Array("Estatus", pFormato["estatus"]));
+      totales.push(new Array("Subtotal", pFormato["subtotal"]));
+      totales.push(new Array("Descuento", pFormato["descuento"]));
+      totales.push(new Array("IVA (" + pFormato["porcentajeIva"] + "%)", pFormato["iva"]));
+      totales.push(new Array("Total", pFormato["total"]));
+      totales.push(new Array("Abonos", pFormato["abonos"]));
+      totales.push(new Array("Saldo", pFormato["saldo"]));
+
+
+      //Totales
+      this.pdf.autoTable({
+        theme: 'grid',
+        styles: { fontSize: 10, halign: 'center' },
+        body: totales,
+        startY: this.getPosicionContenido()["fin"]["y"] + 5,
+        //tableWidth: 30,
+        margin: { bottom: 0, left: 100 },        
+        //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
+        didParseCell: data => {          
+          //Si es la primera columna.
+          if (data.column.index == 0) {
+            data.cell.styles.fontSize = 12;
+            data.cell.styles.fontStyle = 'bold';       
+            data.cell.styles.fillColor = 'black';                        
+            data.cell.styles.textColor = 'white';
+          }
+        }
+
+      });
 
     }
 
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: getPosicionContenido.                                        |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para obtener las posiciones en X y Y que se      |
+  |  utilizarán para escribir contenido en el reporte o PDF.              |                        
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:                                                |  
+  |  Se retornan las posiciones del contenido.                            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 29/01/2019.                                                   |    
+  |----------------------------------------------------------------------*/
+  private getPosicionContenido(): any {
+    return this.posicionContenido;
+  }
+
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: imprimirRecibo.                                              |
@@ -156,32 +218,274 @@ export class CobroReciboService {
     //Se obtiene la información de la consulta.
     this.cobrosService.verResumenCobro(pCobroId).subscribe(infoResumenCobro => {
 
-      console.log(infoResumenCobro);
-
       //Si NO hubo un error en la obtención de información.
       if (infoResumenCobro["estado"] === "OK") {
 
-        //Se crea un PDF.
-        let pdf = new jspdf('p', 'mm', 'letter') as jsPDFWithPlugin;
-        //El pdf del servicio es igual al pdf recién creado.
-        this.pdf = pdf;
+        this.cobrosService.verHistorialCobrosReciboCobro(pCobroId).subscribe(infoHistorialCobros => {
 
-        //Se arma la información del encabezado.    
-        let formato: Object = {
-          "imagen": infoResumenCobro["datos"][0]["imagen"],
-          "direccion": infoResumenCobro["datos"][0]["direccion"],
-          "entidad": infoResumenCobro["datos"][0]["estado"] + "," + infoResumenCobro["datos"][0]["municipio"] + ", MÉXICO",
-          "telefonos":  "TELÉFONO: " + infoResumenCobro["datos"][0]["telefono"],
-          "fecha": infoResumenCobro["datos"][0]["ultima_fecha_cobro"]
-        }
+          //Si la obtención del historial de cobros fue correcta.
+          if (infoHistorialCobros["estado"] === "OK") {
 
-        //Se escriben el header y el footer.
-        this.formato(formato);
+            this.cobrosService.verProductosReciboCobro(pCobroId).subscribe(infoProductos => {
 
-        //Se despliega el reporte.
-        pdf.save('recibo_pago.pdf');
+              if (infoProductos["estado"] === "ERROR") {
+
+                //Se finaliza la espera.
+                this.esperarService.noEsperar();
+                this.utilidadesService.alerta("Error productos.", infoProductos["mensaje"]);
+                subject.next(false);
+
+              }
+              else {
+                //Se crea un PDF.
+                let pdf = new jspdf('p', 'mm', 'letter') as jsPDFWithPlugin;
+                //El pdf del servicio es igual al pdf recién creado.
+                this.pdf = pdf;
+                //Arreglo que dividirá los productos del cobro por si no caben en una sola hoja.
+                let productosPorRecibo: Array<any> = new Array(Array());
+                //Arreglo que dividirá el historial de cobros por si no caben en una sola hoja.
+                let historialCobrosPorRecibo: Array<any> = new Array(Array());
+                //índice de los productos por recibo.
+                let indiceProductosPorRecibo: number = 0;
+                //índice del hisstorial de cobros por recibo.
+                let indiceHistorialCobroPorRecibo: number = 0;
+                //Altura del contenido actual del recibo.
+                let alturaActualContenidoRecibo: number = 0;
+                //Altura de las columnas títulos de la tabla.
+                let alturaHeader: number = 0;
+                //Altura total de donde se puede escribir contenido en el recibo de cobro.
+                const alturaTotalContenidoRecibo: number = this.getPosicionContenido()["fin"]["y"] - this.getPosicionContenido()["inicio"]["y"];
+                //Títulos de la tabla de productos.
+                const titulosTablaProductos: Array<any> = new Array(['Producto', 'Cantidad', 'Precio bruto', 'Precio neto']);
+                //Títulos de la tabla del historial de cobros.
+                const titulosTablaHistorialCobros: Array<any> = new Array(['Fecha', 'Total']);
+
+                //Primero se va a calcular cuántos recibos van a salir a partir del historial de cobros.
+                pdf.autoTable({
+                  theme: 'grid',
+                  styles: { fontSize: 8 },
+                  headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                  head: titulosTablaHistorialCobros,
+                  body: infoHistorialCobros["datos"],
+                  //La tabla se escribirá en el espacio designado para el contenido en la receta.
+                  startY: this.getPosicionContenido()["inicio"]["y"],
+                  margin: { bottom: 0 },
+                  //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
+                  willDrawCell: data => {
+
+                    //Si es el primer renglón, o sea los títulos.
+                    if (data.section == "head") {
+                      //Si es la primera columna.
+                      if (data.column.index == 0) {
+                        //Se obtiene la altura de los títulos de la tabla.
+                        alturaHeader = data.row.height;
+                        //Se acumula la altura que hasta el momento tiene el contenido del recibo.
+                        alturaActualContenidoRecibo = alturaHeader;
+                      }
+                    }
+                    //Si la sección no incluye los títulos de las columnas.
+                    else if (data.section == "body") {
+                      //Si es la primera columna de cada renglón.
+                      if (data.column.index == 0) {
+
+                        //Se obtiene el índice del cobro.
+                        let indiceCobro: number = data.row.index;
+                        //Se actualiza la altura del contenido del cobro.
+                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + data.row.height;
+
+                        //Si ya no hay espacio en el recibo.            
+                        if (alturaActualContenidoRecibo > alturaTotalContenidoRecibo) {
+                          //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
+                          alturaActualContenidoRecibo = alturaHeader + data.row.height;
+                          //Se establece el próximo índice, es decir, el próximo recibo.
+                          indiceHistorialCobroPorRecibo = indiceHistorialCobroPorRecibo + 1;
+                        }
+
+                        //Si no existe el índice en los recibos guardados, se crea.
+                        if (!historialCobrosPorRecibo[indiceHistorialCobroPorRecibo]) {
+                          historialCobrosPorRecibo[indiceHistorialCobroPorRecibo] = new Array();
+                        }
+
+                        //Se añade el cobro al recibo.
+                        historialCobrosPorRecibo[indiceHistorialCobroPorRecibo].push(new Array(infoHistorialCobros["datos"][indiceCobro]["fecha"], infoHistorialCobros["datos"][indiceCobro]["total_formato"]));
+
+                        //Si es el último cobro por recorrer.
+                        if (indiceCobro >= infoHistorialCobros["datos"].length - 1) {
+
+                          //Ya se tiene el historial de cobros, ahora se calcularán cuántos recibos saldrían con los productos del cobro.
+                          pdf.autoTable({
+                            theme: 'grid',
+                            styles: { fontSize: 8 },
+                            headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                            head: titulosTablaProductos,
+                            body: infoProductos["datos"],
+                            //La tabla se escribirá en donde se dejó el historial de cobros.
+                            startY: alturaActualContenidoRecibo,
+                            margin: { bottom: 0 },
+                            //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
+                            willDrawCell: data => {
+
+                              //Si es el primer renglón, o sea los títulos.
+                              if (data.section == "head") {
+                                //Si es la primera columna.
+                                if (data.column.index == 0) {
+                                  //Se obtiene la altura de los títulos de la tabla.
+                                  alturaHeader = data.row.height;
+                                  //Se acumula la altura que hasta el momento tiene el contenido del recibo, más la altura de título de "PRODUCTOS".
+                                  alturaActualContenidoRecibo = alturaActualContenidoRecibo + alturaHeader + 5;
+                                }
+                              }
+                              //Si la sección no incluye los títulos de las columnas.
+                              else if (data.section == "body") {
+                                //Si es la primera columna de cada renglón.
+                                if (data.column.index == 0) {
+
+                                  //Se obtiene el índice del producto.
+                                  let indiceProducto: number = data.row.index;
+                                  //Se actualiza la altura del contenido del cobro.
+                                  alturaActualContenidoRecibo = alturaActualContenidoRecibo + data.row.height;
+
+                                  //Si ya no hay espacio en el recibo.            
+                                  if (alturaActualContenidoRecibo > alturaTotalContenidoRecibo) {
+                                    //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
+                                    alturaActualContenidoRecibo = alturaHeader + data.row.height;
+                                    //Se establece el próximo índice, es decir, el próximo recibo.
+                                    indiceProductosPorRecibo = indiceProductosPorRecibo + 1;
+                                  }
+
+                                  //Si no existe el índice en los recibos guardados, se crea.
+                                  if (!productosPorRecibo[indiceProductosPorRecibo]) {
+                                    productosPorRecibo[indiceProductosPorRecibo] = new Array();
+                                  }
+
+                                  //Se añade el producto al recibo.
+                                  productosPorRecibo[indiceProductosPorRecibo].push(new Array(infoProductos["datos"][indiceProducto]["nombre"], infoProductos["datos"][indiceProducto]["cantidad"], infoProductos["datos"][indiceProducto]["precio_bruto_formato"], infoProductos["datos"][indiceProducto]["precio_neto_formato"]));
+
+                                  //Si es el último producto por recorrer.
+                                  if (indiceProducto >= infoProductos["datos"].length - 1) {
+
+                                    //Se recorren los cobros       
+                                    historialCobrosPorRecibo.forEach((cobro, index) => {
+                                      //Al primer elemento no se le agrega página, ya que ya se cuenta con una.
+                                      if (index != 0) {
+                                        pdf.addPage();
+                                      }
+                                      //Ahora sí. Se crean los recibos correspondientes.
+                                      pdf.autoTable({
+                                        theme: 'grid',
+                                        styles: { fontSize: 8, halign: 'center' },
+                                        headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                                        head: titulosTablaHistorialCobros,
+                                        body: cobro,
+                                        startY: this.getPosicionContenido()["inicio"]["y"],
+                                        margin: { bottom: 0 }
+                                      });
+
+                                      //Si es el último cobro.
+                                      if (index >= historialCobrosPorRecibo.length - 1) {
+
+                                        //Se obtiene la última posición donde se escribió en el documnento.
+                                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + this.getPosicionContenido()["inicio"]["y"] - 10;
+
+                                        //Si la posición encontrada rebasa a lo permitido en el contenido del recibo.
+                                        if (alturaActualContenidoRecibo >= this.getPosicionContenido()["fin"]["y"]) {
+                                          alturaActualContenidoRecibo = this.getPosicionContenido()["inicio"]["y"];
+                                        }
+
+                                        //Se recorren los productos       
+                                        productosPorRecibo.forEach((producto) => {
+                                          //Se escriben los productos, considerando la última posición de escritura del historial de cobros.
+                                          //Se escribe el título de la tabla.
+                                          this.pdf.setFontStyle("bold");
+                                          this.pdf.setFontSize(12);
+                                          this.pdf.text("PRODUCTOS / ESTUDIOS", this.pdf.internal.pageSize.width / 2, alturaActualContenidoRecibo - 5, null, null, 'center');
+                                          this.pdf.setFontStyle("normal");
+                                          this.pdf.setFontSize(this.tamanoLetraNormal);
+                                          pdf.autoTable({
+                                            theme: 'grid',
+                                            styles: { fontSize: 8, halign: 'center' },
+                                            headStyles: { halign: 'center', fillColor: [0, 0, 0] },
+                                            head: titulosTablaProductos,
+                                            body: producto,
+                                            startY: alturaActualContenidoRecibo,
+                                            margin: { bottom: 0 }
+                                          });
+
+                                          //Se reinicia la altura.
+                                          alturaActualContenidoRecibo = this.getPosicionContenido()["inicio"]["y"];
+                                        });
+                                      }
+
+                                    });
+
+                                  }
+
+                                }
+                              }
+                              //Como la primera llamada es solo para calcular el número de recetas,
+                              //se retorna falso para que no se escriba nada en el documento.
+                              return false;
+                            }
+                          });
+
+                        }
+
+                      }
+                    }
+                    //Como la primera llamada es solo para calcular el número de recetas,
+                    //se retorna falso para que no se escriba nada en el documento.
+                    return false;
+                  }
+                });
+
+
+                //Se arma la información del encabezado.    
+                let formato: Object = {
+                  "imagen": infoResumenCobro["datos"][0]["imagen"],
+                  "direccion": infoResumenCobro["datos"][0]["direccion"],
+                  "entidad": infoResumenCobro["datos"][0]["estado"] + "," + infoResumenCobro["datos"][0]["municipio"] + ", MÉXICO",
+                  "telefonos": "TELÉFONO: " + infoResumenCobro["datos"][0]["telefono"],
+                  "fecha": infoResumenCobro["datos"][0]["ultima_fecha_cobro"],
+                  "estatus": infoResumenCobro["datos"][0]["estado_cobro"],
+                  "subtotal": infoResumenCobro["datos"][0]["subtotal_cobro_formato"],
+                  "porcentajeIva": infoResumenCobro["datos"][0]["parametro_iva"],
+                  "iva": infoResumenCobro["datos"][0]["iva_formato"],
+                  "total": infoResumenCobro["datos"][0]["total_cobro_formato"],
+                  "abonos": infoResumenCobro["datos"][0]["abonos_formato"],
+                  "saldo": infoResumenCobro["datos"][0]["saldo_formato"],
+                  "descuento": infoResumenCobro["datos"][0]["descuento"]
+                }
+
+                //Se escriben el header y el footer.
+                this.formato(formato);
+
+                //Se despliega el reporte.
+                pdf.save('recibo_pago.pdf');
+              }
+
+            });
+
+          }
+          //Si la obtención del historial de cobros fue incorrecta.
+          else {
+            //Se finaliza la espera.
+            this.esperarService.noEsperar();
+            this.utilidadesService.alerta("Error historial cobros.", infoHistorialCobros["mensaje"]);
+            subject.next(false);
+          }
+
+        });
+      }
+      //Si hubo un error en el resumen del cobro.
+      else {
+
+        //Se finaliza la espera.
+        this.esperarService.noEsperar();
+        this.utilidadesService.alerta("Error resumen cobro.", infoResumenCobro["mensaje"]);
+        subject.next(false);
 
       }
+
 
     });
 

@@ -513,7 +513,7 @@ export class ListaCobrosComponent implements OnInit {
           //Se almacenan los estados de los cobros en el arreglo de estados cobros.
           this.estadosCobros = respuesta["datos"];
           //Deja por default los cobros abiertos.
-          this.estadoCobroControl.setValue(this.estadosCobros.filter(estadoConsulta => estadoConsulta["nombre"] == "ABIERTO")[0]["id"]);
+          this.estadoCobroControl.setValue(this.estadosCobros.filter(estadoConsulta => estadoConsulta["nombre"] == "COBRADO")[0]["id"]);
           //Indica que el filtro ya se cargó.
           this.estadosCobrosInicioListos = true;
           this.cargaInicialLista$.next(this.estadosCobrosInicioListos);
