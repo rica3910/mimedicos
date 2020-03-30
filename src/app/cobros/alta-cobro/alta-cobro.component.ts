@@ -1201,24 +1201,36 @@ export class AltaCobroComponent implements OnInit {
 
         this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId).subscribe(respuestaAltaCobro => {
           //Si hubo un error en el alta de cobro.
-          if (respuestaAltaCobro["estado"] === "ERROR") {            
-              //Se detiene la espera.
-              this.esperarService.noEsperar();
-              //Se muestra la alerta.
-              this.utilidadesService.alerta("Error alta de cobro", respuestaAltaCobro["mensaje"]);
+          if (respuestaAltaCobro["estado"] === "ERROR") {
+            //Se detiene la espera.
+            this.esperarService.noEsperar();
+            //Se muestra la alerta.
+            this.utilidadesService.alerta("Error alta de cobro", respuestaAltaCobro["mensaje"]);
           }
           else {
+
+            //Se detiene la espera.
+            this.esperarService.noEsperar();
 
             //Se obtiene el identificador del cobro.
             let cobroId = respuestaAltaCobro["mensaje"];
 
             this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
-              this.cobroReciboService.imprimirRecibo(cobroId);
-              //Se retorna al listado de cobros.
-              //this.regresar();
+
+              //Se intenta imprimir el recibo.
+              this.cobroReciboService.imprimirRecibo(cobroId).subscribe(respuestaImprimirRecibo => {
+                
+                //Si No hubo error al imprimir el recibo.
+                if (respuestaImprimirRecibo) {                  
+                  //Se retorna al listado de cobros.
+                  this.regresar();
+                }
+              });
+
             });
+
           }
-        });       
+        });
       }
     });
 

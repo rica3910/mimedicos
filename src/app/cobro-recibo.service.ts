@@ -385,7 +385,7 @@ export class CobroReciboService {
                                       if (index >= historialCobrosPorRecibo.length - 1) {
 
                                         //Se obtiene la última posición donde se escribió en el documnento.
-                                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + this.getPosicionContenido()["inicio"]["y"] - 10;
+                                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + this.getPosicionContenido()["inicio"]["y"] - 5;
 
                                         //Si la posición encontrada rebasa a lo permitido en el contenido del recibo.
                                         if (alturaActualContenidoRecibo >= this.getPosicionContenido()["fin"]["y"]) {
@@ -461,6 +461,10 @@ export class CobroReciboService {
 
                 //Se despliega el reporte.
                 pdf.save('recibo_pago.pdf');
+
+                 //Se finaliza la espera.
+                this.esperarService.noEsperar();
+                subject.next(true);                               
               }
 
             });
@@ -471,7 +475,7 @@ export class CobroReciboService {
             //Se finaliza la espera.
             this.esperarService.noEsperar();
             this.utilidadesService.alerta("Error historial cobros.", infoHistorialCobros["mensaje"]);
-            subject.next(false);
+            subject.error(false);
           }
 
         });
@@ -486,9 +490,7 @@ export class CobroReciboService {
 
       }
 
-
     });
-
 
 
     //Se retorna el observable.
