@@ -129,8 +129,7 @@
               </div>
               <textarea class="form-control" [formControl]="comentariosControl" #comentariosHTML
               ngbTooltip="Comentarios del cobro."></textarea>
-            </div>
-            <div *ngIf="pulsarCrear && !tipoCobroControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El tipo de cobro es Requerido.</div>      
+            </div>            
           </div>
         </div>      
         <div *ngIf="productosACobrar.length > 0" class="row">
@@ -153,8 +152,7 @@
         <div class="row">      
           <div *ngIf="productosACobrar.length > 0" class="btn-group-lg" role="group">
             <button  class="btn btn-azul" type="button" ngbTooltip="Cobrar un cobro." (click)="cobrar('COBRADO')">Cobrar</button>
-            <button *ngIf="pacienteControl.value['id']" class="btn btn-azul" type="button" ngbTooltip="Abonar a un cobro.">Abonar</button>
-            <button  class="btn btn-azul" type="button" ngbTooltip="Solo guardar el cobro" (click)="cobrar('ABIERTO')">Guardar</button>
+            <button *ngIf="pacienteControl.value['id']" class="btn btn-azul" type="button" ngbTooltip="Abonar a un cobro." (click)="cobrar('PENDIENTE')">Abonar</button>            
           </div>
         </div>
       </div>

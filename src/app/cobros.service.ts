@@ -560,6 +560,47 @@ export class CobrosService {
     return subject.asObservable();
   }    
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: agregarAbono.                                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Abre el modal para añadir un abono al cobro.            |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: clase  = clase u objeto que se abrirá,        |
+  |  cobro = cobro al que se le agregará el abono.                        |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 31/03/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  agregarAbono(componente, cobro): Observable<any> {
+
+    //Se utiliza para esperar a que se pulse el botón aceptar.
+    let subject: Subject<any> = new Subject<null>();
+
+    //Arreglo de opciones para personalizar el modal.
+    let modalOption: NgbModalOptions = {};
+    //Modal centrado.
+    modalOption.centered = true;
+    //Abre el modal de tamaño extra grande.
+    modalOption.size = "sm";
+
+    const modalRef = this.modalService.open(componente, modalOption);
+    
+    modalRef.componentInstance.cobro = cobro;
+
+    //Se retorna el botón pulsado.
+    modalRef.result.then((cobro) => {
+      //Se retorna el cobro seleccionado.
+      cobro ? subject.next(cobro) : subject.next(null);
+    },
+      (reason) => {
+        subject.next(null)
+      });
+
+    //Se retorna el observable.
+    return subject.asObservable();
+  }      
+
  /*----------------------------------------------------------------------|
   |  NOMBRE: verResumenCobro                                              |
   |-----------------------------------------------------------------------|

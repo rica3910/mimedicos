@@ -63,6 +63,7 @@ import { ESTUDIOS_PROVIDERS } from './estudios.service';
 import { AgregarCantidadProductoComponent } from './cobros/agregar-cantidad-producto/agregar-cantidad-producto.component';
 import { PARAMETROS_PROVIDERS } from './parametros.service';
 import { COBRO_RECIBO_PROVIDERS } from './cobro-recibo.service';
+import { AgregarAbonoComponent } from './cobros/agregar-abono/agregar-abono.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -100,7 +101,8 @@ const rutas: Routes = [
     DesplegarImagenComponent,
     DibujoComponent,
     AgregarMedicamentoComponent,
-    AgregarCantidadProductoComponent],
+    AgregarCantidadProductoComponent,
+  AgregarAbonoComponent],
   imports: [
     BrowserModule,
     FormsModule,

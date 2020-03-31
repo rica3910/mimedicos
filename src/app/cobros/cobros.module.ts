@@ -7,6 +7,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { ListaCobrosComponent } from './lista-cobros/lista-cobros.component';
 import { AltaCobroComponent } from './alta-cobro/alta-cobro.component';
+import { AgregarAbonoComponent } from './agregar-abono/agregar-abono.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -24,7 +25,7 @@ export const rutas: Routes = [
     ReactiveFormsModule,
     NgbModule.forRoot()    
   ],
-  declarations: [ListaCobrosComponent, CobrosComponent, AltaCobroComponent],
+  declarations: [ListaCobrosComponent, CobrosComponent, AltaCobroComponent, AgregarAbonoComponent],
   exports: [CobrosComponent],
   providers: [ UsuarioTieneMenuGuard]
 })

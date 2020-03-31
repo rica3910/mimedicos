@@ -30,6 +30,8 @@ import { CobrosService } from '../../cobros.service';
 import { AgregarCantidadProductoComponent } from '../agregar-cantidad-producto/agregar-cantidad-producto.component';
 import { ParametrosService } from '../../parametros.service';
 import { CobroReciboService } from './../../cobro-recibo.service';
+import { AgregarAbonoComponent } from '../agregar-abono/agregar-abono.component';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-alta-cobro',
@@ -1128,19 +1130,35 @@ export class AltaCobroComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: cobrar.                                                      |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para cobrar.                                     |         
+  |  DESCRIPCIÓN: Método para cobrar.                                     |
   |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: estatus = COBRADO o PENDIENTE (abono).        |  
+  |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
   |  FECHA: 17/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  cobrar() {
+  cobrar(estatus: string) {
 
-    this.utilidadesService.confirmacion("Confirmación de cobro", "¿Está seguro de realizar el cobro?").subscribe(respuesta => {
-      //Se agrega el medicamento.
+    //El mensaje cambiará dependiendo del estatus del cobro (COBRADO o PENDIENTE).
+    let tituloConfirmacion: string;
+    let mensajeConfirmacion: string;
+
+    if (estatus == 'COBRADO') {
+      tituloConfirmacion = "Confirmación de cobro";
+      mensajeConfirmacion = "¿Está seguro de realizar el cobro?";
+    }
+    //Si es un abono.
+    else {
+      tituloConfirmacion = "Confirmación de abono";
+      mensajeConfirmacion = "¿Está seguro de realizar el abono?";
+    }
+
+    this.utilidadesService.confirmacion(tituloConfirmacion, mensajeConfirmacion).subscribe(respuesta => {
+      //Si se acepta.
       if (respuesta == "Aceptar") {
 
-        //Se pulsa el botón  de dar de alta cobro.
+        //Se pulsa el botón  de dar de alta cobro o abonar.
         this.pulsarCrear = true;
 
         /*Si los elementos del formulario estáticos requeridos no están llenos, 
@@ -1157,7 +1175,7 @@ export class AltaCobroComponent implements OnInit {
         }
 
         let usuario: { id: string, nombres_usuario: string } = this.usuarioControl.value;
-        //Si viene algo escrito en el usuario pero no es un registro de  base de datos.
+        //Si viene algo escrito en el usuario pero no es un registro de base de datos.
         if (usuario && !usuario.id) {
           this.utilidadesService.alerta("Médico inválido", "Seleccione un médico válido.").subscribe(() => {
             this.usuarioHTML.nativeElement.focus();
@@ -1166,7 +1184,7 @@ export class AltaCobroComponent implements OnInit {
         }
 
         let paciente: { id: string, nombres_usuario: string } = this.pacienteControl.value;
-        //Si viene algo escrito en el paciente pero no es un registro de  base de datos.
+        //Si viene algo escrito en el paciente pero no es un registro de base de datos.
         if (paciente && !paciente.id) {
           this.utilidadesService.alerta("Paciente inválido", "Seleccione un paciente válido.").subscribe(() => {
             this.pacienteHTML.nativeElement.focus();
@@ -1174,7 +1192,7 @@ export class AltaCobroComponent implements OnInit {
           return
         }
 
-        //Si no se agregó ningún estudio.
+        //Si no se agregó ningún producto.
         if (this.productosACobrar.length == 0) {
           this.utilidadesService.alerta("Sin productos", "Agregue por lo menos un producto.").subscribe(() => {
             this.productoHTML.nativeElement.focus();
@@ -1182,55 +1200,95 @@ export class AltaCobroComponent implements OnInit {
           return
         }
 
-        //Se abre el modal de espera.
-        this.esperarService.esperar();
+        //Se utiliza para distinguir entre un abono y un cobrado total.
+        let procesoCobrado: Subject<any> = new Subject<any>();
 
-        let listadoProductos: string = "";
+        //Si es un cobro total.
+        if (estatus == 'COBRADO') {
+          //No hay más procesos que realizar.
+          procesoCobrado.next(null)
+          procesoCobrado.complete();
+        }
+        //Si es un abono.
+        else {
 
-        //Se forma la lista de productos.
-        this.productosACobrar.forEach(producto => {
+          //Se establece la información del cobro para poder abonar.
+          let abono: { total: string, total_formato: string, abono: string } = {total: "", total_formato: "", abono: ""};
+          
+          abono.total = (this.subtotal - this.descuentoControl.value) + ((this.subtotal - this.descuentoControl.value) * (this.iva / 100)) + "";
+          abono.total_formato = new CurrencyPipe("EN").transform(abono.total, "$");
 
-          listadoProductos = listadoProductos + producto.id + ":" + producto.cantidad + ",";
+          //Se muestra un caja de diálogo donde el usuario escribirá el abono que se le dará al cobro.
+          this.cobrosService.agregarAbono(AgregarAbonoComponent, abono).subscribe((abono) => {
+            //Si se agregó un abono
+            if (abono) {
+              procesoCobrado.next(abono);
+              procesoCobrado.complete();
+            }
+            //Si se cerró el modal sin aplicar el abono.         
+            else {
+              //No hay más procesos que realizar.
+              procesoCobrado.next(abono)
+              procesoCobrado.complete();
+            }
+          });
 
-        });
+        }
 
-        //Se obtiene el descuento.
-        let descuento: string = this.descuentoControl.value && this.descuentoControl.value.trim().length > 0 ? this.descuentoControl.value : "0";
-        //Se obtiene el identificador del paciente.
-        let pacienteId: string = paciente && paciente.id ? paciente.id : "0";
+        procesoCobrado.toPromise().then((abono) => {          
+                    
+          //Se abre el modal de espera.
+          this.esperarService.esperar();
 
-        this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId).subscribe(respuestaAltaCobro => {
-          //Si hubo un error en el alta de cobro.
-          if (respuestaAltaCobro["estado"] === "ERROR") {
-            //Se detiene la espera.
-            this.esperarService.noEsperar();
-            //Se muestra la alerta.
-            this.utilidadesService.alerta("Error alta de cobro", respuestaAltaCobro["mensaje"]);
-          }
-          else {
+          let listadoProductos: string = "";
 
-            //Se detiene la espera.
-            this.esperarService.noEsperar();
+          //Se forma la lista de productos.
+          this.productosACobrar.forEach(producto => {
 
-            //Se obtiene el identificador del cobro.
-            let cobroId = respuestaAltaCobro["mensaje"];
+            listadoProductos = listadoProductos + producto.id + ":" + producto.cantidad + ",";
 
-            this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+          });
 
-              //Se intenta imprimir el recibo.
-              this.cobroReciboService.imprimirRecibo(cobroId).subscribe(respuestaImprimirRecibo => {
-                
-                //Si No hubo error al imprimir el recibo.
-                if (respuestaImprimirRecibo) {                  
-                  //Se retorna al listado de cobros.
-                  this.regresar();
-                }
+          //Se obtiene el descuento.
+          let descuento: string = this.descuentoControl.value && this.descuentoControl.value.trim().length > 0 ? this.descuentoControl.value : "0";
+          //Se obtiene el identificador del paciente.
+          let pacienteId: string = paciente && paciente.id ? paciente.id : "0";
+
+          this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId).subscribe(respuestaAltaCobro => {
+            //Si hubo un error en el alta de cobro.
+            if (respuestaAltaCobro["estado"] === "ERROR") {
+              //Se detiene la espera.
+              this.esperarService.noEsperar();
+              //Se muestra la alerta.
+              this.utilidadesService.alerta("Error alta de cobro", respuestaAltaCobro["mensaje"]);
+            }
+            else {
+
+              //Se detiene la espera.
+              this.esperarService.noEsperar();
+
+              //Se obtiene el identificador del cobro.
+              let cobroId = respuestaAltaCobro["mensaje"];
+
+              this.utilidadesService.alerta("Alta de cobro satisfactoria.", "El cobro se dio de alta satisfactoriamente.").subscribe(() => {
+
+                //Se intenta imprimir el recibo.
+                this.cobroReciboService.imprimirRecibo(cobroId).subscribe(respuestaImprimirRecibo => {
+
+                  //Si No hubo error al imprimir el recibo.
+                  if (respuestaImprimirRecibo) {
+                    //Se retorna al listado de cobros.
+                    this.regresar();
+                  }
+                });
+
               });
 
-            });
+            }
+          });
 
-          }
         });
+
       }
     });
 
