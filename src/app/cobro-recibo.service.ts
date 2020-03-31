@@ -37,7 +37,7 @@ export class CobroReciboService {
   private posicionContenido: object = {
     inicio: {
       x: 10,
-      y: 55
+      y: 50
     },
     fin: {
       x: 10,
@@ -112,7 +112,7 @@ export class CobroReciboService {
       //Número de página.
       this.pdf.setFontStyle("normal");
       this.pdf.setFontSize(this.tamanoLetraNormal);
-      this.pdf.text(this.pdf.internal.getCurrentPageInfo().pageNumber + "/" + this.pdf.internal.getNumberOfPages(), this.margenDocumento["ancho"], posicionYActual, null, null, "right");      
+      this.pdf.text(this.pdf.internal.getCurrentPageInfo().pageNumber + "/" + this.pdf.internal.getNumberOfPages(), this.margenDocumento["ancho"], posicionYActual, null, null, "right");
       posicionYActual = posicionYActual + 5;
 
       //Fecha.                 
@@ -135,13 +135,6 @@ export class CobroReciboService {
       this.pdf.line(posicionXActual, posicionYActual, this.margenDocumento["ancho"], posicionYActual);
       posicionYActual = posicionYActual + 10;
 
-      //Historial de pagos.
-      this.pdf.setFontStyle("bold");
-      this.pdf.setFontSize(12);
-      this.pdf.text("HISTORIAL DE PAGOS", this.pdf.internal.pageSize.width / 2, posicionYActual, null, null, 'center');
-      this.pdf.setFontStyle("normal");
-      this.pdf.setFontSize(this.tamanoLetraNormal);
-
       //Títulos de la tabla de totales.
       const totales: Array<any> = new Array();
       totales.push(new Array("Estatus", pFormato["estatus"]));
@@ -160,14 +153,14 @@ export class CobroReciboService {
         body: totales,
         startY: this.getPosicionContenido()["fin"]["y"] + 5,
         //tableWidth: 30,
-        margin: { bottom: 0, left: 100 },        
+        margin: { bottom: 0, left: 100 },
         //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
-        didParseCell: data => {          
+        didParseCell: data => {
           //Si es la primera columna.
           if (data.column.index == 0) {
             data.cell.styles.fontSize = 12;
-            data.cell.styles.fontStyle = 'bold';       
-            data.cell.styles.fillColor = 'black';                        
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = 'black';
             data.cell.styles.textColor = 'white';
           }
         }
@@ -249,12 +242,14 @@ export class CobroReciboService {
                 let indiceProductosPorRecibo: number = 0;
                 //índice del hisstorial de cobros por recibo.
                 let indiceHistorialCobroPorRecibo: number = 0;
+                //Se utiliza para guardar la última posición en Y de escritura del historial de cobros.
+                let posicionUltimoHistorialCobro: number = 0;
+                //Se utiliza para almacenar la posición del título de la tabla de historial de cobros.
+                let posicionTituloHistorialCobro: number = this.getPosicionContenido()["inicio"]["y"] + 5;
                 //Altura del contenido actual del recibo.
-                let alturaActualContenidoRecibo: number = 0;
+                let alturaActualContenidoRecibo: number = posicionTituloHistorialCobro;
                 //Altura de las columnas títulos de la tabla.
                 let alturaHeader: number = 0;
-                //Altura total de donde se puede escribir contenido en el recibo de cobro.
-                const alturaTotalContenidoRecibo: number = this.getPosicionContenido()["fin"]["y"] - this.getPosicionContenido()["inicio"]["y"];
                 //Títulos de la tabla de productos.
                 const titulosTablaProductos: Array<any> = new Array(['Producto', 'Cantidad', 'Precio bruto', 'Precio neto']);
                 //Títulos de la tabla del historial de cobros.
@@ -268,7 +263,7 @@ export class CobroReciboService {
                   head: titulosTablaHistorialCobros,
                   body: infoHistorialCobros["datos"],
                   //La tabla se escribirá en el espacio designado para el contenido en la receta.
-                  startY: this.getPosicionContenido()["inicio"]["y"],
+                  startY: posicionTituloHistorialCobro,
                   margin: { bottom: 0 },
                   //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
                   willDrawCell: data => {
@@ -280,7 +275,7 @@ export class CobroReciboService {
                         //Se obtiene la altura de los títulos de la tabla.
                         alturaHeader = data.row.height;
                         //Se acumula la altura que hasta el momento tiene el contenido del recibo.
-                        alturaActualContenidoRecibo = alturaHeader;
+                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + alturaHeader;
                       }
                     }
                     //Si la sección no incluye los títulos de las columnas.
@@ -294,9 +289,9 @@ export class CobroReciboService {
                         alturaActualContenidoRecibo = alturaActualContenidoRecibo + data.row.height;
 
                         //Si ya no hay espacio en el recibo.            
-                        if (alturaActualContenidoRecibo > alturaTotalContenidoRecibo) {
+                        if (alturaActualContenidoRecibo > this.getPosicionContenido()["fin"]["y"]) {
                           //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
-                          alturaActualContenidoRecibo = alturaHeader + data.row.height;
+                          alturaActualContenidoRecibo = posicionTituloHistorialCobro + alturaHeader + data.row.height;
                           //Se establece el próximo índice, es decir, el próximo recibo.
                           indiceHistorialCobroPorRecibo = indiceHistorialCobroPorRecibo + 1;
                         }
@@ -312,6 +307,18 @@ export class CobroReciboService {
                         //Si es el último cobro por recorrer.
                         if (indiceCobro >= infoHistorialCobros["datos"].length - 1) {
 
+                          posicionUltimoHistorialCobro = alturaActualContenidoRecibo + 15;
+
+                          //Si ya no hay espacio en el recibo.            
+                          if (posicionUltimoHistorialCobro > this.getPosicionContenido()["fin"]["y"]) {
+
+                            //Se reinicializa la posición donde se escribirá el titulo de PRODUCTOS.
+                            posicionUltimoHistorialCobro = posicionTituloHistorialCobro;
+
+                          }
+
+                          alturaActualContenidoRecibo = posicionUltimoHistorialCobro;
+
                           //Ya se tiene el historial de cobros, ahora se calcularán cuántos recibos saldrían con los productos del cobro.
                           pdf.autoTable({
                             theme: 'grid',
@@ -320,7 +327,7 @@ export class CobroReciboService {
                             head: titulosTablaProductos,
                             body: infoProductos["datos"],
                             //La tabla se escribirá en donde se dejó el historial de cobros.
-                            startY: alturaActualContenidoRecibo,
+                            startY: posicionUltimoHistorialCobro,
                             margin: { bottom: 0 },
                             //Se utiliza este evento ya que se dispara antes de que se escriba sobre el documento.
                             willDrawCell: data => {
@@ -346,9 +353,10 @@ export class CobroReciboService {
                                   alturaActualContenidoRecibo = alturaActualContenidoRecibo + data.row.height;
 
                                   //Si ya no hay espacio en el recibo.            
-                                  if (alturaActualContenidoRecibo > alturaTotalContenidoRecibo) {
+                                  if (alturaActualContenidoRecibo > this.getPosicionContenido()["fin"]["y"]) {
+
                                     //Se reinicializa la altura. Asignando nada más la altura de los títulos de la tabla.                       
-                                    alturaActualContenidoRecibo = alturaHeader + data.row.height;
+                                    alturaActualContenidoRecibo = posicionTituloHistorialCobro + alturaHeader + data.row.height;
                                     //Se establece el próximo índice, es decir, el próximo recibo.
                                     indiceProductosPorRecibo = indiceProductosPorRecibo + 1;
                                   }
@@ -370,6 +378,13 @@ export class CobroReciboService {
                                       if (index != 0) {
                                         pdf.addPage();
                                       }
+
+                                      //Se escribe el título de la tabla.
+                                      this.pdf.setFontStyle("bold");
+                                      this.pdf.setFontSize(12);
+                                      this.pdf.text("HISTORIAL DE PAGOS", this.pdf.internal.pageSize.width / 2, this.getPosicionContenido()["inicio"]["y"], null, null, 'center');
+                                      this.pdf.setFontStyle("normal");
+                                      this.pdf.setFontSize(this.tamanoLetraNormal);
                                       //Ahora sí. Se crean los recibos correspondientes.
                                       pdf.autoTable({
                                         theme: 'grid',
@@ -377,23 +392,23 @@ export class CobroReciboService {
                                         headStyles: { halign: 'center', fillColor: [0, 0, 0] },
                                         head: titulosTablaHistorialCobros,
                                         body: cobro,
-                                        startY: this.getPosicionContenido()["inicio"]["y"],
+                                        startY: posicionTituloHistorialCobro,
                                         margin: { bottom: 0 }
                                       });
 
                                       //Si es el último cobro.
                                       if (index >= historialCobrosPorRecibo.length - 1) {
 
-                                        //Se obtiene la última posición donde se escribió en el documnento.
-                                        alturaActualContenidoRecibo = alturaActualContenidoRecibo + this.getPosicionContenido()["inicio"]["y"] - 5;
-
-                                        //Si la posición encontrada rebasa a lo permitido en el contenido del recibo.
-                                        if (alturaActualContenidoRecibo >= this.getPosicionContenido()["fin"]["y"]) {
-                                          alturaActualContenidoRecibo = this.getPosicionContenido()["inicio"]["y"];
-                                        }
+                                        alturaActualContenidoRecibo = posicionUltimoHistorialCobro;
 
                                         //Se recorren los productos       
-                                        productosPorRecibo.forEach((producto) => {
+                                        productosPorRecibo.forEach((producto, indiceProducto) => {
+
+                                          //Al primer elemento no se le agrega página, ya que ya se cuenta con una.
+                                          if (indiceProducto != 0) {
+                                            pdf.addPage();
+                                          }
+
                                           //Se escriben los productos, considerando la última posición de escritura del historial de cobros.
                                           //Se escribe el título de la tabla.
                                           this.pdf.setFontStyle("bold");
@@ -412,7 +427,7 @@ export class CobroReciboService {
                                           });
 
                                           //Se reinicia la altura.
-                                          alturaActualContenidoRecibo = this.getPosicionContenido()["inicio"]["y"];
+                                          alturaActualContenidoRecibo = posicionTituloHistorialCobro;
                                         });
                                       }
 
@@ -462,9 +477,9 @@ export class CobroReciboService {
                 //Se despliega el reporte.
                 pdf.save('recibo_pago.pdf');
 
-                 //Se finaliza la espera.
+                //Se finaliza la espera.
                 this.esperarService.noEsperar();
-                subject.next(true);                               
+                subject.next(true);
               }
 
             });
