@@ -1206,7 +1206,7 @@ export class AltaCobroComponent implements OnInit {
         //Si es un cobro total.
         if (estatus == 'COBRADO') {
           //No hay más procesos que realizar.
-          procesoCobrado.next(null)
+          procesoCobrado.next(null);
           procesoCobrado.complete();
         }
         //Si es un abono.
@@ -1228,15 +1228,15 @@ export class AltaCobroComponent implements OnInit {
             //Si se cerró el modal sin aplicar el abono.         
             else {
               //No hay más procesos que realizar.
-              procesoCobrado.next(abono)
+              procesoCobrado.next(null)
               procesoCobrado.complete();
             }
           });
 
         }
 
-        procesoCobrado.toPromise().then((abono) => {          
-                    
+        procesoCobrado.toPromise().then((abono) => {    
+                                
           //Se abre el modal de espera.
           this.esperarService.esperar();
 
@@ -1254,7 +1254,7 @@ export class AltaCobroComponent implements OnInit {
           //Se obtiene el identificador del paciente.
           let pacienteId: string = paciente && paciente.id ? paciente.id : "0";
 
-          this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId).subscribe(respuestaAltaCobro => {
+          this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId, abono ? abono.abono : '0').subscribe(respuestaAltaCobro => {
             //Si hubo un error en el alta de cobro.
             if (respuestaAltaCobro["estado"] === "ERROR") {
               //Se detiene la espera.

@@ -210,7 +210,7 @@ export class CobroReciboService {
 
     //Se obtiene la información de la consulta.
     this.cobrosService.verResumenCobro(pCobroId).subscribe(infoResumenCobro => {
-
+ 
       //Si NO hubo un error en la obtención de información.
       if (infoResumenCobro["estado"] === "OK") {
 
@@ -219,7 +219,7 @@ export class CobroReciboService {
           //Si la obtención del historial de cobros fue correcta.
           if (infoHistorialCobros["estado"] === "OK") {
 
-            this.cobrosService.verProductosReciboCobro(pCobroId).subscribe(infoProductos => {
+            this.cobrosService.verProductosReciboCobro(pCobroId).subscribe(infoProductos => {        
 
               if (infoProductos["estado"] === "ERROR") {
 
@@ -253,7 +253,7 @@ export class CobroReciboService {
                 //Títulos de la tabla de productos.
                 const titulosTablaProductos: Array<any> = new Array(['Producto', 'Cantidad', 'Precio bruto', 'Precio neto']);
                 //Títulos de la tabla del historial de cobros.
-                const titulosTablaHistorialCobros: Array<any> = new Array(['Fecha', 'Total']);
+                const titulosTablaHistorialCobros: Array<any> = new Array(['Fecha', 'Estatus','Total']);
 
                 //Primero se va a calcular cuántos recibos van a salir a partir del historial de cobros.
                 pdf.autoTable({
@@ -302,7 +302,7 @@ export class CobroReciboService {
                         }
 
                         //Se añade el cobro al recibo.
-                        historialCobrosPorRecibo[indiceHistorialCobroPorRecibo].push(new Array(infoHistorialCobros["datos"][indiceCobro]["fecha"], infoHistorialCobros["datos"][indiceCobro]["total_formato"]));
+                        historialCobrosPorRecibo[indiceHistorialCobroPorRecibo].push(new Array(infoHistorialCobros["datos"][indiceCobro]["fecha"], infoHistorialCobros["datos"][indiceCobro]["estatus"], infoHistorialCobros["datos"][indiceCobro]["total_formato"]));
 
                         //Si es el último cobro por recorrer.
                         if (indiceCobro >= infoHistorialCobros["datos"].length - 1) {

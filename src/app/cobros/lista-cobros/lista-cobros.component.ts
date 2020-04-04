@@ -29,6 +29,7 @@ import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { CobrosService } from '../../cobros.service';
+import { CobroReciboService } from '../../cobro-recibo.service';
 
 
 @Component({
@@ -154,7 +155,8 @@ export class ListaCobrosComponent implements OnInit {
   |  usuariosService = contiene los métodos de la bd de los usuarios,     |
   |  fb = contiene los métodos para manipular formularios HTML,           |
   |  rutaNavegacion   = para navegar a otras url´s,                       |
-  |  rutaActual = obtiene los parámetros de la url actual.                |
+  |  rutaActual = obtiene los parámetros de la url actual,                |
+  |  cobrosReciboService = contiene los métodos para el recibo del cobro. |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
@@ -170,7 +172,9 @@ export class ListaCobrosComponent implements OnInit {
     private usuariosService: UsuariosService,
     private fb: FormBuilder,
     private rutaNavegacion: Router,
-    private rutaActual: ActivatedRoute) {
+    private rutaActual: ActivatedRoute,
+    private cobroReciboService: CobroReciboService
+    ) {
 
 
     //Se agregan las validaciones al formulario de búsqueda de cobros.
@@ -265,22 +269,7 @@ export class ListaCobrosComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-
-    //El botón de ver cobros se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('VER COBRO').subscribe((respuesta: boolean) => {
-      this.verCobros = respuesta["value"];
-    });
-
-    //El botón de dar de alta cobros se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('ALTA COBRO').subscribe((respuesta: boolean) => {
-      this.altaCobros = respuesta["value"];
-    });
-
-    //El botón de editar cobros se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('EDITAR COBRO').subscribe((respuesta: boolean) => {
-      this.editarCobros = respuesta["value"];
-    });
-
+   
     //El botón de cancelar cobros se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('CANCELAR COBRO').subscribe((respuesta: boolean) => {
       this.cancelarCobros = respuesta["value"];
@@ -851,20 +840,18 @@ export class ListaCobrosComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: verCobro.                                                    |
+  |  NOMBRE: imprimirRecibo.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al detalle del cobro.                  |    
+  |  DESCRIPCIÓN: Método que imprime el recibo de cobro.                  |    
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA: cobroId = identificador del cobro.            |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/01/2020.                                                   |    
+  |  FECHA: 03/04/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  verCobro(cobroId) {        
-    
-    let url: string = 'cobros/ver-cobro/' + cobroId;
-    this.rutaNavegacion.navigateByUrl(url);
+  imprimirRecibo(cobroId) {            
+    this.cobroReciboService.imprimirRecibo(cobroId);
   }  
   
 

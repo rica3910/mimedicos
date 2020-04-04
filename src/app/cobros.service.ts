@@ -203,15 +203,19 @@ export class CobrosService {
   |  DESCRIPCIÓN: Método para dar de alta un cobro.                       | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  clinicaId = identificador de la clínica,                             | 
-  |  total = total del cobro,                                             |                            
-  |  observaciones = observaciones del cobro.                             |
+  |  clinicaId = identificador de la clínica,                             |
+  |  tipoCobroId = identificador del tipo de cobro,                       |
+  |  productos = lista de productos,                                      | 
+  |  observaciones = observaciones del cobro,                             |
+  |  descuento = descuento del cobro,                                     |
+  |  pacienteId = identificador del paciente,                             |
+  |  abono = abono que se le dará al cobro si es el caso.                 |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 15/03/2020.                                                   |    
+  |  FECHA: 01/04/2020.                                                   |    
   |----------------------------------------------------------------------*/
   altaCobro(
     clinicaId: string,
@@ -219,7 +223,8 @@ export class CobrosService {
     productos: string,    
     observaciones: string,
     descuento: string,
-    pacienteId: string): Observable<any> {
+    pacienteId: string,
+    abono: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
@@ -228,7 +233,8 @@ export class CobrosService {
       productos: productos,
       observaciones: observaciones,
       descuento: descuento,
-      pacienteId: pacienteId
+      pacienteId: pacienteId,
+      abono: abono
     });
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.

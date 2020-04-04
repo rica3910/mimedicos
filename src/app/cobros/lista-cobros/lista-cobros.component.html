@@ -173,6 +173,8 @@
           <th class="text-center">Estatus</th>
           <th class="text-center">Clínica</th>
           <th class="text-center">Total</th>
+          <th class="text-center">Descuento</th>
+          <th class="text-center">Saldo</th>
           <th class="text-center">Observaciones</th>
           <th class="text-center">Opciones</th>
         </tr>
@@ -184,18 +186,15 @@
           <td>{{cobro.estado_cobro}}</td>
           <td>{{cobro.nombre_clinica}}</td>
           <td class="text-right">{{cobro.total_neto}}</td>
+          <td class="text-right">{{cobro.descuento}}</td>
+          <td class="text-right">{{cobro.saldo}}</td>
           <td>{{cobro.observaciones}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="verCobros" type="button" class="btn" ngbTooltip="Ver cobro."
-                (click)='verCobro(cobro.id)'>
-                <i class="material-icons">visibility</i>
-              </button>
-              <button
-                *ngIf="editarCobros && (cobro.estado_cobro == 'ABIERTO' || cobro.estado_cobro == 'PENDIENTE')"
-                type="button" class="btn" ngbTooltip="Editar cobro." (click)='editarCobro(cobro.id)'>
-                <i class="material-icons">edit</i>
-              </button>                           
+              <button type="button" class="btn" ngbTooltip="imprimir recibo."
+                (click)='imprimirRecibo(cobro.id)'>
+                <i class="material-icons">insert_drive_file</i>
+              </button>                              
               <button
                 *ngIf="cancelarCobros"
                 type="button" class="btn" ngbTooltip="Cancelar cobro." (click)='cancelarCobro(cobro.id)'>
