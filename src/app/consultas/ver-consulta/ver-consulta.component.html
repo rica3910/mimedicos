@@ -54,14 +54,13 @@
       <td colspan="3">{{estadoConsulta}}</td>
     </tr>
   </table>
-  <div class="btn-group-lg" role="group" >
-    <button
-      *ngIf="verDiagnostico && (estadoConsulta == 'DIAGNOSTICO' || estadoConsulta == 'FINALIZADA')"
-      type="button" class="btn btn-azul" ngbTooltip="Ver diagnósticos." (click)='verDiagnosticos(consultaId)'>
+  <div class="btn-group-lg" role="group">
+    <button *ngIf="verDiagnostico && (estadoConsulta == 'DIAGNOSTICO' || estadoConsulta == 'FINALIZADA')" type="button"
+      class="btn btn-azul" ngbTooltip="Ver diagnósticos." (click)='verDiagnosticos(consultaId)'>
       <i class="material-icons">assessment</i>
     </button>
     <button
-      *ngIf="editarConsultas && (estadoConsulta == 'PENDIENTE' || estadoConsulta == 'CONSULTA')"
+      *ngIf="editarConsultas && (!estadoCobro || estadoCobro == 'CANCELADO') && (estadoConsulta == 'PENDIENTE' || estadoConsulta == 'CONSULTA')"
       type="button" class="btn btn-azul" ngbTooltip="Editar consulta." (click)='editarConsulta(consultaId)'>
       <i class="material-icons">edit</i>
     </button>
@@ -83,13 +82,23 @@
       <i class="material-icons">assignment_turned_in</i>
     </button>
     <button
-      *ngIf="cancelarConsultas && (estadoConsulta != 'FINALIZADA' && estadoConsulta != 'CANCELADA')"
+      *ngIf="altaCobros && (!estadoCobro || estadoCobro == 'CANCELADO') && estadoConsulta != 'CANCELADA'"
+      type="button" class="btn btn-azul" ngbTooltip="Cobrar consulta." (click)='altaCobro(consultaId)'>
+      <i class="material-icons">attach_money</i>
+    </button>
+    <button *ngIf="verCobros && (estadoCobro && estadoCobro != 'CANCELADO')" type="button"
+      class="btn btn-azul" ngbTooltip="Ver cobro." (click)='verCobro(cobroId)'>
+      <i class="material-icons">attach_money</i>
+    </button>
+    <button
+      *ngIf="cancelarConsultas && (!estadoCobro || estadoCobro == 'CANCELADO') && (estadoConsulta != 'FINALIZADA' && estadoConsulta != 'CANCELADA')"
       type="button" class="btn btn-azul" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consultaId)'>
       <i class="material-icons">cancel</i>
     </button>
     <button
-      *ngIf="eliminarConsultas && (estadoConsulta == 'CANCELADA' || estadoConsulta == 'PENDIENTE')"
-      type="button" class="btn btn-azul" ngbTooltip="Eliminar consulta permanentemente." (click)='eliminarConsulta(consultaId)'>
+      *ngIf="eliminarConsultas && !estadoCobro && (estadoConsulta == 'CANCELADA' || estadoConsulta == 'PENDIENTE')"
+      type="button" class="btn btn-azul" ngbTooltip="Eliminar consulta permanentemente."
+      (click)='eliminarConsulta(consultaId)'>
       <i class="material-icons">delete_forever</i>
     </button>
   </div>

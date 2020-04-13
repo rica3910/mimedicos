@@ -1,0 +1,67 @@
+<!------------------------------------------------------------------
+|NOMBRE: historial-cobro.                                          | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para ver el historial de un cobro.            |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 07/04/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de cobros."
+      (click)="regresar()">
+      <i class="material-icons">arrow_back</i>
+    </button>
+  </div>
+  <app-resumen-cobro [cobroId]="cobroId" (informacionLista)="infoCobroLista($event)"
+    (informacionCobro)="infoCobro($event)"></app-resumen-cobro>
+  <div class="row">
+    <table class="table table-bordered">
+      <thead>
+        <tr class="text-center">
+          <th>
+            <button *ngIf="altaDetCobros && estatusCobro == 'PENDIENTE' && saldo > 0" type="button"
+              class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Realizar un cobro."
+              (click)="altaDetCobro();">
+              <i class="material-icons">add</i>
+            </button>
+          </th>
+          <th colspan="6">
+            <h4>Historial de cobros&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+          </th>
+        </tr>
+        <tr>
+          <th class="text-center">Fecha</th>
+          <th class="text-center">Estatus</th>
+          <th class="text-center">Total</th>
+          <th class="text-center">Usuario</th>
+          <th class="text-center">Tipo de cobro</th>
+          <th class="text-center">Observaciones</th>
+          <th class="text-center">Opciones</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="detCobros.length > 0">
+        <tr *ngFor="let detCobro of detCobros">
+          <td class="text-center">{{detCobro.fecha}}</td>
+          <td class="text-center">{{detCobro.estatus}}</td>
+          <td class="text-center">{{detCobro.total_formato}}</td>
+          <td class="text-center">{{detCobro.nombres_usuario}}</td>
+          <td class="text-center">{{detCobro.tipo_cobro}}</td>
+          <td class="text-center">{{detCobro.observaciones}}</td>
+          <td>
+            <button *ngIf="cancelarDetCobros && detCobro.cantidad == 1 && detCobro.estatus != 'CANCELADO' && estatusCobro != 'CANCELADO'"
+              type="button" class="btn" ngbTooltip="Cancelar abono." (click)='cancelarDetCobro(detCobro.id)'>
+              <i class="material-icons">cancel</i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

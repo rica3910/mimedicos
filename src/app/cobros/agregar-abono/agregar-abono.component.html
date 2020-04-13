@@ -22,19 +22,31 @@
   </div>
   <div class="modal-body">
     <div class="input-group">
+      <select class="form-control" [formControl]="tipoCobroControl"
+        ngbTooltip="Seleccionar un tipo de cobro.">
+        <option *ngFor="let tipoCobro of tipoCobros" value={{tipoCobro.id}}>
+          {{tipoCobro.nombre}}
+        </option>
+      </select>
+    </div>
+    <div class="input-group">
+      <textarea placeholder="Observaciones" class="form-control" [formControl]="observacionesControl"
+      ngbTooltip="Observaciones del abono."></textarea>
+    </div>
+    <div class="input-group">
       <div class="input-group-prepend">
         <span class="input-group-text">$</span>
       </div>
       <input type="text" [formControl]="abonoControl" #abonoHTML class="form-control form-control-lg text-right"
         ngbTooltip="Cantidad a abonar.">
       <div class="input-group-append">
-        <span class="input-group-text">/&nbsp;<strong>{{cobro.total_formato}}</strong></span>
+        <span class="input-group-text">/&nbsp;<strong>{{cobro.totalFormato}}</strong></span>
       </div>
-    </div>
+    </div>   
     <div class="modal-title text-right">Saldo: {{cobro.total - abonoControl.value | currency}}</div>
   </div>
   <div class="modal-footer">
-    <button *ngIf="abonoControl.value && (cobro.total * 1) > 0 && (abonoControl.value * 1) <= (cobro.total * 1)"
+    <button *ngIf="tipoCobroControl.value && abonoControl.value && (cobro.total * 1) > 0 && (abonoControl.value * 1) <= (cobro.total * 1)"
       type="button" class="btn btn-success" (click)="abonar()" ngbTooltip="Abonar">Abonar</button>
   </div>
 </div>

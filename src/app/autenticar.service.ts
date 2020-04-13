@@ -1320,6 +1320,50 @@ export class AutenticarService {
     return of(false);
   }    
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuarioPuedeVerHistorialCobro.                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para garantizar que el usuario pueda ver el      |
+  |  historial de un cobro.                                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: cobroId: identificador del cobro.             |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna OK o ERROR                |
+  |  en caso de que el usuario pueda ver el historial de un cobro.        |  
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 08/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuarioPuedeVerHistorialCobro(cobroId: string): Observable<any> {
+
+    //Si está conectado, entonces el token si existe.
+    if (this.obtenerToken() !== null) {
+      //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+      const headers: HttpHeaders = new HttpHeaders({
+        'X-API-KEY': this.obtenerToken()
+      });
+
+      //Envía la petición al servidor backend.
+      return this.http.get(this.urlApi + `usuario-puede-ver-historial-cobro/${cobroId}`, { headers: headers })
+        .pipe(map(respuesta => {
+          
+          //Si el usuario no puede acceder o ver el historial de un cobro.
+          if (respuesta["estado"] === "ERROR") {
+            //Retorna un falso.
+            return of(false);
+          }
+
+          //Retorna un verdadero, signo de que sí puede ver el historial del cobro.
+          return of(true);
+
+        }));
+    }
+    //No está conectado.
+    return of(false);
+  }   
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.

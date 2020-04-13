@@ -209,7 +209,8 @@ export class CobrosService {
   |  observaciones = observaciones del cobro,                             |
   |  descuento = descuento del cobro,                                     |
   |  pacienteId = identificador del paciente,                             |
-  |  abono = abono que se le dará al cobro si es el caso.                 |
+  |  abono = abono que se le dará al cobro si es el caso,                 |
+  |  observacionesDetCobro = observaciones del abono.                     |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
@@ -224,7 +225,8 @@ export class CobrosService {
     observaciones: string,
     descuento: string,
     pacienteId: string,
-    abono: string): Observable<any> {
+    abono: string,
+    observacionesDetCobro): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
@@ -234,7 +236,8 @@ export class CobrosService {
       observaciones: observaciones,
       descuento: descuento,
       pacienteId: pacienteId,
-      abono: abono
+      abono: abono,
+      observacionesDetCobro: observacionesDetCobro
     });
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
@@ -306,7 +309,7 @@ export class CobrosService {
   |-----------------------------------------------------------------------|
   |  FECHA: 15/03/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  /*altaDetCobro(
+  altaDetCobro(
     cobroId: string,
     tipoCobroId: string,
     total: string,
@@ -331,7 +334,7 @@ export class CobrosService {
       .post(this.urlApi + 'alta-det-cobro',
         json,
         { headers: headers });
-  }*/
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaBitacoraDetCobro.                                        |
@@ -546,7 +549,7 @@ export class CobrosService {
     let modalOption: NgbModalOptions = {};
     //Modal centrado.
     modalOption.centered = true;
-    //Abre el modal de tamaño extra grande.
+    //Abre el modal de tamaño chico.
     modalOption.size = "sm";
 
     const modalRef = this.modalService.open(componente, modalOption);
@@ -588,7 +591,7 @@ export class CobrosService {
     //Modal centrado.
     modalOption.centered = true;
     //Abre el modal de tamaño extra grande.
-    modalOption.size = "sm";
+    modalOption.size = 'sm';
 
     const modalRef = this.modalService.open(componente, modalOption);
     
@@ -711,8 +714,78 @@ export class CobrosService {
     //No está conectado.
     return of(false);
 
-  }      
+  }     
+  
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cancelarCobro.                                               |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para cancelar un cobro.                |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  cobroId = identificador del cobro.                                   |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  cancelarCobro(cobroId: string): Observable<any> {
 
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      cobroId: cobroId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'cancelar-cobro',
+        json,
+        { headers: headers });
+  }    
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: cancelarDetCobro.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para cancelar el detalle de un cobro.  |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  detCobroId = identificador del detalle del cobro.                       |                          
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 11/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  cancelarDetCobro(detCobroId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      detCobroId: detCobroId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'cancelar-det-cobro',
+        json,
+        { headers: headers });
+  }    
+  
+
+  
 
 }
 

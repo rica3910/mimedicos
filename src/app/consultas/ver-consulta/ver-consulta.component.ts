@@ -48,6 +48,10 @@ export class VerConsultaComponent implements OnInit {
   estadoConsultaUrl: string;
   //Estado de la consulta obtenida de la base de datos.
   estadoConsulta: string;
+  //Estado del cobro.
+  estadoCobro: string;
+  //Identificador del cobro.
+  cobroId: string;
   //Cantidad de diagnósticos que tiene la consulta.
   cantidadDiagnosticos: number = 0;
   //Propiedad que indica si el usuario puede dar de alta consultas.
@@ -68,6 +72,10 @@ export class VerConsultaComponent implements OnInit {
   finalizarConsultas: boolean = false;
   //Propiedad que indica si el usuario puede ver disgnósticos.
   verDiagnostico: boolean = false;
+  //Propiedad que indica si el usuario puede dar de alta cobros.
+  altaCobros: boolean = false;
+  //Propiedad que indica si el usuario puede ver cobros.
+  verCobros: boolean = false;  
 
   /*----------------------------------------------------------------------|
     |  NOMBRE: constructor.                                                 |
@@ -126,6 +134,10 @@ export class VerConsultaComponent implements OnInit {
           this.tipoConsulta = respuesta["datos"][0]["nombre_tipo_consulta"];
           this.estadoConsulta = respuesta["datos"][0]["nombre_estado_consulta"];
           this.cantidadDiagnosticos = respuesta["datos"][0]["cantidad_diagnosticos"];
+          this.cobroId = respuesta["datos"][0]["cobro_id"];
+          this.estadoCobro = respuesta["datos"][0]["estado_cobro"];
+
+          console.log(this.estadoCobro);
 
           this.consultasService.verEstudiosConsulta(this.consultaId).subscribe(respuestaEstudios => {
 
@@ -207,6 +219,16 @@ export class VerConsultaComponent implements OnInit {
     //El botón de ver diagnóstico se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('VER DIAGNOSTICOS').subscribe((respuesta: boolean) => {
       this.verDiagnostico = respuesta["value"];
+    });
+
+    //El botón de alta cobros se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ALTA COBRO').subscribe((respuesta: boolean) => {
+      this.altaCobros = respuesta["value"];
+    });
+
+    //El botón de ver cobros se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER COBROS').subscribe((respuesta: boolean) => {
+      this.verCobros = respuesta["value"];
     });
 
 

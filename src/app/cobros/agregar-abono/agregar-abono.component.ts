@@ -20,6 +20,12 @@ export class AgregarAbonoComponent implements OnInit {
   activarCampos: boolean = false;
   //Variable para almacenar el cobro.
   public cobro;
+  //Registros de tipo de cobros que se verán en la vista en el campo tipos de cobro.
+  tipoCobros: Array<JSON> = new Array();
+  //Objeto del formulario que contendrá al tipo de cobro.
+  tipoCobroControl: AbstractControl;
+  //Objeto del formulario que contendrá las observaciones.
+  observacionesControl: AbstractControl;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -45,11 +51,20 @@ export class AgregarAbonoComponent implements OnInit {
 
     //Se agregan las validaciones al formulario.
     this.formAgregarAbono = this.fb.group({
+      'tipoCobro': ['', [Validators.required]],
+      'observaciones': [''],
       'abono': ['', [this.utilidadesService.numberValidator, Validators.required, Validators.min(1), Validators.max(Number(this.cobro.total))]]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
+    this.tipoCobroControl = this.formAgregarAbono.controls['tipoCobro'];
     this.abonoControl = this.formAgregarAbono.controls['abono'];
+    this.observacionesControl = this.formAgregarAbono.controls['observaciones'];
+
+    //Se almacenan los tipos de cobros.
+    this.tipoCobros = this.cobro.tiposCobros;
+    //Se inicializa el select con el primer valor encontrado.
+    this.tipoCobroControl.setValue(this.cobro.tiposCobros[0]["id"] ? this.cobro.tiposCobros[0]["id"] : "");
 
     //Se le asigna la mínima cantidad por default.
     this.abonoControl.setValue("");
@@ -94,6 +109,8 @@ export class AgregarAbonoComponent implements OnInit {
 
     //Se almacena el abono
     this.cobro.abono = this.abonoControl.value;
+    this.cobro.tipoCobro = this.tipoCobroControl.value;
+    this.cobro.observaciones = this.observacionesControl.value;
 
     //Se retorna el resultado.
     this.activeModal.close(this.cobro);

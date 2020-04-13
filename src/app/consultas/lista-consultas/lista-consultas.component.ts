@@ -63,6 +63,10 @@ export class ListaConsultasComponent implements OnInit {
   verDiagnostico: boolean = false;
   //Propiedad que indica si el usuario puede ver recetas.
   verRecetas: boolean = false;
+  //Propiedad que indica si el usuario puede dar de alta cobros.
+  altaCobros: boolean = false;
+  //Propiedad que indica si el usuario puede ver cobros.
+  verCobros: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -378,7 +382,17 @@ export class ListaConsultasComponent implements OnInit {
     //El botón de ver recetas se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('VER RECETAS').subscribe((respuesta: boolean) => {
       this.verRecetas = respuesta["value"];
-    });    
+    });
+
+    //El botón de alta cobros se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ALTA COBRO').subscribe((respuesta: boolean) => {
+      this.altaCobros = respuesta["value"];
+    });
+
+    //El botón de ver cobros se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER COBROS').subscribe((respuesta: boolean) => {
+      this.verCobros = respuesta["value"];
+    });
 
   }
 
@@ -865,6 +879,8 @@ export class ListaConsultasComponent implements OnInit {
       this.estadoConsultaControl.value,
       this.tipoConsultaControl.value).subscribe((respuesta) => {
 
+        console.log(respuesta["datos"]);
+
         //Detiene la espera, signo de que ya se obtuvo la información.
         this.esperarService.noEsperar();
 
@@ -1159,33 +1175,33 @@ export class ListaConsultasComponent implements OnInit {
   |  FECHA: 28/08/2018.                                                   |    
   |----------------------------------------------------------------------*/
   editarConsulta(consultaId) {
-    
+
     let url: string = 'consultas/editar-consulta/' + consultaId;
     let estadoConsulta = this.utilidadesService.existeElementoArreglo("id", this.estadoConsultaControl.value, this.estadosConsultas);
-    estadoConsulta ? url = url + '/'  + estadoConsulta["nombre"] : url = url + '/TODOS';
+    estadoConsulta ? url = url + '/' + estadoConsulta["nombre"] : url = url + '/TODOS';
     this.rutaNavegacion.navigateByUrl(url);
 
   }
 
- /*----------------------------------------------------------------------|
-  |  NOMBRE: verConsulta.                                                 |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al detalle de la consulta.             |    
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 28/08/2018.                                                   |    
-  |----------------------------------------------------------------------*/
-  verConsulta(consultaId) {        
-    
+  /*----------------------------------------------------------------------|
+   |  NOMBRE: verConsulta.                                                 |
+   |-----------------------------------------------------------------------|
+   |  DESCRIPCIÓN: Método que llama al detalle de la consulta.             |    
+   |-----------------------------------------------------------------------|
+   |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |
+   |-----------------------------------------------------------------------|
+   |  AUTOR: Ricardo Luna.                                                 |
+   |-----------------------------------------------------------------------|
+   |  FECHA: 28/08/2018.                                                   |    
+   |----------------------------------------------------------------------*/
+  verConsulta(consultaId) {
+
     let url: string = 'consultas/ver-consulta/' + consultaId;
     let estadoConsulta = this.utilidadesService.existeElementoArreglo("id", this.estadoConsultaControl.value, this.estadosConsultas);
-    estadoConsulta ? url = url + '/'  + estadoConsulta["nombre"] : url = url + '/TODOS';
+    estadoConsulta ? url = url + '/' + estadoConsulta["nombre"] : url = url + '/TODOS';
 
     this.rutaNavegacion.navigateByUrl(url);
-  }  
+  }
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: verDiagnosticos.                                             |
@@ -1213,11 +1229,11 @@ export class ListaConsultasComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 22/08/2019.                                                   |    
   |----------------------------------------------------------------------*/
-  verReceta(consultaId) {        
-    
+  verReceta(consultaId) {
+
     let url: string = 'consultas/lista-recetas/' + consultaId;
     this.rutaNavegacion.navigateByUrl(url);
-  }  
+  }
 
 
 }

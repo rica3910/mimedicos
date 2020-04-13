@@ -1213,10 +1213,11 @@ export class AltaCobroComponent implements OnInit {
         else {
 
           //Se establece la información del cobro para poder abonar.
-          let abono: { total: string, total_formato: string, abono: string } = {total: "", total_formato: "", abono: ""};
+          let abono: { total: string, totalFormato: string, abono: string, tiposCobros: Array<any>, tipoCobro: string, observaciones: string  } = {total: "", totalFormato: "", abono: "", tiposCobros: new Array(), tipoCobro: "", observaciones: ""};
           
           abono.total = (this.subtotal - this.descuentoControl.value) + ((this.subtotal - this.descuentoControl.value) * (this.iva / 100)) + "";
-          abono.total_formato = new CurrencyPipe("EN").transform(abono.total, "$");
+          abono.totalFormato = new CurrencyPipe("EN").transform(abono.total, "$");
+          abono.tiposCobros = this.tipoCobros.filter(tipoCobro => tipoCobro["id"] == this.tipoCobroControl.value);
 
           //Se muestra un caja de diálogo donde el usuario escribirá el abono que se le dará al cobro.
           this.cobrosService.agregarAbono(AgregarAbonoComponent, abono).subscribe((abono) => {
@@ -1228,14 +1229,13 @@ export class AltaCobroComponent implements OnInit {
             //Si se cerró el modal sin aplicar el abono.         
             else {
               //No hay más procesos que realizar.
-              procesoCobrado.next(null)
-              procesoCobrado.complete();
+              return false;            
             }
           });
 
         }
 
-        procesoCobrado.toPromise().then((abono) => {    
+        procesoCobrado.toPromise().then((abono) => {            
                                 
           //Se abre el modal de espera.
           this.esperarService.esperar();
@@ -1254,7 +1254,7 @@ export class AltaCobroComponent implements OnInit {
           //Se obtiene el identificador del paciente.
           let pacienteId: string = paciente && paciente.id ? paciente.id : "0";
 
-          this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId, abono ? abono.abono : '0').subscribe(respuestaAltaCobro => {
+          this.cobrosService.altaCobro(this.clinicaControl.value, this.tipoCobroControl.value, listadoProductos, this.comentariosControl.value, descuento, pacienteId, abono ? abono.abono : '0', abono ? abono.observaciones : '').subscribe(respuestaAltaCobro => {
             //Si hubo un error en el alta de cobro.
             if (respuestaAltaCobro["estado"] === "ERROR") {
               //Se detiene la espera.

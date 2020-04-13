@@ -187,18 +187,21 @@
           <td>{{cobro.nombre_clinica}}</td>
           <td class="text-right">{{cobro.total_neto}}</td>
           <td class="text-right">{{cobro.descuento}}</td>
-          <td class="text-right">{{cobro.saldo}}</td>
+          <td class="text-right" *ngIf="cobro.estado_cobro != 'CANCELADO'">{{cobro.saldo}}</td>
+          <td class="text-right" *ngIf="cobro.estado_cobro == 'CANCELADO'">$0.00</td>
           <td>{{cobro.observaciones}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button type="button" class="btn" ngbTooltip="imprimir recibo."
-                (click)='imprimirRecibo(cobro.id)'>
+              <button type="button" class="btn" ngbTooltip="imprimir recibo." (click)='imprimirRecibo(cobro.id)'>
                 <i class="material-icons">insert_drive_file</i>
-              </button>                              
-              <button
-                *ngIf="cancelarCobros"
-                type="button" class="btn" ngbTooltip="Cancelar cobro." (click)='cancelarCobro(cobro.id)'>
+              </button>
+              <button *ngIf="cancelarCobros && cobro.estado_cobro != 'CANCELADO'" type="button" class="btn"
+                ngbTooltip="Cancelar cobro." (click)='cancelarCobro(cobro.id)'>
                 <i class="material-icons">cancel</i>
+              </button>
+              <button type="button" class="btn"
+                ngbTooltip="Historial." (click)='historialCobro(cobro.id)'>
+                <i class="material-icons">history</i>
               </button>
             </div>
           </td>

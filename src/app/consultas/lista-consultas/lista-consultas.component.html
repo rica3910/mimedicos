@@ -215,7 +215,7 @@
                 <i class="material-icons">assessment</i>
               </button>
               <button
-                *ngIf="editarConsultas && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA')"
+                *ngIf="editarConsultas && (!consulta.estado_cobro || consulta.estado_cobro == 'CANCELADO') && (consulta.nombre_estado_consulta == 'PENDIENTE' || consulta.nombre_estado_consulta == 'CONSULTA')"
                 type="button" class="btn" ngbTooltip="Editar consulta." (click)='editarConsulta(consulta.id)'>
                 <i class="material-icons">edit</i>
               </button>
@@ -237,17 +237,27 @@
                 class="btn" ngbTooltip="Finalizar la consulta." (click)='finalizarConsulta(consulta.id)'>
                 <i class="material-icons">assignment_turned_in</i>
               </button>
-              <button *ngIf="verRecetas && consulta.nombre_estado_consulta == 'FINALIZADA'" type="button"
-                class="btn" ngbTooltip="Ver recetas." (click)='verReceta(consulta.id)'>
+              <button *ngIf="verRecetas && consulta.nombre_estado_consulta == 'FINALIZADA'" type="button" class="btn"
+                ngbTooltip="Ver recetas." (click)='verReceta(consulta.id)'>
                 <i class="material-icons">receipt</i>
               </button>
               <button
-                *ngIf="cancelarConsultas && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')"
+                *ngIf="altaCobros && (!consulta.estado_cobro || consulta.estado_cobro == 'CANCELADO') && consulta.nombre_estado_consulta != 'CANCELADA'"
+                type="button" class="btn" ngbTooltip="Cobrar consulta." (click)='altaCobro(consulta.id)'>
+                <i class="material-icons">attach_money</i>
+              </button>
+              <button
+                *ngIf="verCobros && (consulta.estado_cobro && consulta.estado_cobro != 'CANCELADO')"
+                type="button" class="btn" ngbTooltip="Ver cobro." (click)='verCobro(consulta.cobro_id)'>
+                <i class="material-icons">attach_money</i>
+              </button>
+              <button
+                *ngIf="cancelarConsultas && (!consulta.estado_cobro || consulta.estado_cobro == 'CANCELADO') && (consulta.nombre_estado_consulta != 'FINALIZADA' && consulta.nombre_estado_consulta != 'CANCELADA')"
                 type="button" class="btn" ngbTooltip="Cancelar consulta." (click)='cancelarConsulta(consulta.id)'>
                 <i class="material-icons">cancel</i>
               </button>
               <button
-                *ngIf="eliminarConsultas && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')"
+                *ngIf="eliminarConsultas && !consulta.estado_cobro && (consulta.nombre_estado_consulta == 'CANCELADA' || consulta.nombre_estado_consulta == 'PENDIENTE')"
                 type="button" class="btn" ngbTooltip="Eliminar consulta permanentemente."
                 (click)='eliminarConsulta(consulta.id)'>
                 <i class="material-icons">delete_forever</i>

@@ -1,0 +1,26 @@
+<div class="row">
+  <table class="table table-bordered">
+    <tr>
+      <th *ngIf="estatus != 'CANCELADO'" class="text-center" colspan="7"><h4>Resumen del cobro</h4></th>
+      <th *ngIf="estatus == 'CANCELADO'" class="text-center" colspan="6"><h4>Resumen del cobro</h4></th>
+    </tr>
+    <tr>
+      <th class="text-center">Estatus</th>
+      <th class="text-center">Subtotal</th>
+      <th class="text-center">Descuento</th>
+      <th class="text-center">IVA ({{porcentajeIva}}%)</th>
+      <th class="text-center">Total</th>
+      <th class="text-center">Abonos</th>
+      <th *ngIf="estatus != 'CANCELADO'" class="text-center">Saldo</th>
+    </tr>
+    <tr>
+      <td class="text-center">{{estatus}}</td>
+      <td class="text-center">{{subtotal}}</td>
+      <td class="text-center">{{descuento}}</td>
+      <td class="text-center">{{iva}}</td>
+      <td class="text-center">{{total}}</td>
+      <td class="text-center">{{abonos}}</td>
+      <td *ngIf="estatus != 'CANCELADO'" class="text-center">{{saldo}}</td>
+    </tr>      
+  </table>
+</div>

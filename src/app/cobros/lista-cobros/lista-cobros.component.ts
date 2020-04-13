@@ -47,9 +47,9 @@ export class ListaCobrosComponent implements OnInit {
   //Propiedad que indica si el usuario puede dar de alta cobros.
   altaCobros: boolean = false;
   //Propiedad que indica si el usuario puede editar cobros.
-  editarCobros: boolean = false;  
+  editarCobros: boolean = false;
   //Propiedad que indica si el usuario puede cancelar cobros.
-  cancelarCobros: boolean = false;  
+  cancelarCobros: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -174,7 +174,7 @@ export class ListaCobrosComponent implements OnInit {
     private rutaNavegacion: Router,
     private rutaActual: ActivatedRoute,
     private cobroReciboService: CobroReciboService
-    ) {
+  ) {
 
 
     //Se agregan las validaciones al formulario de búsqueda de cobros.
@@ -229,7 +229,7 @@ export class ListaCobrosComponent implements OnInit {
         this.usuariosListos &&
         this.pacientesInicioListo &&
         this.estadosCobrosInicioListos) {
-    
+
         //Se detiene la espera.
         this.esperarService.noEsperar();
         //Se busca la información según los filtros iniciales.
@@ -269,7 +269,12 @@ export class ListaCobrosComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-   
+
+    //El botón de alta cobros se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ALTA COBRO').subscribe((respuesta: boolean) => {
+      this.altaCobros = respuesta["value"];
+    });
+
     //El botón de cancelar cobros se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('CANCELAR COBRO').subscribe((respuesta: boolean) => {
       this.cancelarCobros = respuesta["value"];
@@ -787,7 +792,7 @@ export class ListaCobrosComponent implements OnInit {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        /*this.consultasService.cambiarEstadoConsulta(consultaId, 'CANCELADA').subscribe(respuesta => {
+        this.cobrosService.cancelarCobro(cobroId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -798,16 +803,16 @@ export class ListaCobrosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Cancelación exitosa", "La consulta se canceló satisfactoriamente.");
+            this.utilidadesService.alerta("Cancelación exitosa", "El cobro se canceló satisfactoriamente.");
             this.buscar();
           }
 
-        });*/
+        });
       }
     });
   }
 
-  
+
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaCobro.                                                   |
   |-----------------------------------------------------------------------|
@@ -823,6 +828,21 @@ export class ListaCobrosComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
+  |  NOMBRE: historialCobro.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para ver el historial del cobro.                 |  
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: cobroId = identificador del cobro.            |   
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/04/2024.                                                   |    
+  |----------------------------------------------------------------------*/
+  historialCobro(cobroId) {
+    this.rutaNavegacion.navigateByUrl('cobros/historial-cobro/' + cobroId);
+  }
+
+  /*----------------------------------------------------------------------|
   |  NOMBRE: editarCobro.                                                 |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método que llama al formulario de editar cobro.         |    
@@ -834,7 +854,7 @@ export class ListaCobrosComponent implements OnInit {
   |  FECHA: 24/01/2020.                                                   |    
   |----------------------------------------------------------------------*/
   editarCobro(cobroId) {
-    
+
     let url: string = 'cobros/editar-cobro/' + cobroId;
     this.rutaNavegacion.navigateByUrl(url);
   }
@@ -850,10 +870,10 @@ export class ListaCobrosComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  FECHA: 03/04/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  imprimirRecibo(cobroId) {            
+  imprimirRecibo(cobroId) {
     this.cobroReciboService.imprimirRecibo(cobroId);
-  }  
-  
+  }
+
 
 }
 

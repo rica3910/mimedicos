@@ -143,7 +143,8 @@ export class CobroReciboService {
       totales.push(new Array("IVA (" + pFormato["porcentajeIva"] + "%)", pFormato["iva"]));
       totales.push(new Array("Total", pFormato["total"]));
       totales.push(new Array("Abonos", pFormato["abonos"]));
-      totales.push(new Array("Saldo", pFormato["saldo"]));
+      //Si el estatus es CANCELADO, no se incluye el saldo.
+      pFormato["estatus"] == "CANCELADO"? null : totales.push(new Array("Saldo", pFormato["saldo"]));
 
 
       //Totales
@@ -468,7 +469,7 @@ export class CobroReciboService {
                   "total": infoResumenCobro["datos"][0]["total_cobro_formato"],
                   "abonos": infoResumenCobro["datos"][0]["abonos_formato"],
                   "saldo": infoResumenCobro["datos"][0]["saldo_formato"],
-                  "descuento": infoResumenCobro["datos"][0]["descuento"]
+                  "descuento": infoResumenCobro["datos"][0]["descuento_formato"]
                 }
 
                 //Se escriben el header y el footer.
