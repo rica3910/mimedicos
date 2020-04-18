@@ -136,9 +136,7 @@ export class VerConsultaComponent implements OnInit {
           this.cantidadDiagnosticos = respuesta["datos"][0]["cantidad_diagnosticos"];
           this.cobroId = respuesta["datos"][0]["cobro_id"];
           this.estadoCobro = respuesta["datos"][0]["estado_cobro"];
-
-          console.log(this.estadoCobro);
-
+          
           this.consultasService.verEstudiosConsulta(this.consultaId).subscribe(respuestaEstudios => {
 
             //Se detiene la espera.          

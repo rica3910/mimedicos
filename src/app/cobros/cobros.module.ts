@@ -8,7 +8,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { ListaCobrosComponent } from './lista-cobros/lista-cobros.component';
 import { AltaCobroComponent } from './alta-cobro/alta-cobro.component';
-import { AgregarAbonoComponent } from './agregar-abono/agregar-abono.component';
+import { AgregarAbonoComponent } from '../agregar-abono/agregar-abono.component';
 import { HistorialCobroComponent } from './historial-cobro/historial-cobro.component';
 import { ResumenCobroComponent } from './resumen-cobro/resumen-cobro.component';
 import { AltaConsultaCobroComponent } from './alta-consulta-cobro/alta-consulta-cobro.component';

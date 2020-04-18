@@ -385,7 +385,7 @@ export class ListaConsultasComponent implements OnInit {
     });
 
     //El botón de alta cobros se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('ALTA COBRO').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('ALTA CONSULTA COBRO').subscribe((respuesta: boolean) => {
       this.altaCobros = respuesta["value"];
     });
 
@@ -878,9 +878,7 @@ export class ListaConsultasComponent implements OnInit {
       usuario ? usuario.id : "0",
       this.estadoConsultaControl.value,
       this.tipoConsultaControl.value).subscribe((respuesta) => {
-
-        console.log(respuesta["datos"]);
-
+     
         //Detiene la espera, signo de que ya se obtuvo la información.
         this.esperarService.noEsperar();
 
@@ -1233,6 +1231,21 @@ export class ListaConsultasComponent implements OnInit {
 
     let url: string = 'consultas/lista-recetas/' + consultaId;
     this.rutaNavegacion.navigateByUrl(url);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaCobro.                                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de crear cobro.          | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: consultaId = identificador de la consulta.    |    
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 14/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaCobro(consultaId) {
+    this.rutaNavegacion.navigateByUrl('consultas/alta-consulta-cobro/' + consultaId);
   }
 
 

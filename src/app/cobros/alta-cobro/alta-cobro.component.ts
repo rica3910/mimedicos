@@ -30,8 +30,9 @@ import { CobrosService } from '../../cobros.service';
 import { AgregarCantidadProductoComponent } from '../agregar-cantidad-producto/agregar-cantidad-producto.component';
 import { ParametrosService } from '../../parametros.service';
 import { CobroReciboService } from './../../cobro-recibo.service';
-import { AgregarAbonoComponent } from '../agregar-abono/agregar-abono.component';
+import { AgregarAbonoComponent } from '../../agregar-abono/agregar-abono.component';
 import { CurrencyPipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-alta-cobro',
@@ -1316,7 +1317,7 @@ export class AltaCobroComponent implements OnInit {
       //Se utiliza para que no se dispare tantas veces el evento.
       this.verificarInputsDescuentos = true;
 
-      this.descuentoControl.setValue("");
+      //this.descuentoControl.setValue("");
 
       //El descuento solo aceptará números.
       this.utilidadesService.inputNumerico(this.descuentoHTML, true, this.descuentoControl);
@@ -1326,7 +1327,7 @@ export class AltaCobroComponent implements OnInit {
       //Cuando se cambia el descuento.    
       fromEvent(this.descuentoHTML.nativeElement, 'keyup').subscribe(() => {
         //Si el descuento es mayor que el subtotal.
-        if (this.descuentoControl.value > this.subtotal) {
+        if (Number(this.descuentoControl.value) > Number(this.subtotal)) {
           this.utilidadesService.alerta("Descuento no permitido", "El descuento debe ser menor o igual al subtotal.").subscribe(() => {
             this.descuentoControl.setValue("");
             this.porcentajeDescuentoControl.setValue("");
@@ -1343,7 +1344,7 @@ export class AltaCobroComponent implements OnInit {
       //Cuando se cambia el porcentaje del descuento.    
       fromEvent(this.porcentajeDescuentoHTML.nativeElement, 'keyup').subscribe(() => {
         //Si el porcentaje del descuento es mayor a 100.
-        if (this.porcentajeDescuentoControl.value > 100) {
+        if (Number(this.porcentajeDescuentoControl.value) > 100) {
           this.utilidadesService.alerta("Descuento no permitido", "El porcentaje del descuento debe ser menor o igual a 100.").subscribe(() => {
             this.porcentajeDescuentoControl.setValue("");
             this.descuentoControl.setValue("");

@@ -13,7 +13,7 @@
 */
 
 import { CobroReciboService } from './../../cobro-recibo.service';
-import { AgregarAbonoComponent } from './../agregar-abono/agregar-abono.component';
+import { AgregarAbonoComponent } from '../../agregar-abono/agregar-abono.component';
 import { AutenticarService } from './../../autenticar.service';
 import { UtilidadesService } from './../../utilidades.service';
 import { ActivatedRoute, Router } from '@angular/router';

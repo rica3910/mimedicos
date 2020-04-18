@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { UtilidadesService } from '../../utilidades.service';
+import { UtilidadesService } from '../utilidades.service';
 
 @Component({
   selector: 'app-agregar-abono',

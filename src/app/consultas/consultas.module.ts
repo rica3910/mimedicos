@@ -41,6 +41,7 @@ import { AltaRecetaComponent } from './alta-receta/alta-receta.component';
 import { VerRecetaComponent } from './ver-receta/ver-receta.component';
 import { EditarRecetaComponent } from './editar-receta/editar-receta.component';
 import { UsuarioPuedeEditarRecetaGuard } from './usuario-puede-editar-receta.guard';
+import { AltaConsultaCobroComponent } from './alta-consulta-cobro/alta-consulta-cobro.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
@@ -61,6 +62,7 @@ export const rutas: Routes = [
   { path: 'alta-receta/:id', component: AltaRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
   { path: 'ver-receta/:id/:recetaId', component: VerRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard]},  
   { path: 'editar-receta/:id/:recetaId', component: EditarRecetaComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerRecetasGuard, UsuarioPuedeEditarRecetaGuard]},  
+  { path: 'alta-consulta-cobro/:id', component: AltaConsultaCobroComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioPuedeVerConsultaGuard]},
   { path: '**', redirectTo: 'lista-consultas', pathMatch: 'full'  }  
 ];
 
@@ -87,7 +89,8 @@ export const rutas: Routes = [
     ListaRecetasComponent,
     AltaRecetaComponent,
     VerRecetaComponent,
-    EditarRecetaComponent
+    EditarRecetaComponent,
+    AltaConsultaCobroComponent
   ],
   exports: [ConsultasComponent],
   providers: [

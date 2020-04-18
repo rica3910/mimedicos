@@ -1,0 +1,152 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-consulta-cobro.                                      | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para cobrar consultas.                        |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 15/04/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-3">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom"
+        ngbTooltip="Regresar al listado de consultas." (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+    </div>
+    <div class="col-lg-8">
+      <h1 class="display-4">Cobrar consulta</h1>
+    </div>
+  </div>
+  <div class="row">
+    <br>
+  </div>
+  <form [formGroup]="formAltaCobros">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica</span>
+          </div>
+          <label class="form-control">{{clinica.nombre}}</label>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Médico</span>
+          </div>
+          <label class="form-control">{{usuario.nombre}}</label>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Paciente</span>
+          </div>
+          <label class="form-control">{{paciente.nombre}}</label>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-lg-3">
+        <table class="table table-bordered">
+          <tr>
+            <th>Subtotal</th>
+            <td class="text-right">{{subtotal | currency}}</td>
+          </tr>
+          <tr *ngIf="usuarioPuedeDarDescuentos && estudios.length > 0">
+            <th>Descuento</th>
+            <td class="text-right">
+              <div class="input-group">
+                <input type="text" [formControl]="porcentajeDescuentoControl" #porcentajeDescuentoHTML
+                  class="form-control input-text-right" ngbTooltip="Porcentaje de descuento." value="">
+                <div class="input-group-append">
+                  <span class="input-group-text">%</span>
+                </div>
+                <div class="input-group-prepend">
+                  <span class="input-group-text">$</span>
+                </div>
+                <input type="text" [formControl]="descuentoControl" #descuentoHTML class="form-control"
+                  ngbTooltip="Cantidad de descuento." value="">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>IVA ({{iva}}%)</th>
+            <td class="text-right">{{(subtotal - descuentoControl.value) * (iva/100) | currency}}</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <td class="text-right">
+              {{(subtotal - descuentoControl.value)  + ((subtotal - descuentoControl.value) * (iva/100)) | currency}}
+            </td>
+          </tr>
+        </table>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Observaciones</span>
+              </div>
+              <textarea class="form-control" [formControl]="comentariosControl" #comentariosHTML
+                ngbTooltip="Observaciones del cobro."></textarea>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="estudios.length > 0" class="row">
+          <div class="col-lg-12">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Tipo de cobro*</span>
+              </div>
+              <select class="form-control" [formControl]="tipoCobroControl" #tipoCobroHTML
+                ngbTooltip="Seleccionar un tipo de cobro.">
+                <option *ngFor="let tipoCobro of tipoCobros" value={{tipoCobro.id}}>
+                  {{tipoCobro.nombre}}
+                </option>
+              </select>
+            </div>
+            <div *ngIf="pulsarCrear && !tipoCobroControl.valid"
+              class="col-lg-12 alert-danger text-center campo-invalido">El tipo de cobro es Requerido.</div>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div *ngIf="estudios.length > 0" class="btn-group-lg" role="group">
+            <button class="btn btn-azul" type="button" ngbTooltip="Cobrar consulta."
+              (click)="cobrar('COBRADO')">Cobrar</button>
+            <button class="btn btn-azul" type="button" ngbTooltip="Abonar."
+              (click)="cobrar('PENDIENTE')">Abonar</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-9">
+        <table class="table table-bordered">
+          <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">Estudio</th>
+            <th class="text-center">Precio bruto</th>
+            <th class="text-center">IVA ({{iva}}%)</th>
+            <th class="text-center">Precio neto</th>            
+          </tr>
+          <tr *ngFor="let estudio of estudios; let i = index" [attr.data-index]="i">
+            <td class="text-center">{{i + 1}}</td>
+            <td class="text-center">{{estudio.nombre}}</td>
+            <td class="text-center">{{estudio.precio_bruto_formato}}</td>
+            <td class="text-center">{{estudio.iva_formato}}</td>
+            <td class="text-center">{{estudio.precio_neto_formato}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </form>
+</div>
