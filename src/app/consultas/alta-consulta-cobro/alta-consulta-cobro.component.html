@@ -121,7 +121,7 @@
         </div>
         <br>
         <div class="row">
-          <div *ngIf="estudios.length > 0" class="btn-group-lg" role="group">
+          <div *ngIf="estudios.length > 0 && subtotal > 0" class="btn-group-lg" role="group">
             <button class="btn btn-azul" type="button" ngbTooltip="Cobrar consulta."
               (click)="cobrar('COBRADO')">Cobrar</button>
             <button class="btn btn-azul" type="button" ngbTooltip="Abonar."

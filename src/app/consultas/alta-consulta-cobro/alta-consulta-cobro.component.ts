@@ -379,6 +379,12 @@ export class AltaConsultaCobroComponent implements OnInit {
           return;
         }
 
+        //Si el total es menor o igual a $0.00.
+        if(Number(this.subtotal)<= 0){
+          this.utilidadesService.alerta("Cobro incorrecto", "El total debe ser mayor a $0.00.");
+          return;
+        }
+
         //Se utiliza para distinguir entre un abono y un cobrado total.
         let procesoCobrado: Subject<any> = new Subject<any>();
 
@@ -397,6 +403,7 @@ export class AltaConsultaCobroComponent implements OnInit {
           abono.total = (this.subtotal - this.descuentoControl.value) + ((this.subtotal - this.descuentoControl.value) * (this.iva / 100)) + "";
           abono.totalFormato = new CurrencyPipe("EN").transform(abono.total, "$");
           abono.tiposCobros = this.tipoCobros.filter(tipoCobro => tipoCobro["id"] == this.tipoCobroControl.value);
+          
 
           //Se muestra un caja de diálogo donde el usuario escribirá el abono que se le dará al cobro.
           this.cobrosService.agregarAbono(AgregarAbonoComponent, abono).subscribe((abono) => {
@@ -418,21 +425,11 @@ export class AltaConsultaCobroComponent implements OnInit {
 
           //Se abre el modal de espera.
           this.esperarService.esperar();
-
-          let listadoEstudios: string = "";
-
-          //Se forma la lista de estudios.
-          this.estudios.forEach(estudio => {
-
-            listadoEstudios = listadoEstudios + estudio.id + ",";
-
-          });
-
+     
           //Se obtiene el descuento.
           let descuento: string = this.descuentoControl.value && this.descuentoControl.value.trim().length > 0 ? this.descuentoControl.value : "0";
 
-
-          this.cobrosService.altaCobro(this.clinica.id, this.tipoCobroControl.value, listadoEstudios, this.comentariosControl.value, descuento, this.paciente.id, abono ? abono.abono : '0', abono ? abono.observaciones : '').subscribe(respuestaAltaCobro => {
+          this.cobrosService.altaConsultaCobro(this.consultaId, this.tipoCobroControl.value, this.comentariosControl.value, descuento, abono ? abono.abono : '0', abono ? abono.observaciones : '').subscribe(respuestaAltaCobro => {
             //Si hubo un error en el alta de cobro.
             if (respuestaAltaCobro["estado"] === "ERROR") {
               //Se detiene la espera.

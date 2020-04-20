@@ -785,6 +785,55 @@ export class CobrosService {
   }    
   
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaConsultaCobro.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para cobrar una consulta.                        | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  consultaId = identificador de la consulta,                           |
+  |  tipoCobroId = identificador del tipo de cobro,                       |  
+  |  observaciones = observaciones del cobro,                             |
+  |  descuento = descuento del cobro,                                     |  
+  |  abono = abono que se le dará al cobro si es el caso,                 |
+  |  observacionesDetCobro = observaciones del abono.                     |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 20/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaConsultaCobro(
+    consultaId: string,
+    tipoCobroId: string,     
+    observaciones: string,
+    descuento: string,    
+    abono: string,
+    observacionesDetCobro): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      consultaId: consultaId,
+      tipoCobroId: tipoCobroId,      
+      observaciones: observaciones,
+      descuento: descuento,      
+      abono: abono,
+      observacionesDetCobro: observacionesDetCobro
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-consulta-cobro',
+        json,
+        { headers: headers });
+  }
   
 
 }
