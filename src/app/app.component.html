@@ -38,11 +38,17 @@
           </li>        
           <li class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('cobros')">
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/cobros']">Cobros</a>
-          </li>                        
-        </ul>        
-        <div ngbDropdown class="d-inline-block">
-          <button class="btn btn-desplegable" id="dropdownBasic1" ngbDropdownToggle>{{autorizacion.obtenerNombreUsuario()}}</button>
-          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+          </li>       
+          <li ngbDropdown class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('configuracion')">
+            <a class="nav-link" ngbDropdownToggle><i class="material-icons">settings</i></a>
+            <div ngbDropdownMenu>
+              <a *ngIf="autorizacion.obtenerMenusArreglo().includes('estudios')" class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/configuracion/estudios']">Estudios</a>
+            </div>
+          </li>                       
+        </ul>            
+        <div ngbDropdown>
+          <button class="btn btn-desplegable" ngbDropdownToggle>{{autorizacion.obtenerNombreUsuario()}}</button>
+          <div ngbDropdownMenu>
             <button class="dropdown-item">Cambiar password</button>            
             <app-logout (emitirSalir)="salir($event)"></app-logout>        
           </div>

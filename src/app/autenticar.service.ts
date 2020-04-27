@@ -76,7 +76,7 @@ export class AutenticarService {
           this._guardarNombreUsuario(respuesta["usuario"]);
 
           //Arreglo que contiene todos los menús del sistema.
-          const urlsMenus: string[] = ["pacientes",  "consultas", "cobros"];
+          const urlsMenus: string[] = ["pacientes",  "consultas", "cobros", "configuracion", "estudios"];
           //Se borran los  menús en caso de que haya.
           this._eliminarMenus();
           //Se despliegan los menús que tiene asignados el usuario logueado.

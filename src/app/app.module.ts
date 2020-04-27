@@ -1,4 +1,3 @@
-
 /******************************************************************|
 |NOMBRE: appModule.                                                | 
 |------------------------------------------------------------------|
@@ -39,6 +38,7 @@ import { UTILIDADES_PROVIDERS } from './utilidades.service';
 import { rutas as  rutasPacientes, PacientesModule} from './pacientes/pacientes.module';
 import { rutas as  rutasConsultas, ConsultasModule } from './consultas/consultas.module';
 import { rutas as  rutasCobros, CobrosModule } from './cobros/cobros.module';
+import { rutas as  rutasConfiguracion, ConfiguracionModule } from './configuracion/configuracion.module';
 import { ORGANIZACIONES_PROVIDERS } from './organizaciones.service';
 import { CLINICAS_PROVIDERS } from './clinicas.service';
 import { USUARIOS_PROVIDERS } from './usuarios.service';
@@ -64,6 +64,7 @@ import { AgregarCantidadProductoComponent } from './cobros/agregar-cantidad-prod
 import { PARAMETROS_PROVIDERS } from './parametros.service';
 import { COBRO_RECIBO_PROVIDERS } from './cobro-recibo.service';
 import { AgregarAbonoComponent } from './agregar-abono/agregar-abono.component';
+import { ConfiguracionComponent } from './configuracion/configuracion.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -75,6 +76,7 @@ const rutas: Routes = [
   { path: 'pacientes', component: PacientesComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasPacientes },     
   { path: 'consultas', component: ConsultasComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasConsultas },
   { path: 'cobros', component: CobrosComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasCobros },
+  { path: 'configuracion', component: ConfiguracionComponent, canActivate: [UsuarioIngresadoGuard, UsuarioTieneMenuGuard], children: rutasConfiguracion },
   { path: '**', component: LoginComponent, canActivate: [UsuarioIngresadoGuard] }    
 ];
 
@@ -92,7 +94,7 @@ const rutas: Routes = [
     DesplegarImagenComponent, 
     DibujoComponent,
     AgregarMedicamentoComponent,
-    AgregarCantidadProductoComponent 
+    AgregarCantidadProductoComponent
   ],  
   entryComponents: [
     DialogoConfirmacionComponent, 
@@ -117,7 +119,8 @@ const rutas: Routes = [
     MatSliderModule,
     FullCalendarModule,
     NgbTooltipModule,
-    CobrosModule
+    CobrosModule,
+    ConfiguracionModule
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
     AUTH_PROVIDERS,

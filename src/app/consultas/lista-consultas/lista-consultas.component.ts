@@ -1248,5 +1248,20 @@ export class ListaConsultasComponent implements OnInit {
     this.rutaNavegacion.navigateByUrl('consultas/alta-consulta-cobro/' + consultaId);
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: verCobro.                                                    |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que sirve para ver el cobro de la consulta.      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: cobroId = identificador del cobro.            |    
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 22/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  verCobro(cobroId) {
+    this.rutaNavegacion.navigateByUrl('cobros/historial-cobro/' + cobroId);
+  }
+
 
 }
