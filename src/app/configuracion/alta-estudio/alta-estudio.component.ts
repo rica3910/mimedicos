@@ -129,13 +129,13 @@ export class AltaEstudioComponent implements OnInit {
     //Cuando se cambia el precio bruto.    
     fromEvent(this.precioBrutoHTML.nativeElement, 'keyup').subscribe(() => {
       //Se actualiza el precio neto.
-      this.precioNetoControl.setValue(Number(this.precioBrutoControl.value) * (Number(this.iva) / 100 + 1));
+      this.precioNetoControl.setValue(Number(Number(this.precioBrutoControl.value) * (Number(this.iva) / 100 + 1)).toFixed(2));
     });
 
     //Cuando se cambia el precio neto.    
     fromEvent(this.precioNetoHTML.nativeElement, 'keyup').subscribe(() => {
       //Se actualiza el precio bruto.
-      this.precioBrutoControl.setValue(Number(this.precioNetoControl.value) / (Number(this.iva) / 100 + 1));
+      this.precioBrutoControl.setValue(Number(Number(this.precioNetoControl.value) / (Number(this.iva) / 100 + 1)).toFixed(2));
     });
 
 
@@ -262,6 +262,32 @@ export class AltaEstudioComponent implements OnInit {
           this.precioBrutoHTML.nativeElement.focus();
           return;
         }
+
+        //Se inicia la espera.
+        this.esperarService.esperar();
+
+        //Se intenta dar de alta el estudio.
+        this.estudiosService.altaEstudio(this.clinicaControl.value, this.nombreControl.value, this.descripcionControl.value, this.precioBrutoControl.value).subscribe((respuesta) => {
+
+          //Se detiene la espera.
+          this.esperarService.noEsperar();
+
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+
+            this.utilidadesService.alerta("Alta de estudio satisfactoria.", "El estudio se dio de alta satisfactoriamente.").subscribe(() => {
+              //Se retorna a la lista de estudios.
+              this.regresar();
+            });
+          
+          }
+
+        });
 
       }
     });

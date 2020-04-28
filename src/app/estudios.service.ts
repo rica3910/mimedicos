@@ -77,6 +77,50 @@ export class EstudiosService {
 
   }
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: altaEstudio.                                                 |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para dar de alta un estudio.                     | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  clinicaId = identificador de la clínica,                             |
+  |  nombre = nombre del estudio,                                         |
+  |  descripcion = descripción del estudio,                               | 
+  |  precioBruto = precio bruto del estudio.                              |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 28/04/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  altaEstudio(
+    clinicaId: string,
+    nombre: string,
+    descripcion: string,    
+    precioBruto: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      clinicaId: clinicaId,
+      nombre: nombre,
+      descripcion: descripcion,
+      precioBruto: precioBruto
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'alta-estudio',
+        json,
+        { headers: headers });
+  }  
+
 
 }
 
