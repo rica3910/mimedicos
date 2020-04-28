@@ -1,0 +1,90 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-estudio.                                             | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Página para dar de alta esudios.                     |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 27/04/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12 display-4 text-center">
+      <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de estudios."
+        (click)="regresar()">
+        <i class="material-icons">arrow_back</i>
+      </button>
+      Alta de estudios
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-lg-2">
+    </div>
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="input-group input-group-lg col-lg-12">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Clínica*</span>
+          </div>
+          <select class="form-control" [formControl]="clinicaControl" #clinicaHTML
+            ngbTooltip="Seleccionar una clínica.">
+            <option *ngFor="let clinica of clinicas" value={{clinica.id}}>
+              {{clinica.nombre}}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="pulsarCrear && !clinicaControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">La
+          clínica es Requerida.</div>
+      </div>
+      <div class="row">
+        <div class="input-group input-group-lg col-lg-12">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Nombre*</span>
+          </div>
+          <input [ngClass]="{'input-borde-rojo':pulsarCrear && nombreControl.invalid}" type="text" class="form-control"
+            [formControl]="nombreControl" #nombreHTML ngbTooltip="Nombre del estudio.">
+        </div>
+        <div *ngIf="pulsarCrear && !nombreControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">El
+          Nombre es Requerido.</div>
+      </div>
+      <div class="row">
+        <div class="input-group input-group-lg col-lg-12">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Descripción</span>
+          </div>
+          <input type="text" class="form-control" [formControl]="descripcionControl"
+            ngbTooltip="Descripción del estudio.">
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-group input-group-lg col-lg-12">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Precio bruto $</span>
+          </div>
+          <input type="text" [formControl]="precioBrutoControl" #precioBrutoHTML class="form-control input-text-right"
+            ngbTooltip="Precio bruto (sin IVA)." value="">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Precio neto (IVA {{iva}}%) $</span>
+          </div>
+          <input type="text" [formControl]="precioNetoControl" #precioNetoHTML class="form-control input-text-right"
+            ngbTooltip="Precio neto (incluye IVA)." value="">
+        </div>
+        <div *ngIf="pulsarCrear && !precioBrutoControl.valid" class="col-lg-12 alert-danger text-center campo-invalido">
+          El precio es requerido.</div>
+      </div>
+      <br>
+      <div class="row" *ngIf="nombreControl.valid && clinicaControl.valid && precioBrutoControl.valid">
+        <div class="input-group input-group-lg col-lg-12">
+          <button class="btn btn-azul form-control" type="button" ngbTooltip="Dar de alta el estudio." (click)="altaEstudio()">Crear
+            estudio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

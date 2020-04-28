@@ -21,11 +21,13 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EstudiosComponent } from './estudios/estudios.component';
+import { AltaEstudioComponent } from './alta-estudio/alta-estudio.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', component: InicioComponent },   
   { path: 'estudios', component: EstudiosComponent, canActivate: [UsuarioTieneMenuGuard]},    
+  { path: 'alta-estudio', component: AltaEstudioComponent, canActivate: [UsuarioTieneMenuGuard]},   
   { path: '**', redirectTo: '', pathMatch: 'full'  }  
 ];
 
@@ -37,6 +39,6 @@ export const rutas: Routes = [
     ReactiveFormsModule,
     NgbModule.forRoot()   
   ],
-  declarations: [ConfiguracionComponent, EstudiosComponent]
+  declarations: [ConfiguracionComponent, EstudiosComponent, AltaEstudioComponent]
 })
 export class ConfiguracionModule { }
