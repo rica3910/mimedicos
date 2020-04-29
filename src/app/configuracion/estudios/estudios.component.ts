@@ -218,7 +218,7 @@ export class EstudiosComponent implements OnInit {
     });
 
     //El botón de editar estudios se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('EDITAR ESTUDIO').subscribe((respuesta: boolean) => {
+    this.autenticarService.usuarioTieneDetModulo('MODIFICAR ESTUDIO').subscribe((respuesta: boolean) => {
       this.editarEstudios = respuesta["value"];
     });
 
@@ -345,19 +345,24 @@ export class EstudiosComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método para ACTIVAR o INACTIVAR un estudio.             |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio.        |
+  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio,        |
+  |                         estatus = estatus del estudio.                |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/04/2020.                                                   |    
+  |  FECHA: 29/04/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  cambiarEstatusEstudio(estudioId: string) {
+  cambiarEstatusEstudio(estudioId: string, estatus: string) {
 
-    /*this.utilidadesService.confirmacion("Cancelar consulta.", "¿Está seguro de cancelar la consulta?").subscribe(respuesta => {
+    //Mensaje que tedrá la confirmación dependiendo del estatus.
+    let tituloMensaje: string = estatus == "ACTIVO" ? "Activar estudio." : "Inactivar estudio.";
+    let mensaje: string = estatus == "ACTIVO" ? "¿Está seguro de activar el estudio?" : "¿Está seguro de inactivar el estudio?";
+
+    this.utilidadesService.confirmacion(tituloMensaje, mensaje).subscribe(respuesta => {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.consultasService.cambiarEstadoConsulta(consultaId, 'CANCELADA').subscribe(respuesta => {
+        this.estudiosService.modificarEstudio(estudioId, "", "", "", "", estatus).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -368,14 +373,14 @@ export class EstudiosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Cancelación exitosa", "La consulta se canceló satisfactoriamente.");
+            this.utilidadesService.alerta("Modificación exitosa.", "El estatus del estudio se modificó satisfactoriamente.");
             this.buscar();
           }
 
         });
       }
     });
-    */
+    
   }
 
 

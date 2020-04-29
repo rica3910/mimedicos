@@ -108,7 +108,7 @@
           <td>{{estudio.nombre_clinica}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="editarEstudios && estudio.estatus == 'ACTIVO'" type="button" class="btn"
+              <button *ngIf="editarEstudios" type="button" class="btn"
                 ngbTooltip="Editar estudio." (click)='editarEstudio(estudio.id)'>
                 <i class="material-icons">edit</i>
               </button>

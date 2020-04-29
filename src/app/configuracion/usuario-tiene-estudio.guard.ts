@@ -1,12 +1,12 @@
 /******************************************************************|
-|NOMBRE: UsuarioPuedeVerHistorialCobro                             | 
+|NOMBRE: UsuarioTieneEstudio                                       | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Guarda para garantizar que el usuario pueda ver      |
-| el historial de un cobro.                                        |
+|DESCRIPCIÓN: Guarda para garantizar que el usuario logueado       |
+|pueda ver un estudio en específico.                               |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 08/04/2020.                                                |
+|FECHA: 29/04/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -22,9 +22,9 @@ import { map } from "rxjs/operators";
 @Injectable({
   providedIn: 'root'
 })
-export class UsuarioPuedeVerHistorialCobroGuard implements CanActivate {
+export class UsuarioTieneEstudioGuard implements CanActivate {
 
- /*----------------------------------------------------------------------|
+  /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Método constructor del componente.                      | 
@@ -35,29 +35,28 @@ export class UsuarioPuedeVerHistorialCobroGuard implements CanActivate {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 08/04/2020.                                                   |    
+  |  FECHA: 24/04/2020.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private autorizacion: AutenticarService,
     private rutaNavegacion: Router) { }
 
-
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-       //Obtiene el identificador del cobro de la url.
-       let cobroId: string = next.paramMap.get("id");
+    //Obtiene el identificador del estudio de la url.
+    let estudioId: string = next.paramMap.get("id");
 
-       //Retorna verdadero o falso en caso de que el usuario pueda ver el historial de un cobro
-       //en específico o no respectivamente.
-       return this.autorizacion.usuarioPuedeVerHistorialCobro(cobroId).pipe(map((resultado) => {
+    /*Retorna verdadero o falso en caso de que el usuario pueda ver el estudio
+    en específico o no respectivamente.*/
+    return this.autorizacion.usuarioTieneEstudio("0", estudioId).pipe(map((resultado) => {
 
-         //Si el usuario no puede ver un cobro en específico.
-         if (!resultado["value"]) {
-   
-           this.rutaNavegacion.navigate(['cobros', 'lista-cobros']);
-         }
-   
-         return resultado["value"];
-       })).toPromise();
+      //Si el usuario no puede ver un estudio en específico.
+      if (!resultado["value"]) {
+
+        this.rutaNavegacion.navigate(['configuracion', 'estudios']);
+      }
+
+      return resultado["value"];
+    })).toPromise();
   }
 }

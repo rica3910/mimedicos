@@ -1,3 +1,4 @@
+import { UsuarioTieneEstudioGuard } from './usuario-tiene-estudio.guard';
 /******************************************************************|
 |NOMBRE: ConfiguracionModule.                                      | 
 |------------------------------------------------------------------|
@@ -22,12 +23,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EstudiosComponent } from './estudios/estudios.component';
 import { AltaEstudioComponent } from './alta-estudio/alta-estudio.component';
+import { EditarEstudioComponent } from './editar-estudio/editar-estudio.component';
 
 //Constante que contiene las rutas que tendrá el módulo.
 export const rutas: Routes = [
   { path: '', component: InicioComponent },   
   { path: 'estudios', component: EstudiosComponent, canActivate: [UsuarioTieneMenuGuard]},    
   { path: 'alta-estudio', component: AltaEstudioComponent, canActivate: [UsuarioTieneMenuGuard]},   
+  { path: 'editar-estudio/:id', component: EditarEstudioComponent, canActivate: [UsuarioTieneMenuGuard, UsuarioTieneEstudioGuard]},  
   { path: '**', redirectTo: '', pathMatch: 'full'  }  
 ];
 
@@ -39,6 +42,6 @@ export const rutas: Routes = [
     ReactiveFormsModule,
     NgbModule.forRoot()   
   ],
-  declarations: [ConfiguracionComponent, EstudiosComponent, AltaEstudioComponent]
+  declarations: [ConfiguracionComponent, EstudiosComponent, AltaEstudioComponent, EditarEstudioComponent]
 })
 export class ConfiguracionModule { }
