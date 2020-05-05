@@ -39,6 +39,8 @@ export class EstudiosComponent implements OnInit {
   editarEstudios: boolean = false;
   //Propiedad que indica si el usuario puede eliminar estudios.
   eliminarEstudios: boolean = false;
+  //Propiedad que indica si el usuario puede desasignarse estudios.
+  desasignarEstudios: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
@@ -199,12 +201,12 @@ export class EstudiosComponent implements OnInit {
           this.esperarService.noEsperar();
         }
         //Si se está iniciando la página.
-        else{
+        else {
           this.clinicasInicioListas = true;
           this.cargaInicialLista$.next(this.clinicasInicioListas);
         }
 
-       
+
       });
 
     });
@@ -221,6 +223,12 @@ export class EstudiosComponent implements OnInit {
     this.autenticarService.usuarioTieneDetModulo('MODIFICAR ESTUDIO').subscribe((respuesta: boolean) => {
       this.editarEstudios = respuesta["value"];
     });
+
+    //El botón de desasignar estudios se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('DESASIGNAR ESTUDIO').subscribe((respuesta: boolean) => {
+      this.desasignarEstudios = respuesta["value"];
+    });
+
 
     //El botón de eliminar estudios se hará visible solamente si el usuario tiene el privilegio.
     this.autenticarService.usuarioTieneDetModulo('ELIMINAR ESTUDIO').subscribe((respuesta: boolean) => {
@@ -275,7 +283,7 @@ export class EstudiosComponent implements OnInit {
   |----------------------------------------------------------------------*/
   buscar() {
 
-  
+
     /*Si los elementos del formulario estáticos requeridos no están llenos, 
     se hace un focus para que se ingrese texto.*/
     if (this.organizacionControl.invalid) {
@@ -380,7 +388,7 @@ export class EstudiosComponent implements OnInit {
         });
       }
     });
-    
+
   }
 
 
@@ -397,14 +405,13 @@ export class EstudiosComponent implements OnInit {
   |----------------------------------------------------------------------*/
   eliminarEstudio(estudioId: string) {
 
-    /*
 
     //Abre el modal.
-    this.utilidadesService.confirmacion("Eliminar consulta.", "¿Está seguro de eliminar la consulta?").subscribe(respuesta => {
+    this.utilidadesService.confirmacion("Eliminar estudio.", "¿Está seguro de eliminar el estudio?").subscribe(respuesta => {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.consultasService.eliminarConsulta(consultaId).subscribe(respuesta => {
+        this.estudiosService.eliminarEstudio(estudioId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -415,15 +422,52 @@ export class EstudiosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Eliminación exitosa", "La consulta se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa", "El estudio se eliminó permanentemente.");
             this.buscar();
           }
         });
       }
     });
 
-    */
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desasignarEstudio.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para desasignar un estudio.                      |   
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio,        |
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  desasignarEstudio(estudioId: string) {
+
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Desasignar estudio.", "¿Está seguro de desasignarse el estudio?").subscribe(respuesta => {
+      if (respuesta == "Aceptar") {
+        //Se inicia la espera en respuesta del servidor.
+        this.esperarService.esperar();
+        this.estudiosService.desasignarEstudio(estudioId, "0").subscribe(respuesta => {
+          //Se finaliza la espera.
+          this.esperarService.noEsperar();
+          //Si hubo un error.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+          }
+          //Si todo salió bien.
+          else {
+            //Se actualizan los datos.            
+            this.utilidadesService.alerta("Desasignación exitosa", "El estudio se desasignó satisfactoriamente.");
+            this.buscar();
+          }
+        });
+      }
+    });
+
+  }  
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: altaEstudio.                                                 |

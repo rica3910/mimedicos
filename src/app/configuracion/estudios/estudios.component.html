@@ -22,7 +22,7 @@
           <span class="input-group-text">Organización</span>
         </div>
         <select class="form-control select" [formControl]="organizacionControl"
-          ngbTooltip="Seleccionar una organización.">      
+          ngbTooltip="Seleccionar una organización.">
           <option *ngFor="let organizacion of organizaciones" value={{organizacion.id}}>
             {{organizacion.nombre}}
           </option>
@@ -75,8 +75,8 @@
     </div>
   </div>
   <div class="col-lg-1">
-    <button *ngIf="organizacionControl.valid && clinicaControl.valid && estatusEstudio.valid" class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom"
-      ngbTooltip="Buscar.">
+    <button *ngIf="organizacionControl.valid && clinicaControl.valid && estatusEstudio.valid"
+      class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom" ngbTooltip="Buscar.">
       <i class="material-icons">search</i>
     </button>
   </div>
@@ -108,8 +108,8 @@
           <td>{{estudio.nombre_clinica}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="editarEstudios" type="button" class="btn"
-                ngbTooltip="Editar estudio." (click)='editarEstudio(estudio.id)'>
+              <button *ngIf="editarEstudios" type="button" class="btn" ngbTooltip="Editar estudio."
+                (click)='editarEstudio(estudio.id)'>
                 <i class="material-icons">edit</i>
               </button>
               <button *ngIf="editarEstudios && estudio.estatus == 'ACTIVO'" type="button" class="btn"
@@ -119,6 +119,10 @@
               <button *ngIf="editarEstudios && estudio.estatus == 'INACTIVO'" type="button" class="btn"
                 ngbTooltip="Activar estudio." (click)="cambiarEstatusEstudio(estudio.id, 'ACTIVO')">
                 <i class="material-icons">check</i>
+              </button>
+              <button *ngIf="desasignarEstudios" type="button" class="btn" ngbTooltip="Desasignar estudio."
+                (click)='desasignarEstudio(estudio.id)'>
+                <i class="material-icons">remove</i>
               </button>
               <button *ngIf="eliminarEstudios && estudio.estatus == 'INACTIVO' && estudio.cantidad_consultas == 0"
                 type="button" class="btn" ngbTooltip="Eliminar estudio permanentemente."

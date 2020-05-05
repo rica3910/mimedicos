@@ -206,6 +206,80 @@ export class EstudiosService {
   
     }  
 
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: eliminarEstudio.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para eliminar un estudio.                        | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  estudioId = identificador del estudio,                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  eliminarEstudio(
+    estudioId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      estudioId: estudioId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'eliminar-estudio',
+        json,
+        { headers: headers });
+  }     
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desasignarEstudio.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método para desasignar un estudio.                      | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  estudioId = identificador del estudio,                               |
+  |  usuarioId = identificador del usuario.                               |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 04/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  desasignarEstudio(
+    estudioId: string,
+    usuarioId: string): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      estudioId: estudioId,
+      usuarioId: usuarioId
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'desasignar-estudio',
+        json,
+        { headers: headers });
+  }     
+
 }
 
 //Constante que se utilizará para inyectar el servicio.
