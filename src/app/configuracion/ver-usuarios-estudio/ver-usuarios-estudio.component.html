@@ -13,19 +13,19 @@
 -------------------------------------------------------------------->
 
 <div class="container">
-  <h5 class="text-center display-4">Asignación y desasignación de estudio</h5>
+  <h3 class="text-center">Asignación de estudio</h3>
   <br>
   <div class="row">
     <table class="table table-striped table-bordered">
       <tr>
-        <th class="text-center">Clínica</th>
         <th class="text-center">Estudio</th>
-        <th class="text-center">Descripción</th>        
+        <th class="text-center">Descripción</th> 
+        <th class="text-center">Clínica</th>         
       </tr>
       <tr>
-        <td class="text-center">{{nombreClinica}}</td>
         <td class="text-center">{{nombreEstudio}}</td>
         <td class="text-center">{{descripcion}}</td>
+        <td class="text-center">{{nombreClinica}}</td>
       </tr>
     </table>
   </div>
@@ -70,18 +70,18 @@
         </thead>
         <tbody *ngIf="usuariosSinEstudio.length > 0">
           <tr *ngFor="let usuario of usuariosSinEstudio">
-            <td class="text-center"><input type="checkbox"></td>
+            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioSinEstudio($event.target.checked, usuario.id)"></td>
             <td class="text-center">{{usuario.nombres_usuario}}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="col-lg-2">
-      <button *ngIf="usuariosSinEstudio.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="asignarEstudio()" placement="bottom"
+      <button *ngIf="usuariosSinEstudio.length > 0 && usuariosAsignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="asignarEstudio()" placement="bottom"
         ngbTooltip="Asignar estudio.">
         <i class="material-icons">navigate_next</i>
       </button>      
-      <button *ngIf="usuariosConEstudio.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="desasignarEstudio()" placement="bottom"
+      <button *ngIf="usuariosConEstudio.length > 0 && usuariosDesasignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="desasignarEstudio()" placement="bottom"
         ngbTooltip="Desasignar estudio.">
         <i class="material-icons">navigate_before</i>
       </button>
@@ -95,7 +95,7 @@
         </thead>
         <tbody *ngIf="usuariosConEstudio.length > 0">
           <tr *ngFor="let usuario of usuariosConEstudio">
-            <td class="text-center"><input type="checkbox"></td>
+            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioConEstudio($event.target.checked, usuario.id)"></td>
             <td class="text-center">{{usuario.nombres_usuario}}</td>
           </tr>
         </tbody>

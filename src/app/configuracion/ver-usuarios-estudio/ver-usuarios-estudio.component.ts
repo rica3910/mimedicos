@@ -63,6 +63,10 @@ export class VerUsuariosEstudioComponent implements OnInit {
   nombreEstudio: string = "";
   //Almacena la descripción del estudio.
   descripcion: string = "";
+  //Almacenan los usuarios seleccionados que se van a asignar al estudio.
+  usuariosAsignar: Array<string> = new Array();
+  //Almacenan los usuarios seleccionados que se van a desasignar al estudio.
+  usuariosDesasignar: Array<string> = new Array();
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -213,7 +217,7 @@ export class VerUsuariosEstudioComponent implements OnInit {
 
           this.nombreClinica = respuesta["datos"][0]["nombre_clinica"];
           this.nombreEstudio = respuesta["datos"][0]["nombre"];
-          this.descripcion = respuesta["datos"][0]["descripcion"];          
+          this.descripcion = respuesta["datos"][0]["descripcion"];
         }
 
         this.estudioListo = true;
@@ -249,8 +253,6 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          console.log(respuesta["datos"]);
-
           //Se almacenan los usuarios sin estudio.
           this.usuariosSinEstudio = respuesta["datos"];
           this.usuariosSinEstudioServidor = respuesta["datos"];
@@ -276,7 +278,6 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          console.log(respuesta["datos"]);
           //Se almacenan los usuarios con estudio.
           this.usuariosConEstudio = respuesta["datos"];
           this.usuariosConEstudioServidor = respuesta["datos"];
@@ -302,6 +303,14 @@ export class VerUsuariosEstudioComponent implements OnInit {
   buscarConEspera() {
 
     this.esperarService.esperar();
+
+    //Se vacían los usuarios a asignar y desasignar.
+    this.usuariosAsignar = new Array();
+    this.usuariosDesasignar = new Array();
+
+    //Se limpian los cuadros de búsqueda.
+    this.limpiarBusquedaUsuariosConEstudio();
+    this.limpiarBusquedaUsuariosSinEstudio();
 
     //Busca las usuarios sin el estudio.
     this.estudiosService.usuariosEstudio(
@@ -398,6 +407,182 @@ export class VerUsuariosEstudioComponent implements OnInit {
     }
     //Le da un focus al elemento de búsqueda.
     this.buscarUsuariosConEstudioHTML.nativeElement.focus();
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: seleccionarUsuarioConEstudio.                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario con estudio. |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  seleccionado: indica si el checkbox está o no seleccionado.          |
+  |  usuarioId = identificador del usuario seleccionado.                  |  
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  seleccionarUsuarioConEstudio(seleccionado: boolean, usuarioId: string) {
+    //Si el usuario fue seleccionado.
+    if (seleccionado) {
+      //Se encuentra el índice del usuario.
+      let indice = this.usuariosDesasignar.findIndex(elemento => elemento == usuarioId);
+      //Si no encuentra el índice entonces sí lo mete al arreglo.
+      indice < 0 ? this.usuariosDesasignar.push(usuarioId) : null;
+      
+    }
+    //Si el usuario fue deseleccionado.
+    else {
+      //Se encuentra el índice del usuario.
+      let indice = this.usuariosDesasignar.findIndex(elemento => elemento == usuarioId);
+      //Se elmina el usuario del arreglo.
+      indice >= 0 ? this.usuariosDesasignar.splice(indice, 1) : null;
+    }
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: seleccionarUsuarioSinEstudio.                                |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario sin estudio. |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  seleccionado: indica si el checkbox está o no seleccionado.          |
+  |  usuarioId = identificador del usuario seleccionado.                  |  
+  |-----------------------------------------------------------------------|  
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  seleccionarUsuarioSinEstudio(seleccionado: boolean, usuarioId: string) {
+    //Si el usuario fue seleccionado.
+    if (seleccionado) {
+      //Se encuentra el índice del usuario.
+      let indice = this.usuariosAsignar.findIndex(elemento => elemento == usuarioId);
+      //Si no encuentra el índice entonces sí lo mete al arreglo.
+      indice < 0 ? this.usuariosAsignar.push(usuarioId) : null;
+      
+    }
+    //Si el usuario fue deseleccionado.
+    else {
+      //Se encuentra el índice del usuario.
+      let indice = this.usuariosAsignar.findIndex(elemento => elemento == usuarioId);
+      //Se elmina el usuario del arreglo.
+      indice >= 0 ? this.usuariosAsignar.splice(indice, 1) : null;
+    }
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: desasignarEstudio.                                           |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Desasigna el estudio a los usuarios seleccionados.      |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 06/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  desasignarEstudio() {
+
+    if (this.usuariosDesasignar.length == 0) {
+      this.utilidadesService.alerta("Sin usuarios seleccionados", "Favor de seleccionar por lo menos un usuario.");
+      return;
+    }
+
+    //Se arma la lista de usuarios.
+    let usuarios: string = "";
+
+    //Se recorren los usuarios.
+    this.usuariosDesasignar.forEach(usuario => {
+      usuarios = usuarios + usuario + ",";
+    });
+
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Desasignar estudio.", "¿Está seguro de desasignar el estudio a los usuarios seleccionados?").subscribe(respuesta => {
+      //Si acepta.
+      if (respuesta == "Aceptar") {
+        //Inicia la espera.
+        this.esperarService.esperar();
+        //Se desasigna el estudio a los usuarios seleccionados.
+        this.estudiosService.asignacionUsuariosEstudio(this.estudioId, usuarios, "0").subscribe(respuesta => {
+
+          //Se detiene la espera.
+          this.esperarService.noEsperar();
+
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+
+          }
+          //Si todo salió bien.
+          else {
+
+            //Se actualiza la búsqueda.
+            this.buscarConEspera();
+
+          }
+
+        });
+
+      }
+    });
+
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: asignarEstudio.                                              |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Asigna el estudio a los usuarios seleccionados.         |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 06/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  asignarEstudio() {
+
+    if (this.usuariosAsignar.length == 0) {
+      this.utilidadesService.alerta("Sin usuarios seleccionados", "Favor de seleccionar por lo menos un usuario.");
+      return;
+    }
+
+    //Se arma la lista de usuarios.
+    let usuarios: string = "";
+
+    //Se recorren los usuarios.
+    this.usuariosAsignar.forEach(usuario => {
+      usuarios = usuarios + usuario + ",";
+    });
+
+    //Abre el modal.
+    this.utilidadesService.confirmacion("Asignar estudio.", "¿Está seguro de asignar el estudio a los usuarios seleccionados?").subscribe(respuesta => {
+      //Si acepta.
+      if (respuesta == "Aceptar") {
+        //Inicia la espera.
+        this.esperarService.esperar();
+        //Se desasigna el estudio a los usuarios seleccionados.
+        this.estudiosService.asignacionUsuariosEstudio(this.estudioId, usuarios, "1").subscribe(respuesta => {
+
+          //Se detiene la espera.
+          this.esperarService.noEsperar();
+
+          //Si hubo un error en la obtención de información.
+          if (respuesta["estado"] === "ERROR") {
+            //Muestra una alerta con el porqué del error.
+            this.utilidadesService.alerta("Error", respuesta["mensaje"]);
+
+          }
+          //Si todo salió bien.
+          else {
+
+            //Se actualiza la búsqueda.
+            this.buscarConEspera();
+
+          }
+
+        });
+
+      }
+    });
+
   }
 
 

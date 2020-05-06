@@ -316,6 +316,47 @@ export class EstudiosService {
   
     }  
 
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: asignacionUsuariosEstudio.                                   |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: asigna o desasigna un estudio a una lista de usuarios.  | 
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:                                               |
+  |  estudioId = identificador del estudio,                               |
+  |  usuarios = lista de usuarios,                                        |
+  |  asignarEstudio = 1 asignar, 0 desasignar.                            |
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 06/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  asignacionUsuariosEstudio(
+    estudioId: string,
+    usuarios: string,
+    asignarEstudio): Observable<any> {
+
+    //Arma el json a partir de los parámetros.
+    let json = JSON.stringify({
+      estudioId: estudioId,
+      usuarios: usuarios,
+      asignarEstudio: asignarEstudio
+    });
+
+    //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.
+    const headers: HttpHeaders = new HttpHeaders({
+      'X-API-KEY': this.autorizacion.obtenerToken(),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    //Realiza la petición al servidor.
+    return this.http
+      .post(this.urlApi + 'asignacion-usuarios-estudio',
+        json,
+        { headers: headers });
+  }         
+
 
 }
 

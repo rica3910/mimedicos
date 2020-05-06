@@ -124,12 +124,12 @@
                 (click)='desasignarEstudio(estudio.id)'>
                 <i class="material-icons">remove</i>
               </button>
-              <button *ngIf="verUsuariosEstudio" type="button" class="btn" ngbTooltip="Usuarios con el estudio."
+              <button *ngIf="verUsuariosEstudio" type="button" class="btn" ngbTooltip="Usuarios estudio."
                 (click)='usuariosEstudio(estudio.id)'>
                 <i class="material-icons">playlist_add_check</i>
               </button>
               <button *ngIf="eliminarEstudios && estudio.estatus == 'INACTIVO' && estudio.cantidad_consultas == 0"
-                type="button" class="btn" ngbTooltip="Eliminar estudio permanentemente."
+                type="button" class="btn" ngbTooltip="Eliminar estudio."
                 (click)='eliminarEstudio(estudio.id)'>
                 <i class="material-icons">delete_forever</i>
               </button>
