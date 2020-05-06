@@ -70,6 +70,8 @@ export class EstudiosComponent implements OnInit {
   estudiosServidor: JSON[] = [];
   //Almacena el porcentaje del iva.
   porcentajeIva: string;
+  // Indica si el usuario puede ver los usuarios que tiene el estudio.
+  verUsuariosEstudio: boolean = false;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -234,6 +236,11 @@ export class EstudiosComponent implements OnInit {
     this.autenticarService.usuarioTieneDetModulo('ELIMINAR ESTUDIO').subscribe((respuesta: boolean) => {
       this.eliminarEstudios = respuesta["value"];
     });
+
+    //El botón de ver los usuarios del estudio se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER USUARIOS ESTUDIO').subscribe((respuesta: boolean) => {
+      this.verUsuariosEstudio = respuesta["value"];
+    });    
 
   }
 
@@ -497,4 +504,19 @@ export class EstudiosComponent implements OnInit {
   editarEstudio(estudioId) {
     this.rutaNavegacion.navigateByUrl('configuracion/editar-estudio/' + estudioId);
   }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuariosEstudio.                                             |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de usuarios estudio.     |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:  estudioId = identificador del estudio.       |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 05/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuariosEstudio(estudioId) {
+    this.rutaNavegacion.navigateByUrl('configuracion/ver-usuarios-estudio/' + estudioId);
+  }  
 }

@@ -1,0 +1,23 @@
+/******************************************************************|
+|NOMBRE: ver-usuarios-estudio.                                     | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Se muestran lo estilos de los usuarios con estudio.  |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 05/05/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+/*Clase para el color de los botones y color de fuente.*/
+.btn-azul{
+    background-color: rgb(0, 162, 232);
+    color: white;    
+    font-size: 15px;
+
+  }
+
+  

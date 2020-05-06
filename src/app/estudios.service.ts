@@ -280,6 +280,43 @@ export class EstudiosService {
         { headers: headers });
   }     
 
+    /*----------------------------------------------------------------------|
+    |  NOMBRE: usuariosEstudio.                                             |
+    |-----------------------------------------------------------------------|
+    |  DESCRIPCIÓN: obtiene los usuarios que tienen o no un estudio.        |
+    |-----------------------------------------------------------------------|
+    |  PARÁMETROS DE ENTRADA:                                               |
+    |  estudioId = identificador del estudio,                               |
+    |  conEstudio = 1 usuarios con estudio, 0 usuarios sin estudio.         |    
+    |-----------------------------------------------------------------------|
+    |  PARÁMETROS DE SALIDA:  resultado = Retorna OK y los registros,       |
+    |                          o ERROR                                      |
+    |                         en caso de que todo esté correcto o no        | 
+    |                         respectivamente.                              |
+    |-----------------------------------------------------------------------|
+    |  AUTOR: Ricardo Luna.                                                 |
+    |-----------------------------------------------------------------------|
+    |  FECHA: 05/05/2020.                                                   |    
+    |----------------------------------------------------------------------*/
+    usuariosEstudio(estudioId: string, conEstudio: string): Observable<any> {
+
+      //Si está conectado, entonces el token sí existe.
+      if (this.autorizacion.obtenerToken() !== null) {
+  
+        //Se arman los headers, y se le agrega el X-API-KEY que almacena el token.
+        const headers: HttpHeaders = new HttpHeaders({
+          'X-API-KEY': this.autorizacion.obtenerToken()
+        });
+  
+        //Envía la petición al servidor backend para obtener los usuarios.
+        return this.http.get(this.urlApi + 'usuarios-estudio/' + estudioId + '/' + conEstudio , { headers: headers });
+      }
+      //No está conectado.
+      return of(false);
+  
+    }  
+
+
 }
 
 //Constante que se utilizará para inyectar el servicio.
