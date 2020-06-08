@@ -248,8 +248,7 @@ export class EstudiosService {
   |  DESCRIPCIÓN: Método para desasignar un estudio.                      | 
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
-  |  estudioId = identificador del estudio,                               |
-  |  usuarioId = identificador del usuario.                               |
+  |  estudioId = identificador del estudio.                               |
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE SALIDA:  resultado = Retorna la respuesta del servidor.|
   |-----------------------------------------------------------------------|
@@ -258,13 +257,11 @@ export class EstudiosService {
   |  FECHA: 04/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
   desasignarEstudio(
-    estudioId: string,
-    usuarioId: string): Observable<any> {
+    estudioId: string): Observable<any> {
 
     //Arma el json a partir de los parámetros.
     let json = JSON.stringify({
-      estudioId: estudioId,
-      usuarioId: usuarioId
+      estudioId: estudioId
     });
 
     //Se arman los headers, y se le agrega el X-API-KEY y la codificación del formulario.

@@ -1,11 +1,11 @@
 <!------------------------------------------------------------------
-|NOMBRE: estudios.                                                 | 
+|NOMBRE: productos.                                                | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Página de consultas.                                 |
+|DESCRIPCIÓN: Página de productos.                                 |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 24/04/2020.                                                |
+|FECHA: 07/05/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -13,7 +13,7 @@
 -------------------------------------------------------------------->
 
 <div class="container">
-  <h2 class="text-center display-4">Estudios</h2>
+  <h2 class="text-center display-4">Productos</h2>
   <br>
   <div class="row">
     <div class="col-lg-4">
@@ -46,7 +46,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Estatus</span>
         </div>
-        <select class="form-control" [formControl]="estatusEstudio" ngbTooltip="Seleccionar estatus del estudio.">
+        <select class="form-control" [formControl]="estatusProductoControl" ngbTooltip="Seleccionar estatus del producto.">
           <option value="TODOS">TODOS</option>
           <option value="ACTIVO">ACTIVO</option>
           <option value="INACTIVO">INACTIVO</option>
@@ -58,8 +58,8 @@
 <br>
 <div class="row">
   <div class="col-lg-1">
-    <button *ngIf="altaEstudios" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom"
-      ngbTooltip="Crear estudio." (click)="altaEstudio();">
+    <button *ngIf="altaProductos" type="button" class="btn btn-azul btn-lg col-lg-12" placement="bottom"
+      ngbTooltip="Crear producto." (click)="altaProducto();">
       <i class="material-icons">add</i>
     </button>
   </div>
@@ -75,7 +75,7 @@
     </div>
   </div>
   <div class="col-lg-1">
-    <button *ngIf="organizacionControl.valid && clinicaControl.valid && estatusEstudio.valid"
+    <button *ngIf="organizacionControl.valid && clinicaControl.valid && estatusProductoControl.valid"
       class="btn btn-azul btn-lg col-lg-12" type="button" (click)="buscar()" placement="bottom" ngbTooltip="Buscar.">
       <i class="material-icons">search</i>
     </button>
@@ -94,43 +94,49 @@
           <th class="text-center">Precio neto</th>
           <th class="text-center">Estatus</th>
           <th class="text-center">Clínica</th>
+          <th class="text-center">Stock</th>
           <th class="text-center">Opciones</th>
         </tr>
       </thead>
-      <tbody *ngIf="estudios.length > 0">
-        <tr *ngFor="let estudio of estudios">
-          <td>{{estudio.nombre_estudio}}</td>
-          <td>{{estudio.descripcion}}</td>
-          <td class="text-right">{{estudio.precio_bruto_formato}}</td>
-          <td class="text-right">{{estudio.iva_formato}}</td>
-          <td class="text-right">{{estudio.precio_neto_formato}}</td>
-          <td>{{estudio.estatus}}</td>
-          <td>{{estudio.nombre_clinica}}</td>
+      <tbody *ngIf="productos.length > 0">
+        <tr *ngFor="let producto of productos">
+          <td>{{producto.nombre_producto}}</td>
+          <td>{{producto.descripcion}}</td>
+          <td class="text-right">{{producto.precio_bruto_formato}}</td>
+          <td class="text-right">{{producto.iva_formato}}</td>
+          <td class="text-right">{{producto.precio_neto_formato}}</td>
+          <td>{{producto.estatus}}</td>
+          <td>{{producto.nombre_clinica}}</td>
+          <td>{{producto.stock}}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button *ngIf="editarEstudios" type="button" class="btn" ngbTooltip="Editar estudio."
-                (click)='editarEstudio(estudio.id)'>
+              <button *ngIf="editarProductos" type="button" class="btn" ngbTooltip="Editar producto."
+                (click)='editarProducto(producto.id)'>
                 <i class="material-icons">edit</i>
               </button>
-              <button *ngIf="editarEstudios && estudio.estatus == 'ACTIVO'" type="button" class="btn"
-                ngbTooltip="Inactivar estudio." (click)="cambiarEstatusEstudio(estudio.id, 'INACTIVO')">
+              <button *ngIf="editarProductos && producto.estatus == 'ACTIVO'" type="button" class="btn"
+                ngbTooltip="Inactivar producto." (click)="cambiarEstatusProducto(producto.id, 'INACTIVO')">
                 <i class="material-icons">cancel</i>
               </button>
-              <button *ngIf="editarEstudios && estudio.estatus == 'INACTIVO'" type="button" class="btn"
-                ngbTooltip="Activar estudio." (click)="cambiarEstatusEstudio(estudio.id, 'ACTIVO')">
+              <button *ngIf="editarProductos && producto.estatus == 'INACTIVO'" type="button" class="btn"
+                ngbTooltip="Activar producto." (click)="cambiarEstatusProducto(producto.id, 'ACTIVO')">
                 <i class="material-icons">check</i>
               </button>
-              <button *ngIf="desasignarEstudios" type="button" class="btn" ngbTooltip="Desasignar estudio."
-                (click)='desasignarEstudio(estudio.id)'>
+              <button *ngIf="desasignarProductos" type="button" class="btn" ngbTooltip="Desasignar producto."
+                (click)='desasignarProducto(producto.id)'>
                 <i class="material-icons">remove</i>
               </button>
-              <button *ngIf="verUsuariosEstudio" type="button" class="btn" ngbTooltip="Usuarios estudio."
-                (click)='usuariosEstudio(estudio.id)'>
+              <button *ngIf="verUsuariosProducto" type="button" class="btn" ngbTooltip="Usuarios producto."
+                (click)='usuariosProducto(producto.id)'>
                 <i class="material-icons">supervisor_account</i>
               </button>
-              <button *ngIf="eliminarEstudios && estudio.estatus == 'INACTIVO' && estudio.cantidad_consultas == 0"
-                type="button" class="btn" ngbTooltip="Eliminar estudio."
-                (click)='eliminarEstudio(estudio.id)'>
+              <button *ngIf="verInventarioProducto" type="button" class="btn" ngbTooltip="Inventario producto."
+              (click)='inventarioProducto(producto.id)'>
+              <i class="material-icons">list</i>
+            </button>              
+              <button *ngIf="eliminarProductos && producto.estatus == 'INACTIVO' && producto.cantidad_cobros == 0  && producto.cantidad_inventario_producto == 0  && producto.movimientos_inventario_producto == 0"
+                type="button" class="btn" ngbTooltip="Eliminar producto."
+                (click)='eliminarProducto(producto.id)'>
                 <i class="material-icons">delete_forever</i>
               </button>
             </div>

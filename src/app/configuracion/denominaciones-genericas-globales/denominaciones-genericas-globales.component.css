@@ -1,0 +1,22 @@
+/******************************************************************|
+|NOMBRE: denominaciones-genericas-globales.                        | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Se muestran lo estilos de los medicamentos genéricos.|
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 03/06/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+/*Clase para el color de los botones y color de fuente.*/
+.btn-azul{
+    background-color: rgb(0, 162, 232);
+    color: white;    
+    font-size: 15px;
+  }
+
+  

@@ -1,4 +1,3 @@
-import { ActivatedRoute } from '@angular/router';
 /******************************************************************|
 |NOMBRE: editarEstudioComponent.                                   | 
 |------------------------------------------------------------------|
@@ -23,6 +22,7 @@ import { ClinicasService } from '../../clinicas.service';
 import { AutenticarService } from '../../autenticar.service';
 import { ParametrosService } from '../../parametros.service';
 import { EstudiosService } from '../../estudios.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-editar-estudio',
@@ -177,7 +177,7 @@ export class EditarEstudioComponent implements OnInit {
               //Se llenan los valores en el formulario.
               this.clinicaControl.setValue(respuesta["datos"][0]["clinica_id"]);
               this.nombreControl.setValue(respuesta["datos"][0]["nombre"]);
-              this.nombreControl.setValue(respuesta["datos"][0]["descripcion"]);
+              this.descripcionControl.setValue(respuesta["datos"][0]["descripcion"]);
               this.precioBrutoControl.setValue(respuesta["datos"][0]["precio_bruto"]);
               this.precioNetoControl.setValue(Number(Number(this.precioBrutoControl.value) * (Number(this.iva) / 100 + 1)).toFixed(2));
       

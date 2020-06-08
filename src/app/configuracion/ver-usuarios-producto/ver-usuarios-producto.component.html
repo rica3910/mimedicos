@@ -1,11 +1,11 @@
 <!------------------------------------------------------------------
-|NOMBRE: ver-usuarios-estudio.                                     | 
+|NOMBRE: ver-usuarios-producto.                                    | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Página de (des)asignación de estudio a usuarios.     |
+|DESCRIPCIÓN: Página de (des)asignación de producto a usuarios.    |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 05/05/2020.                                                |
+|FECHA: 15/05/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -14,22 +14,22 @@
 
 <div class="container">
   <div class="col-lg-12 display-4 text-center">
-    <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de estudios."
+    <button type="button" class="btn btn-azul btn-lg" placement="bottom" ngbTooltip="Regresar al listado de productos."
       (click)="regresar()">
       <i class="material-icons">arrow_back</i>
     </button>
-    Asignación de estudios
+    Asignación de productos
   </div>
   <br>
   <div class="row">
     <table class="table table-striped table-bordered">
       <tr>
-        <th class="text-center">Estudio</th>
+        <th class="text-center">Producto</th>
         <th class="text-center">Descripción</th> 
         <th class="text-center">Clínica</th>         
       </tr>
       <tr>
-        <td class="text-center">{{nombreEstudio}}</td>
+        <td class="text-center">{{nombreProducto}}</td>
         <td class="text-center">{{descripcion}}</td>
         <td class="text-center">{{nombreClinica}}</td>
       </tr>
@@ -38,9 +38,9 @@
   <div class="row">
     <div class="col-lg-5">
       <div class="input-group input-group-lg">
-        <input type="text" #buscarUsuariosSinEstudioHTML class="form-control" placeholder="Búsqueda">
+        <input type="text" #buscarUsuariosSinProductoHTML class="form-control" placeholder="Búsqueda">
         <div class="input-group-append">
-          <button class="btn btn-azul" type="button" (click)="limpiarBusquedaUsuariosSinEstudio()" placement="bottom"
+          <button class="btn btn-azul" type="button" (click)="limpiarBusquedaUsuariosSinProducto()" placement="bottom"
             ngbTooltip="Borrar búsqueda.">
             <i class="material-icons">backspace</i>
           </button>
@@ -55,9 +55,9 @@
     </div>
     <div class="col-lg-5">
       <div class="input-group input-group-lg">
-        <input type="text" #buscarUsuariosConEstudioHTML class="form-control" placeholder="Búsqueda">
+        <input type="text" #buscarUsuariosConProductoHTML class="form-control" placeholder="Búsqueda">
         <div class="input-group-append">
-          <button class="btn btn-azul" type="button" (click)="limpiarBusquedaUsuariosConEstudio()" placement="bottom"
+          <button class="btn btn-azul" type="button" (click)="limpiarBusquedaUsuariosConProducto()" placement="bottom"
             ngbTooltip="Borrar búsqueda.">
             <i class="material-icons">backspace</i>
           </button>
@@ -71,24 +71,24 @@
       <table class="table table-striped table-bordered">
         <thead>
           <tr>
-            <th colspan="2" class="text-center">Usuarios sin estudio</th>
+            <th colspan="2" class="text-center">Usuarios sin producto</th>
           </tr>
         </thead>
-        <tbody *ngIf="usuariosSinEstudio.length > 0">
-          <tr *ngFor="let usuario of usuariosSinEstudio">
-            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioSinEstudio($event.target.checked, usuario.id)"></td>
+        <tbody *ngIf="usuariosSinProducto.length > 0">
+          <tr *ngFor="let usuario of usuariosSinProducto">
+            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioSinProducto($event.target.checked, usuario.id)"></td>
             <td class="text-center">{{usuario.nombres_usuario}}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="col-lg-2">
-      <button *ngIf="usuariosSinEstudio.length > 0 && usuariosAsignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="asignarEstudio()" placement="bottom"
-        ngbTooltip="Asignar estudio.">
+      <button *ngIf="usuariosSinProducto.length > 0 && usuariosAsignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="asignarProducto()" placement="bottom"
+        ngbTooltip="Asignar producto.">
         <i class="material-icons">navigate_next</i>
       </button>      
-      <button *ngIf="usuariosConEstudio.length > 0 && usuariosDesasignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="desasignarEstudio()" placement="bottom"
-        ngbTooltip="Desasignar estudio.">
+      <button *ngIf="usuariosConProducto.length > 0 && usuariosDesasignar.length > 0" class="btn btn-azul btn-lg btn-block" type="button" (click)="desasignarProducto()" placement="bottom"
+        ngbTooltip="Desasignar producto.">
         <i class="material-icons">navigate_before</i>
       </button>
     </div>
@@ -96,12 +96,12 @@
       <table class="table table-striped table-bordered">
         <thead>    
           <tr>
-            <th colspan="2" class="text-center">Usuarios con estudio</th>
+            <th colspan="2" class="text-center">Usuarios con producto</th>
           </tr>
         </thead>
-        <tbody *ngIf="usuariosConEstudio.length > 0">
-          <tr *ngFor="let usuario of usuariosConEstudio">
-            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioConEstudio($event.target.checked, usuario.id)"></td>
+        <tbody *ngIf="usuariosConProducto.length > 0">
+          <tr *ngFor="let usuario of usuariosConProducto">
+            <td class="text-center"><input type="checkbox" (change)="seleccionarUsuarioConProducto($event.target.checked, usuario.id)"></td>
             <td class="text-center">{{usuario.nombres_usuario}}</td>
           </tr>
         </tbody>

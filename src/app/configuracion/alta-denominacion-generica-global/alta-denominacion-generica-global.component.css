@@ -1,0 +1,28 @@
+/******************************************************************|
+|NOMBRE: alta-denominacion-generica-global.                        | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Se muestran lo estilos del modal de agregar          |
+|             ingredientes activos de los medicamentos.            |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 05/06/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
+/*Establece el color del botón de confirmación.*/
+.btn-azul{
+    background-color: rgb(0, 162, 232);
+    color: white;
+  }
+
+  /*Establece el color del título del mensaje.*/
+.titulo-azul{
+    color: rgb(0, 162, 232);    
+  }
+
+
+  

@@ -40,10 +40,12 @@
             <a class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/cobros']">Cobros</a>
           </li>       
           <li ngbDropdown class="nav-item"  *ngIf="autorizacion.obtenerMenusArreglo().includes('configuracion')">
-            <a class="nav-link" ngbDropdownToggle><i class="material-icons">settings</i></a>
-            <div ngbDropdownMenu>
+            <a class="nav-link" id="dropdownBasic1" ngbDropdownToggle><i class="material-icons">settings</i></a>
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
               <a *ngIf="autorizacion.obtenerMenusArreglo().includes('estudios')" class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/configuracion/estudios']">Estudios</a>
-            </div>
+              <a *ngIf="autorizacion.obtenerMenusArreglo().includes('productos')" class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/configuracion/productos']">Productos</a>            
+              <a *ngIf="autorizacion.obtenerMenusArreglo().includes('medicamentos-globales')" class="nav-link menu-opcion" [routerLinkActive]="['active-link']" [routerLink]="['/configuracion/medicamentos-globales']">Medicamentos globales</a>            
+            </div>               
           </li>                       
         </ul>            
         <div ngbDropdown>

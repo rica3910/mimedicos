@@ -1,3 +1,17 @@
+/******************************************************************|
+|NOMBRE: agregarCantidadProducto.                                  | 
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente para agregar producto.                    |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 18/05/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+*/
+
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';

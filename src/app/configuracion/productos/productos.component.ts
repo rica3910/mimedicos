@@ -1,11 +1,11 @@
 /******************************************************************|
-|NOMBRE: estudiosComponent.                                        | 
+|NOMBRE: productosComponent.                                       | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Componente que contiene la lista de los estudios.    |
+|DESCRIPCIÓN: Componente que contiene la lista de los productos.   |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 24/04/2020.                                                |
+|FECHA: 07/05/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -22,36 +22,36 @@ import { OrganizacionesService } from '../../organizaciones.service';
 import { ClinicasService } from '../../clinicas.service';
 import { FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { EstudiosService } from './../../estudios.service';
+import { ProductosService } from './../../productos.service';
 import { Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-estudios',
-  templateUrl: './estudios.component.html',
-  styleUrls: ['./estudios.component.css']
+  selector: 'app-productos',
+  templateUrl: './productos.component.html',
+  styleUrls: ['./productos.component.css']
 })
-export class EstudiosComponent implements OnInit {
+export class ProductosComponent implements OnInit {
 
-  //Propiedad que indica si el usuario puede dar de alta estudios.
-  altaEstudios: boolean = false;
-  //Propiedad que indica si el usuario puede editar estudios.
-  editarEstudios: boolean = false;
-  //Propiedad que indica si el usuario puede eliminar estudios.
-  eliminarEstudios: boolean = false;
-  //Propiedad que indica si el usuario puede desasignarse estudios.
-  desasignarEstudios: boolean = false;
+  //Propiedad que indica si el usuario puede dar de alta productos.
+  altaProductos: boolean = false;
+  //Propiedad que indica si el usuario puede editar productos.
+  editarProductos: boolean = false;
+  //Propiedad que indica si el usuario puede eliminar productos.
+  eliminarProductos: boolean = false;
+  //Propiedad que indica si el usuario puede desasignarse productos.
+  desasignarProductos: boolean = false;
   //Registros de organizaciones que se verán en la vista en el campo de búsqueda de organizaciones.
   organizaciones: Array<JSON>;
   //Registros de clínicas que se verán en la vista en el campo de búsqueda de clínicas.
   clinicas: Array<JSON>;
-  //Objeto que contendrá el formulario de búsqueda de los estudios.
-  formBusquedaEstudios: FormGroup;
+  //Objeto que contendrá el formulario de búsqueda de los productos.
+  formBusquedaProductos: FormGroup;
   //Objeto del formulario que contendrá a la organización.
   organizacionControl: AbstractControl;
   //Objeto del formulario que contendrá a la clínica.
   clinicaControl: AbstractControl;
-  //Objeto del formulario que contendrá al estatus del estudio.
-  estatusEstudio: AbstractControl;
+  //Objeto del formulario que contendrá al estatus del producto.
+  estatusProductoControl: AbstractControl;
   //Cuadro de texto de búsqueda.
   @ViewChild('buscarInfoHTML') buscarInfoHTML: ElementRef;
 
@@ -61,16 +61,18 @@ export class EstudiosComponent implements OnInit {
   organizacionesInicioListas: boolean = false;
   //Indica si el filtro de clínicas ya se cargó.
   clinicasInicioListas: boolean = false;
-  //Indica si la información de estudios ya se obtuvo.
-  estudiosListos: boolean = false;
-  //Almacena los estudios de la base de datos pero su información se puede filtrar.
-  estudios: JSON[] = [];
-  //Almacena los estudios de la base de datos original sin que se filtre su información.
-  estudiosServidor: JSON[] = [];
+  //Indica si la información de productos ya se obtuvo.
+  productosListos: boolean = false;
+  //Almacena los productos de la base de datos pero su información se puede filtrar.
+  productos: JSON[] = [];
+  //Almacena los productos de la base de datos original sin que se filtre su información.
+  productosServidor: JSON[] = [];
   //Almacena el porcentaje del iva.
   porcentajeIva: string;
-  // Indica si el usuario puede ver los usuarios que tiene el estudio.
-  verUsuariosEstudio: boolean = false;
+  // Indica si el usuario puede ver los usuarios que tiene el producto.
+  verUsuariosProducto: boolean = false;
+  //Indica si puede acceder al inventario del producto.
+  verInventarioProducto: boolean = false;
 
   /*----------------------------------------------------------------------|
   |  NOMBRE: constructor.                                                 |
@@ -84,34 +86,34 @@ export class EstudiosComponent implements OnInit {
   |  organizacionesService = contiene los métodos de base de datos de las |
   |  organizaciones,                                                      |
   |  clinicasService = contiene los métodos de la bd de las clínicas,     |
-  |  estudiosService = contiene los métodos de la bd de los estudios,     |
+  |  productosService = contiene los métodos de la bd de los products,   |
   |  fb = contiene los métodos para manipular formularios HTML,           |
   |  rutaNavegacion   = para navegar a otras url´s.                       |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/04/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private utilidadesService: UtilidadesService,
     private esperarService: EsperarService,
     private autenticarService: AutenticarService,
     private organizacionesService: OrganizacionesService,
     private clinicasService: ClinicasService,
-    private estudiosService: EstudiosService,
+    private productosService: ProductosService,
     private fb: FormBuilder,
     private rutaNavegacion: Router) {
 
-    //Se agregan las validaciones al formulario de búsqueda de estudios.
-    this.formBusquedaEstudios = fb.group({
+    //Se agregan las validaciones al formulario de búsqueda de productos.
+    this.formBusquedaProductos = fb.group({
       'organizacion': ['', Validators.required],
       'clinica': ['', Validators.required],
-      'estatusEstudio': ['ACTIVO', Validators.required]
+      'estatusProducto': ['ACTIVO', Validators.required]
     });
 
     //Se relacionan los elementos del formulario con las propiedades/variables creadas.
-    this.organizacionControl = this.formBusquedaEstudios.controls['organizacion'];
-    this.clinicaControl = this.formBusquedaEstudios.controls['clinica'];
-    this.estatusEstudio = this.formBusquedaEstudios.controls['estatusEstudio'];
+    this.organizacionControl = this.formBusquedaProductos.controls['organizacion'];
+    this.clinicaControl = this.formBusquedaProductos.controls['clinica'];
+    this.estatusProductoControl = this.formBusquedaProductos.controls['estatusProducto'];
 
 
     //Se abre el modal de espera, signo de que se está haciendo una búsqueda en el servidor.
@@ -150,13 +152,13 @@ export class EstudiosComponent implements OnInit {
       //Extrae el valor de la búsqueda.
       .pipe(map((e: any) => e.target.value))
       //Se realiza la búsqueda.
-      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.estudiosServidor)))
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.productosServidor)))
       //Se utiliza para obtener solo la búsqueda más reciente.
       .pipe(switchAll())
       //Se actualiza la información del arreglo.
       .subscribe((resultados: JSON[]) => {
         //Se actualiza la información en pantalla.        
-        this.estudios = resultados;
+        this.productos = resultados;
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.
@@ -215,31 +217,36 @@ export class EstudiosComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    //El botón de dar de alta estudios se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('ALTA ESTUDIO').subscribe((respuesta: boolean) => {
-      this.altaEstudios = respuesta["value"];
+    //El botón de dar de alta productos se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ALTA PRODUCTO').subscribe((respuesta: boolean) => {
+      this.altaProductos = respuesta["value"];
     });
 
-    //El botón de editar estudios se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('MODIFICAR ESTUDIO').subscribe((respuesta: boolean) => {
-      this.editarEstudios = respuesta["value"];
+    //El botón de editar productos se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('MODIFICAR PRODUCTO').subscribe((respuesta: boolean) => {
+      this.editarProductos = respuesta["value"];
     });
 
-    //El botón de desasignar estudios se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('DESASIGNAR ESTUDIO').subscribe((respuesta: boolean) => {
-      this.desasignarEstudios = respuesta["value"];
+    //El botón de desasignar productos se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('DESASIGNAR PRODUCTO').subscribe((respuesta: boolean) => {
+      this.desasignarProductos = respuesta["value"];
     });
 
 
-    //El botón de eliminar estudios se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('ELIMINAR ESTUDIO').subscribe((respuesta: boolean) => {
-      this.eliminarEstudios = respuesta["value"];
+    //El botón de eliminar productos se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('ELIMINAR PRODUCTO').subscribe((respuesta: boolean) => {
+      this.eliminarProductos = respuesta["value"];
     });
 
-    //El botón de ver los usuarios del estudio se hará visible solamente si el usuario tiene el privilegio.
-    this.autenticarService.usuarioTieneDetModulo('VER USUARIOS ESTUDIO').subscribe((respuesta: boolean) => {
-      this.verUsuariosEstudio = respuesta["value"];
-    });    
+    //El botón de ver los usuarios del producto se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('VER USUARIOS PRODUCTO').subscribe((respuesta: boolean) => {
+      this.verUsuariosProducto = respuesta["value"];
+    });
+
+    //El botón de ver el inventario del producto se hará visible solamente si el usuario tiene el privilegio.
+    this.autenticarService.usuarioTieneDetModulo('INVENTARIO PRODUCTO').subscribe((respuesta: boolean) => {
+      this.verInventarioProducto = respuesta["value"];
+    });
 
   }
 
@@ -296,15 +303,15 @@ export class EstudiosComponent implements OnInit {
       return;
     } else if (this.clinicaControl.invalid) {
       return;
-    } else if (this.estatusEstudio.invalid) {
+    } else if (this.estatusProductoControl.invalid) {
       return;
     }
     //Inicia la espera de respuesta.
     this.esperarService.esperar();
-    //Busca las estudios según los filtros aplicados.
-    this.estudiosService.filtroEstudios(
+    //Busca las productos según los filtros aplicados.
+    this.productosService.filtroProductos(
       '0',
-      this.estatusEstudio.value,
+      this.estatusProductoControl.value,
       this.clinicaControl.value).subscribe((respuesta) => {
 
         //Detiene la espera, signo de que ya se obtuvo la información.
@@ -319,10 +326,10 @@ export class EstudiosComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los estudios en el arreglo de estudios.
-          this.estudios = respuesta["datos"];
-          this.porcentajeIva = this.estudios[0] ? this.estudios[0]["porcentaje_iva"] : "";
-          this.estudiosServidor = respuesta["datos"];
+          //Se almacenan los productos en el arreglo de productos.
+          this.productos = respuesta["datos"];
+          this.porcentajeIva = this.productos[0] ? this.productos[0]["porcentaje_iva"] : "";
+          this.productosServidor = respuesta["datos"];
           //Le da un focus al elemento de búsqueda.
           this.buscarInfoHTML.nativeElement.focus();
 
@@ -348,35 +355,35 @@ export class EstudiosComponent implements OnInit {
       //limpia el cuadro de texto.
       this.buscarInfoHTML.nativeElement.value = "";
       //Actualiza la información con la original.
-      this.estudios = this.estudiosServidor;
+      this.productos = this.productosServidor;
     }
     //Le da un focus al elemento de búsqueda.
     this.buscarInfoHTML.nativeElement.focus();
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: cambiarEstatusEstudio.                                       |
+  |  NOMBRE: cambiarEstatusProducto.                                      |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para ACTIVAR o INACTIVAR un estudio.             |   
+  |  DESCRIPCIÓN: Método para ACTIVAR o INACTIVAR un producto.            |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio,        |
-  |                         estatus = estatus del estudio.                |
+  |  PARÁMETROS DE ENTRADA: productoId = identificador del producto,      |
+  |                         estatus = estatus del producto.               |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 29/04/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  cambiarEstatusEstudio(estudioId: string, estatus: string) {
+  cambiarEstatusProducto(productoId: string, estatus: string) {
 
     //Mensaje que tedrá la confirmación dependiendo del estatus.
-    let tituloMensaje: string = estatus == "ACTIVO" ? "Activar estudio." : "Inactivar estudio.";
-    let mensaje: string = estatus == "ACTIVO" ? "¿Está seguro de activar el estudio?" : "¿Está seguro de inactivar el estudio?";
+    let tituloMensaje: string = estatus == "ACTIVO" ? "Activar producto." : "Inactivar producto.";
+    let mensaje: string = estatus == "ACTIVO" ? "¿Está seguro de activar el producto?" : "¿Está seguro de inactivar el producto?";
 
     this.utilidadesService.confirmacion(tituloMensaje, mensaje).subscribe(respuesta => {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.estudiosService.modificarEstudio(estudioId, "", "", "", "", estatus).subscribe(respuesta => {
+        this.productosService.modificarProducto(productoId, "", "", "", "", estatus).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -387,7 +394,7 @@ export class EstudiosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Modificación exitosa.", "El estatus del estudio se modificó satisfactoriamente.");
+            this.utilidadesService.alerta("Modificación exitosa.", "El estatus del producto se modificó satisfactoriamente.");
             this.buscar();
           }
 
@@ -399,25 +406,24 @@ export class EstudiosComponent implements OnInit {
 
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: eliminarEstudio.                                             |
+  |  NOMBRE: eliminarProducto.                                            |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para eliminar un estudio.                        |   
+  |  DESCRIPCIÓN: Método para eliminar un producto.                       |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio.        |
+  |  PARÁMETROS DE ENTRADA: productoId = identificador del producto.      |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/04/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  eliminarEstudio(estudioId: string) {
-
+  eliminarProducto(productoId: string) {
 
     //Abre el modal.
-    this.utilidadesService.confirmacion("Eliminar estudio.", "¿Está seguro de eliminar el estudio?").subscribe(respuesta => {
+    this.utilidadesService.confirmacion("Eliminar producto.", "¿Está seguro de eliminar el producto?").subscribe(respuesta => {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.estudiosService.eliminarEstudio(estudioId).subscribe(respuesta => {
+        this.productosService.eliminarProducto(productoId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -428,7 +434,7 @@ export class EstudiosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Eliminación exitosa", "El estudio se eliminó permanentemente.");
+            this.utilidadesService.alerta("Eliminación exitosa", "El producto se eliminó permanentemente.");
             this.buscar();
           }
         });
@@ -438,24 +444,24 @@ export class EstudiosComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: desasignarEstudio.                                           |
+  |  NOMBRE: desasignarProducto.                                          |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método para desasignar un estudio.                      |   
+  |  DESCRIPCIÓN: Método para desasignar un producto.                     |   
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA: estudioId = identificador del estudio,        |
+  |  PARÁMETROS DE ENTRADA: productoId = identificador del producto,        |
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 04/05/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  desasignarEstudio(estudioId: string) {
+  desasignarProducto(productoId: string) {
 
     //Abre el modal.
-    this.utilidadesService.confirmacion("Desasignar estudio.", "¿Está seguro de desasignarse el estudio?").subscribe(respuesta => {
+    this.utilidadesService.confirmacion("Desasignar producto.", "¿Está seguro de desasignarse el producto?").subscribe(respuesta => {
       if (respuesta == "Aceptar") {
         //Se inicia la espera en respuesta del servidor.
         this.esperarService.esperar();
-        this.estudiosService.desasignarEstudio(estudioId).subscribe(respuesta => {
+        this.productosService.desasignarProducto(productoId).subscribe(respuesta => {
           //Se finaliza la espera.
           this.esperarService.noEsperar();
           //Si hubo un error.
@@ -466,56 +472,72 @@ export class EstudiosComponent implements OnInit {
           //Si todo salió bien.
           else {
             //Se actualizan los datos.            
-            this.utilidadesService.alerta("Desasignación exitosa", "El estudio se desasignó satisfactoriamente.");
+            this.utilidadesService.alerta("Desasignación exitosa", "El producto se desasignó satisfactoriamente.");
             this.buscar();
           }
         });
       }
     });
 
-  }  
-
-  /*----------------------------------------------------------------------|
-  |  NOMBRE: altaEstudio.                                                 |
-  |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al formulario de crear estudio.        |   
-  |-----------------------------------------------------------------------|
-  |  AUTOR: Ricardo Luna.                                                 |
-  |-----------------------------------------------------------------------|
-  |  FECHA: 24/04/2020.                                                   |    
-  |----------------------------------------------------------------------*/
-  altaEstudio() {
-
-    this.rutaNavegacion.navigate(['configuracion', 'alta-estudio']);
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: editarEstudio.                                               |
+  |  NOMBRE: altaProducto.                                                |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al formulario de editar estudio.       |    
-  |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:  estudioId = identificador del estudio.       |
+  |  DESCRIPCIÓN: Método que llama al formulario de crear producto.       |   
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 24/04/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  editarEstudio(estudioId) {
-    this.rutaNavegacion.navigateByUrl('configuracion/editar-estudio/' + estudioId);
+  altaProducto() {
+
+    this.rutaNavegacion.navigate(['configuracion', 'alta-producto']);
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: usuariosEstudio.                                             |
+  |  NOMBRE: editarProducto.                                              |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Método que llama al formulario de usuarios estudio.     |    
+  |  DESCRIPCIÓN: Método que llama al formulario de editar producto.      |    
   |-----------------------------------------------------------------------|
-  |  PARÁMETROS DE ENTRADA:  estudioId = identificador del estudio.       |
+  |  PARÁMETROS DE ENTRADA:  productoId = identificador del producto.     |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 07/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  usuariosEstudio(estudioId) {
-    this.rutaNavegacion.navigateByUrl('configuracion/ver-usuarios-estudio/' + estudioId);
+  editarProducto(productoId) {
+    this.rutaNavegacion.navigateByUrl('configuracion/editar-producto/' + productoId);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: usuariosProducto.                                            |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de usuarios producto.    |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:  productoId = identificador del producto.     |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 07/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  usuariosProducto(productoId) {
+    this.rutaNavegacion.navigateByUrl('configuracion/ver-usuarios-producto/' + productoId);
+  }
+
+  /*----------------------------------------------------------------------|
+  |  NOMBRE: inventarioProducto.                                          |
+  |-----------------------------------------------------------------------|
+  |  DESCRIPCIÓN: Método que llama al formulario de inventario producto.  |    
+  |-----------------------------------------------------------------------|
+  |  PARÁMETROS DE ENTRADA:  productoId = identificador del producto.     |
+  |-----------------------------------------------------------------------|
+  |  AUTOR: Ricardo Luna.                                                 |
+  |-----------------------------------------------------------------------|
+  |  FECHA: 18/05/2020.                                                   |    
+  |----------------------------------------------------------------------*/
+  inventarioProducto(productoId) {
+    this.rutaNavegacion.navigateByUrl('configuracion/inventario-producto/' + productoId);
   }  
+
 }

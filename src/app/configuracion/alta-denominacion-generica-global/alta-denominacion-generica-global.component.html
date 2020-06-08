@@ -1,0 +1,35 @@
+<!------------------------------------------------------------------
+|NOMBRE: alta-denominacion-generica-global.                        |  
+|------------------------------------------------------------------|
+|DESCRIPCIÓN: Componente HTML que contiene el formulario para      |
+|             agregar un ingrediente activo.                       |
+|------------------------------------------------------------------|
+|AUTOR: Ricardo Luna.                                              |
+|------------------------------------------------------------------|
+|FECHA: 05/06/2020.                                                |
+|------------------------------------------------------------------|
+|                       HISTORIAL DE CAMBIOS                       |
+|------------------------------------------------------------------|
+| #   |   FECHA  |     AUTOR      |           DESCRIPCIÓN          |
+-------------------------------------------------------------------->
+
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="activeModal.dismiss('cerrar')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Nombre*</span>
+      </div>
+      <input type="text" [formControl]="nombreControl" #nombreHTML class="form-control form-control-lg"
+        ngbTooltip="Nombre genérico del ingrediente activo.">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button *ngIf="nombreControl.value" type="button" class="btn btn-success" (click)="alta()" ngbTooltip="Guardar ingrediente activo."><i
+        class="material-icons">playlist_add</i></button>
+  </div>
+</div>

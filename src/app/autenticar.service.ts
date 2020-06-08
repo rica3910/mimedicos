@@ -76,7 +76,7 @@ export class AutenticarService {
           this._guardarNombreUsuario(respuesta["usuario"]);
 
           //Arreglo que contiene todos los menús del sistema.
-          const urlsMenus: string[] = ["pacientes",  "consultas", "cobros", "configuracion", "estudios"];
+          const urlsMenus: string[] = ["pacientes",  "consultas", "cobros", "configuracion", "estudios", "productos", "medicamentos-globales"];
           //Se borran los  menús en caso de que haya.
           this._eliminarMenus();
           //Se despliegan los menús que tiene asignados el usuario logueado.
@@ -565,7 +565,7 @@ export class AutenticarService {
       //Envía la petición al servidor backend.
       return this.http.get(this.urlApi + 'usuario-tiene-menu/' + url, { headers: headers })
         .pipe(map(respuesta => {
-
+    
           //Si el usuario no tiene el menú.
           if (respuesta["estado"] === "ERROR") {
             //Retorna un falso.

@@ -1,3 +1,4 @@
+import { MEDICAMENTOS_PROVIDERS } from './medicamentos.service';
 /******************************************************************|
 |NOMBRE: appModule.                                                | 
 |------------------------------------------------------------------|
@@ -65,6 +66,7 @@ import { PARAMETROS_PROVIDERS } from './parametros.service';
 import { COBRO_RECIBO_PROVIDERS } from './cobro-recibo.service';
 import { AgregarAbonoComponent } from './agregar-abono/agregar-abono.component';
 import { ConfiguracionComponent } from './configuracion/configuracion.component';
+import { AltaDenominacionGenericaGlobalComponent } from './configuracion/alta-denominacion-generica-global/alta-denominacion-generica-global.component';
 
 
 //Constante que contiene las rutas que tendrá el sistema.
@@ -104,7 +106,8 @@ const rutas: Routes = [
     DibujoComponent,
     AgregarMedicamentoComponent,
     AgregarCantidadProductoComponent,
-  AgregarAbonoComponent],
+  AgregarAbonoComponent,
+AltaDenominacionGenericaGlobalComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -143,7 +146,8 @@ const rutas: Routes = [
     NgbActiveModal,
     ESTUDIOS_PROVIDERS,
     PARAMETROS_PROVIDERS,
-    COBRO_RECIBO_PROVIDERS
+    COBRO_RECIBO_PROVIDERS,
+    MEDICAMENTOS_PROVIDERS
   ],
   bootstrap: [AppComponent]
 })

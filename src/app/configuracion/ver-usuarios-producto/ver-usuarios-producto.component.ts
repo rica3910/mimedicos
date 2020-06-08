@@ -1,11 +1,12 @@
+
 /******************************************************************|
-|NOMBRE: ver-usuarios-estudio.                                     | 
+|NOMBRE: ver-usuarios-producto.                                    | 
 |------------------------------------------------------------------|
-|DESCRIPCIÓN: Componente que contiene los usuarios de un estudio.  |
+|DESCRIPCIÓN: Componente que contiene los usuarios de un producto. |
 |------------------------------------------------------------------|
 |AUTOR: Ricardo Luna.                                              |
 |------------------------------------------------------------------|
-|FECHA: 05/05/2020.                                                |
+|FECHA: 15/05/2020.                                                |
 |------------------------------------------------------------------|
 |                       HISTORIAL DE CAMBIOS                       |
 |------------------------------------------------------------------|
@@ -18,47 +19,48 @@ import { debounceTime, map, switchAll } from 'rxjs/operators';
 import { UtilidadesService } from '../../utilidades.service';
 import { EsperarService } from '../../esperar.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { EstudiosService } from './../../estudios.service';
+import { ProductosService } from '../../productos.service';
 
 @Component({
-  selector: 'app-ver-usuarios-estudio',
-  templateUrl: './ver-usuarios-estudio.component.html',
-  styleUrls: ['./ver-usuarios-estudio.component.css']
+  selector: 'app-ver-usuarios-producto',
+  templateUrl: './ver-usuarios-producto.component.html',
+  styleUrls: ['./ver-usuarios-producto.component.css']
 })
-export class VerUsuariosEstudioComponent implements OnInit {
-  //Variable que almacena el identificador del estudio, obtenido de la url.
-  estudioId: string;
-  //Almacena los usuarios que no tienen el estudio.
-  usuariosSinEstudio: JSON[] = [];
-  //Almacena los usuarios que no tienen el estudio de la base de datos original sin que se filtre su información.
-  usuariosSinEstudioServidor: JSON[] = [];
-  //Almacena los usuarios que tienen el estudio.
-  usuariosConEstudio: JSON[] = [];
-  //Almacena los usuarios que tienen el estudio de la base de datos original sin que se filtre su información.
-  usuariosConEstudioServidor: JSON[] = [];
-  //Cuadro de texto de búsqueda de usuarios sin estudio.
-  @ViewChild('buscarUsuariosSinEstudioHTML') buscarUsuariosSinEstudioHTML: ElementRef;
-  //Cuadro de texto de búsqueda de usuarios con estudio.
-  @ViewChild('buscarUsuariosConEstudioHTML') buscarUsuariosConEstudioHTML: ElementRef;
+export class VerUsuariosProductoComponent implements OnInit {
+
+  //Variable que almacena el identificador del producto, obtenido de la url.
+  productoId: string;
+  //Almacena los usuarios que no tienen el producto.
+  usuariosSinProducto: JSON[] = [];
+  //Almacena los usuarios que no tienen el producto de la base de datos original sin que se filtre su información.
+  usuariosSinProductoServidor: JSON[] = [];
+  //Almacena los usuarios que tienen el producto.
+  usuariosConProducto: JSON[] = [];
+  //Almacena los usuarios que tienen el producto de la base de datos original sin que se filtre su información.
+  usuariosConProductoServidor: JSON[] = [];
+  //Cuadro de texto de búsqueda de usuarios sin producto.
+  @ViewChild('buscarUsuariosSinProductoHTML') buscarUsuariosSinProductoHTML: ElementRef;
+  //Cuadro de texto de búsqueda de usuarios con producto.
+  @ViewChild('buscarUsuariosConProductoHTML') buscarUsuariosConProductoHTML: ElementRef;
   //Indica si la carga inicial de la página ya terminó.
   cargaInicialLista$: Subject<Boolean> = new Subject<Boolean>();
-  //Indica si la info del estudio ya se cargó.
-  estudioListo: boolean = false;
-  //Indica si los usuarios sin estudio ya se cargaron.
-  usuariosSinEstudioListos: boolean = false;
-  //Indica si los usuarios con estudio ya se cargaron.
-  usuariosConEstudioListos: boolean = false;
+  //Indica si la info del producto ya se cargó.
+  productoListo: boolean = false;
+  //Indica si los usuarios sin producto ya se cargaron.
+  usuariosSinProductoListos: boolean = false;
+  //Indica si los usuarios con producto ya se cargaron.
+  usuariosConProductoListos: boolean = false;
   //Escucha cuando se ejecuta una búsqueda.
   busqueda$: Subject<Boolean> = new Subject<Boolean>();
   //Almacena el nombre de la clínica.
   nombreClinica: string = "";
-  //Almacena el nombre del estudio
-  nombreEstudio: string = "";
-  //Almacena la descripción del estudio.
+  //Almacena el nombre del producto
+  nombreProducto: string = "";
+  //Almacena la descripción del producto.
   descripcion: string = "";
-  //Almacenan los usuarios seleccionados que se van a asignar al estudio.
+  //Almacenan los usuarios seleccionados que se van a asignar al producto.
   usuariosAsignar: Array<string> = new Array();
-  //Almacenan los usuarios seleccionados que se van a desasignar al estudio.
+  //Almacenan los usuarios seleccionados que se van a desasignar al producto.
   usuariosDesasignar: Array<string> = new Array();
 
   /*----------------------------------------------------------------------|
@@ -70,28 +72,28 @@ export class VerUsuariosEstudioComponent implements OnInit {
   |  utilidadesService = Contiene métodos genéricos y útiles,             |
   |  esperarService = contiene los métodos para mostrar o no la espera,   |
   |  autenticarService = contiene los métodos de autenticación,           |
-  |  estudiosService = contiene los métodos de la bd de los estudios,     |  
+  |  productosService = contiene los métodos de la bd de los productos,   |  
   |  rutaActual: Para obtener los parámetros de la url,                   |
   |  rutaNavegacion   = para navegar a otras url's.                       |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
   constructor(private utilidadesService: UtilidadesService,
     private esperarService: EsperarService,
-    private estudiosService: EstudiosService,
+    private productosService: ProductosService,
     private rutaActual: ActivatedRoute,
     private rutaNavegacion: Router) {
 
-    //Obtiene el identificador del estudio de la url.
+    //Obtiene el identificador del producto de la url.
     this.rutaActual.paramMap.subscribe(params => {
       //Se inicia la espera.
       this.esperarService.esperar();
-      //Se obtiene el identificador del estudio.
-      this.estudioId = params.get("id");
-      //Se obtiene la info del estudio.
-      this.infoEstudio();
+      //Se obtiene el identificador del producto.
+      this.productoId = params.get("id");
+      //Se obtiene la info del producto.
+      this.infoProducto();
       //Se buscan a los usuarios.
       this.buscar();
     });
@@ -99,12 +101,12 @@ export class VerUsuariosEstudioComponent implements OnInit {
     //Se utiliza para saber cuando se terminó de cargar la página y toda su info.
     this.cargaInicialLista$.subscribe(() => {
 
-      //Si los usuarios y el estudio están listos.
-      if (this.usuariosSinEstudioListos && this.usuariosConEstudioListos && this.estudioListo) {
+      //Si los usuarios y el producto están listos.
+      if (this.usuariosSinProductoListos && this.usuariosConProductoListos && this.productoListo) {
 
-        this.estudioListo = false;
-        this.usuariosSinEstudioListos = false;
-        this.usuariosConEstudioListos = false;
+        this.productoListo = false;
+        this.usuariosSinProductoListos = false;
+        this.usuariosConProductoListos = false;
 
         //Se detiene la espera.
         this.esperarService.noEsperar();
@@ -117,10 +119,10 @@ export class VerUsuariosEstudioComponent implements OnInit {
     this.busqueda$.subscribe(() => {
 
       //Si los dos filtros están listos.
-      if (this.usuariosSinEstudioListos && this.usuariosConEstudioListos) {
+      if (this.usuariosSinProductoListos && this.usuariosConProductoListos) {
 
-        this.usuariosSinEstudioListos = false;
-        this.usuariosConEstudioListos = false;
+        this.usuariosSinProductoListos = false;
+        this.usuariosConProductoListos = false;
 
         //Se detiene la espera.
         this.esperarService.noEsperar();
@@ -134,71 +136,71 @@ export class VerUsuariosEstudioComponent implements OnInit {
   ngOnInit() {
 
     //Se obtiene el método de tecleado del elemento HTML de búsqueda.
-    fromEvent(this.buscarUsuariosSinEstudioHTML.nativeElement, 'keyup')
+    fromEvent(this.buscarUsuariosSinProductoHTML.nativeElement, 'keyup')
       //Extrae el valor de la búsqueda.
       .pipe(map((e: any) => e.target.value))
       //Se realiza la búsqueda.
-      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.usuariosSinEstudioServidor)))
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.usuariosSinProductoServidor)))
       //Se utiliza para obtener solo la búsqueda más reciente.
       .pipe(switchAll())
       //Se actualiza la información del arreglo.
       .subscribe((resultados: JSON[]) => {
         //Se actualiza la información en pantalla.        
-        this.usuariosSinEstudio = resultados;
+        this.usuariosSinProducto = resultados;
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.
-    fromEvent(this.buscarUsuariosSinEstudioHTML.nativeElement, 'paste')
+    fromEvent(this.buscarUsuariosSinProductoHTML.nativeElement, 'paste')
       //Extrae el texto del cuadro de texto.
       .pipe(map((e: any) => e.target.value))
       .pipe(debounceTime(50))
       //Se subscribe al evento.
       .subscribe((cadena: string) => {
         //Genera un evento de teclazo para asegurar que se dispare el evento.
-        this.buscarUsuariosSinEstudioHTML.nativeElement.dispatchEvent(new Event('keyup'));
+        this.buscarUsuariosSinProductoHTML.nativeElement.dispatchEvent(new Event('keyup'));
       });
 
     //Se obtiene el método de tecleado del elemento HTML de búsqueda.
-    fromEvent(this.buscarUsuariosConEstudioHTML.nativeElement, 'keyup')
+    fromEvent(this.buscarUsuariosConProductoHTML.nativeElement, 'keyup')
       //Extrae el valor de la búsqueda.
       .pipe(map((e: any) => e.target.value))
       //Se realiza la búsqueda.
-      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.usuariosConEstudioServidor)))
+      .pipe(map((query: string) => this.utilidadesService.filtrarDatos(query, this.usuariosConProductoServidor)))
       //Se utiliza para obtener solo la búsqueda más reciente.
       .pipe(switchAll())
       //Se actualiza la información del arreglo.
       .subscribe((resultados: JSON[]) => {
         //Se actualiza la información en pantalla.        
-        this.usuariosConEstudio = resultados;
+        this.usuariosConProducto = resultados;
       });
 
     //Evento de cuando se pega con el mouse algun texto en la caja de texto.
-    fromEvent(this.buscarUsuariosConEstudioHTML.nativeElement, 'paste')
+    fromEvent(this.buscarUsuariosConProductoHTML.nativeElement, 'paste')
       //Extrae el texto del cuadro de texto.
       .pipe(map((e: any) => e.target.value))
       .pipe(debounceTime(50))
       //Se subscribe al evento.
       .subscribe((cadena: string) => {
         //Genera un evento de teclazo para asegurar que se dispare el evento.
-        this.buscarUsuariosConEstudioHTML.nativeElement.dispatchEvent(new Event('keyup'));
+        this.buscarUsuariosConProductoHTML.nativeElement.dispatchEvent(new Event('keyup'));
       });
 
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: infoEstudio.                                                 |
+  |  NOMBRE: infoProducto.                                                |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: obtiene la información del estudio.                     |
+  |  DESCRIPCIÓN: obtiene la información del producto.                    |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  infoEstudio() {
+  infoProducto() {
 
-    //Busca las usuarios sin el estudio.
-    this.estudiosService.verEstudio(
-      this.estudioId).subscribe((respuesta) => {
+    //Busca las usuarios sin el producto.
+    this.productosService.verProducto(
+      this.productoId).subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
         if (respuesta["estado"] === "ERROR") {
@@ -210,12 +212,12 @@ export class VerUsuariosEstudioComponent implements OnInit {
         else {
 
           this.nombreClinica = respuesta["datos"][0]["nombre_clinica"];
-          this.nombreEstudio = respuesta["datos"][0]["nombre"];
+          this.nombreProducto = respuesta["datos"][0]["nombre"];
           this.descripcion = respuesta["datos"][0]["descripcion"];
         }
 
-        this.estudioListo = true;
-        this.cargaInicialLista$.next(this.estudioListo);
+        this.productoListo = true;
+        this.cargaInicialLista$.next(this.productoListo);
 
       });
 
@@ -233,9 +235,9 @@ export class VerUsuariosEstudioComponent implements OnInit {
   |----------------------------------------------------------------------*/
   buscar() {
 
-    //Busca las usuarios sin el estudio.
-    this.estudiosService.usuariosEstudio(
-      this.estudioId,
+    //Busca las usuarios sin el producto.
+    this.productosService.usuariosProducto(
+      this.productoId,
       '0').subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -247,20 +249,20 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los usuarios sin estudio.
-          this.usuariosSinEstudio = respuesta["datos"];
-          this.usuariosSinEstudioServidor = respuesta["datos"];
+          //Se almacenan los usuarios sin producto.
+          this.usuariosSinProducto = respuesta["datos"];
+          this.usuariosSinProductoServidor = respuesta["datos"];
 
         }
 
-        this.usuariosSinEstudioListos = true;
-        this.cargaInicialLista$.next(this.usuariosSinEstudioListos);
+        this.usuariosSinProductoListos = true;
+        this.cargaInicialLista$.next(this.usuariosSinProductoListos);
 
       });
 
-    //Busca las usuarios con el estudio.
-    this.estudiosService.usuariosEstudio(
-      this.estudioId,
+    //Busca las usuarios con el producto.
+    this.productosService.usuariosProducto(
+      this.productoId,
       '1').subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -272,14 +274,14 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los usuarios con estudio.
-          this.usuariosConEstudio = respuesta["datos"];
-          this.usuariosConEstudioServidor = respuesta["datos"];
+          //Se almacenan los usuarios con producto.
+          this.usuariosConProducto = respuesta["datos"];
+          this.usuariosConProductoServidor = respuesta["datos"];
 
         }
 
-        this.usuariosConEstudioListos = true;
-        this.cargaInicialLista$.next(this.usuariosConEstudioListos);
+        this.usuariosConProductoListos = true;
+        this.cargaInicialLista$.next(this.usuariosConProductoListos);
 
       });
 
@@ -292,7 +294,7 @@ export class VerUsuariosEstudioComponent implements OnInit {
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
   buscarConEspera() {
 
@@ -303,12 +305,12 @@ export class VerUsuariosEstudioComponent implements OnInit {
     this.usuariosDesasignar = new Array();
 
     //Se limpian los cuadros de búsqueda.
-    this.limpiarBusquedaUsuariosConEstudio();
-    this.limpiarBusquedaUsuariosSinEstudio();
+    this.limpiarBusquedaUsuariosConProducto();
+    this.limpiarBusquedaUsuariosSinProducto();
 
-    //Busca las usuarios sin el estudio.
-    this.estudiosService.usuariosEstudio(
-      this.estudioId,
+    //Busca las usuarios sin el producto.
+    this.productosService.usuariosProducto(
+      this.productoId,
       '0').subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -320,20 +322,20 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los usuarios sin estudio.
-          this.usuariosSinEstudio = respuesta["datos"];
-          this.usuariosSinEstudioServidor = respuesta["datos"];
+          //Se almacenan los usuarios sin producto.
+          this.usuariosSinProducto = respuesta["datos"];
+          this.usuariosSinProductoServidor = respuesta["datos"];
 
         }
 
-        this.usuariosSinEstudioListos = true;
-        this.busqueda$.next(this.usuariosSinEstudioListos);
+        this.usuariosSinProductoListos = true;
+        this.busqueda$.next(this.usuariosSinProductoListos);
 
       });
 
-    //Busca las usuarios con el estudio.
-    this.estudiosService.usuariosEstudio(
-      this.estudioId,
+    //Busca las usuarios con el producto.
+    this.productosService.usuariosProducto(
+      this.productoId,
       '1').subscribe((respuesta) => {
 
         //Si hubo un error en la obtención de información.
@@ -345,14 +347,14 @@ export class VerUsuariosEstudioComponent implements OnInit {
         //Si todo salió bien.
         else {
 
-          //Se almacenan los usuarios con estudio.
-          this.usuariosConEstudio = respuesta["datos"];
-          this.usuariosConEstudioServidor = respuesta["datos"];
+          //Se almacenan los usuarios con producto.
+          this.usuariosConProducto= respuesta["datos"];
+          this.usuariosConProductoServidor = respuesta["datos"];
 
         }
 
-        this.usuariosConEstudioListos = true;
-        this.busqueda$.next(this.usuariosConEstudioListos);
+        this.usuariosConProductoListos = true;
+        this.busqueda$.next(this.usuariosConProductoListos);
 
       });
 
@@ -360,53 +362,53 @@ export class VerUsuariosEstudioComponent implements OnInit {
 
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: limpiarBusquedaUsuariosSinEstudio.                           |
+  |  NOMBRE: limpiarBusquedaUsuariosSinProducto.                          |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Limpia el campo de búsqueda y restablece la info. orig. | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  limpiarBusquedaUsuariosSinEstudio() {
+  limpiarBusquedaUsuariosSinProducto() {
 
     //Si el campo tiene algo escrito se limpiará.
-    if (this.buscarUsuariosSinEstudioHTML.nativeElement.value.length > 0) {
+    if (this.buscarUsuariosSinProductoHTML.nativeElement.value.length > 0) {
       //limpia el cuadro de texto.
-      this.buscarUsuariosSinEstudioHTML.nativeElement.value = "";
+      this.buscarUsuariosSinProductoHTML.nativeElement.value = "";
       //Actualiza la información con la original.
-      this.usuariosSinEstudio = this.usuariosSinEstudioServidor;
+      this.usuariosSinProducto = this.usuariosSinProductoServidor;
     }
     //Le da un focus al elemento de búsqueda.
-    this.buscarUsuariosSinEstudioHTML.nativeElement.focus();
+    this.buscarUsuariosSinProductoHTML.nativeElement.focus();
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: limpiarBusquedaUsuariosConEstudio.                           |
+  |  NOMBRE: limpiarBusquedaUsuariosConProducto.                          |
   |-----------------------------------------------------------------------|
   |  DESCRIPCIÓN: Limpia el campo de búsqueda y restablece la info. orig. | 
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  limpiarBusquedaUsuariosConEstudio() {
+  limpiarBusquedaUsuariosConProducto() {
 
     //Si el campo tiene algo escrito se limpiará.
-    if (this.buscarUsuariosConEstudioHTML.nativeElement.value.length > 0) {
+    if (this.buscarUsuariosConProductoHTML.nativeElement.value.length > 0) {
       //limpia el cuadro de texto.
-      this.buscarUsuariosConEstudioHTML.nativeElement.value = "";
+      this.buscarUsuariosConProductoHTML.nativeElement.value = "";
       //Actualiza la información con la original.
-      this.usuariosConEstudio = this.usuariosConEstudioServidor;
+      this.usuariosConProducto = this.usuariosConProductoServidor;
     }
     //Le da un focus al elemento de búsqueda.
-    this.buscarUsuariosConEstudioHTML.nativeElement.focus();
+    this.buscarUsuariosConProductoHTML.nativeElement.focus();
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: seleccionarUsuarioConEstudio.                                |
+  |  NOMBRE: seleccionarUsuarioConProducto.                               |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario con estudio. |
+  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario con producto.|
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
   |  seleccionado: indica si el checkbox está o no seleccionado.          |
@@ -414,16 +416,16 @@ export class VerUsuariosEstudioComponent implements OnInit {
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  seleccionarUsuarioConEstudio(seleccionado: boolean, usuarioId: string) {
+  seleccionarUsuarioConProducto(seleccionado: boolean, usuarioId: string) {
     //Si el usuario fue seleccionado.
     if (seleccionado) {
       //Se encuentra el índice del usuario.
       let indice = this.usuariosDesasignar.findIndex(elemento => elemento == usuarioId);
       //Si no encuentra el índice entonces sí lo mete al arreglo.
       indice < 0 ? this.usuariosDesasignar.push(usuarioId) : null;
-      
+
     }
     //Si el usuario fue deseleccionado.
     else {
@@ -435,9 +437,9 @@ export class VerUsuariosEstudioComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: seleccionarUsuarioSinEstudio.                                |
+  |  NOMBRE: seleccionarUsuarioSinProducto.                               |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario sin estudio. |
+  |  DESCRIPCIÓN: se ejecuta cuando se selecciona un usuario sin producto.|
   |-----------------------------------------------------------------------|
   |  PARÁMETROS DE ENTRADA:                                               |
   |  seleccionado: indica si el checkbox está o no seleccionado.          |
@@ -445,16 +447,16 @@ export class VerUsuariosEstudioComponent implements OnInit {
   |-----------------------------------------------------------------------|  
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 05/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  seleccionarUsuarioSinEstudio(seleccionado: boolean, usuarioId: string) {
+  seleccionarUsuarioSinProducto(seleccionado: boolean, usuarioId: string) {
     //Si el usuario fue seleccionado.
     if (seleccionado) {
       //Se encuentra el índice del usuario.
       let indice = this.usuariosAsignar.findIndex(elemento => elemento == usuarioId);
       //Si no encuentra el índice entonces sí lo mete al arreglo.
       indice < 0 ? this.usuariosAsignar.push(usuarioId) : null;
-      
+
     }
     //Si el usuario fue deseleccionado.
     else {
@@ -466,15 +468,15 @@ export class VerUsuariosEstudioComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: desasignarEstudio.                                           |
+  |  NOMBRE: desasignarProducto.                                          |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Desasigna el estudio a los usuarios seleccionados.      |
+  |  DESCRIPCIÓN: Desasigna el producto a los usuarios seleccionados.     |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 06/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  desasignarEstudio() {
+  desasignarProducto() {
 
     if (this.usuariosDesasignar.length == 0) {
       this.utilidadesService.alerta("Sin usuarios seleccionados", "Favor de seleccionar por lo menos un usuario.");
@@ -490,13 +492,13 @@ export class VerUsuariosEstudioComponent implements OnInit {
     });
 
     //Abre el modal.
-    this.utilidadesService.confirmacion("Desasignar estudio.", "¿Está seguro de desasignar el estudio a los usuarios seleccionados?").subscribe(respuesta => {
+    this.utilidadesService.confirmacion("Desasignar producto.", "¿Está seguro de desasignar el producto a los usuarios seleccionados?").subscribe(respuesta => {
       //Si acepta.
       if (respuesta == "Aceptar") {
         //Inicia la espera.
         this.esperarService.esperar();
-        //Se desasigna el estudio a los usuarios seleccionados.
-        this.estudiosService.asignacionUsuariosEstudio(this.estudioId, usuarios, "0").subscribe(respuesta => {
+        //Se desasigna el producto a los usuarios seleccionados.
+        this.productosService.asignacionUsuariosProducto(this.productoId, usuarios, "0").subscribe(respuesta => {
 
           //Se detiene la espera.
           this.esperarService.noEsperar();
@@ -523,15 +525,15 @@ export class VerUsuariosEstudioComponent implements OnInit {
   }
 
   /*----------------------------------------------------------------------|
-  |  NOMBRE: asignarEstudio.                                              |
+  |  NOMBRE: asignarProducto.                                             |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Asigna el estudio a los usuarios seleccionados.         |
+  |  DESCRIPCIÓN: Asigna el producto a los usuarios seleccionados.        |
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 06/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
-  asignarEstudio() {
+  asignarProducto() {
 
     if (this.usuariosAsignar.length == 0) {
       this.utilidadesService.alerta("Sin usuarios seleccionados", "Favor de seleccionar por lo menos un usuario.");
@@ -547,13 +549,13 @@ export class VerUsuariosEstudioComponent implements OnInit {
     });
 
     //Abre el modal.
-    this.utilidadesService.confirmacion("Asignar estudio.", "¿Está seguro de asignar el estudio a los usuarios seleccionados?").subscribe(respuesta => {
+    this.utilidadesService.confirmacion("Asignar producto.", "¿Está seguro de asignar el producto a los usuarios seleccionados?").subscribe(respuesta => {
       //Si acepta.
       if (respuesta == "Aceptar") {
         //Inicia la espera.
         this.esperarService.esperar();
-        //Se desasigna el estudio a los usuarios seleccionados.
-        this.estudiosService.asignacionUsuariosEstudio(this.estudioId, usuarios, "1").subscribe(respuesta => {
+        //Se desasigna el producto a los usuarios seleccionados.
+        this.productosService.asignacionUsuariosProducto(this.productoId, usuarios, "1").subscribe(respuesta => {
 
           //Se detiene la espera.
           this.esperarService.noEsperar();
@@ -582,14 +584,14 @@ export class VerUsuariosEstudioComponent implements OnInit {
   /*----------------------------------------------------------------------|
   |  NOMBRE: regresar.                                                    |
   |-----------------------------------------------------------------------|
-  |  DESCRIPCIÓN: Regresa al menú de listado de estudios.                 |   
+  |  DESCRIPCIÓN: Regresa al menú de listado de productos.                |   
   |-----------------------------------------------------------------------|
   |  AUTOR: Ricardo Luna.                                                 |
   |-----------------------------------------------------------------------|
-  |  FECHA: 07/05/2020.                                                   |    
+  |  FECHA: 15/05/2020.                                                   |    
   |----------------------------------------------------------------------*/
   regresar() {
-    this.rutaNavegacion.navigate(['configuracion', 'estudios']);
+    this.rutaNavegacion.navigate(['configuracion', 'productos']);
   }
 
 
